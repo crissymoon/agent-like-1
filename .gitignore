@@ -180,3 +180,14 @@ images/*.mp4
 __pycache__/
 *.pyc
 *.pyo
+
+# ---------------------------------------------------------------------------
+# The quick tester's own machine state. `models.toml` and `modes.toml` are the
+# registry and travel with the repository; `settings.local.json` says which
+# platform this machine builds for, where its weights are and where its
+# transcripts go, which describes the machine rather than the project. The
+# environment the installer creates is the same kind of thing as any other
+# virtual environment and is refused here as well, by full path so that a folder
+# of the same name further down is not caught by accident.
+local-model-quick-tester/settings.local.json
+/.venv-local-model-quick-tester/

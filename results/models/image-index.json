@@ -29,7 +29,8 @@
       },
       "parameters": 7115124736,
       "packed_bytes": 4199538688,
-      "exact_bytes": 14230249472
+      "exact_bytes": 14230249472,
+      "text_encoder": null
     },
     {
       "file": "flux-2-klein-4b-Q4_K_M.gguf",
@@ -55,7 +56,31 @@
       },
       "parameters": 3875544576,
       "packed_bytes": 2604300288,
-      "exact_bytes": 7751089152
+      "exact_bytes": 7751089152,
+      "text_encoder": {
+        "file": "Qwen3-4B-Q2_K.gguf",
+        "class_name": "Qwen3ForCausalLM",
+        "architecture": "qwen3",
+        "layers": [
+          9,
+          18,
+          27
+        ],
+        "bytes": 1669500192,
+        "tensors": 398,
+        "quantised_tensors": 253,
+        "type_histogram": {
+          "F32": 145,
+          "Q2_K": 144,
+          "Q3_K": 72,
+          "Q4_K": 36,
+          "Q6_K": 1
+        },
+        "blocks": 36,
+        "parameters": 4022468096,
+        "packed_bytes": 1663542784,
+        "exact_bytes": 8044936192
+      }
     }
   ]
 }

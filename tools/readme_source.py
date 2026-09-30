@@ -25,6 +25,12 @@ PROJECT = HERE.parent
 
 if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
+if str(PROJECT) not in sys.path:
+    # The repository root as well as this directory. `tools.gguf` is imported by
+    # its package path, which is what keeps it from shadowing the `gguf` package
+    # the diffusion library reads the same files with, and that import needs the
+    # root on the path rather than this directory alone.
+    sys.path.insert(0, str(PROJECT))
 if str(HERE / "kaggle") not in sys.path:
     sys.path.insert(0, str(HERE / "kaggle"))
 
@@ -215,6 +221,32 @@ def image_model_files(root: Path) -> set[str]:
     return claimed
 
 
+def text_encoder_files(root: Path) -> set[str]:
+    """Weight files a profile's text encoder claims, read from their own metadata.
+
+    A language model file can be a component of an image pipeline rather than a
+    candidate for a benchmark run, and the only thing that distinguishes it is the
+    architecture it declares. The discovery is the same one the image tool
+    performs, so what the document sets apart and what the tool would actually use
+    cannot drift.
+    """
+    directory = root / MODELS_DIR
+    found: set[str] = set()
+    try:
+        from imgmodels import encoder as image_encoder
+    except Exception:
+        return found
+    for profile in image_profiles():
+        if profile.text is None:
+            continue
+        try:
+            for path in image_encoder.candidates(directory, profile):
+                found.add(path.name)
+        except Exception:
+            continue
+    return found
+
+
 def read_image_models(root: Path, record: bool = True) -> tuple[list[dict], str]:
     """The image models held here, read from their tensor tables."""
     directory = root / MODELS_DIR
@@ -248,6 +280,7 @@ def read_image_models(root: Path, record: bool = True) -> tuple[list[dict], str]
                 "parameters": index.elements(),
                 "packed_bytes": index.packed_bytes(),
                 "exact_bytes": index.exact_bytes(),
+                "text_encoder": read_text_encoder(root, profile, directory),
             }
         )
 
@@ -263,6 +296,54 @@ def read_image_models(root: Path, record: bool = True) -> tuple[list[dict], str]
             return models, "the recorded reading in " + str(IMAGE_SNAPSHOT_PATH)
 
     return [], "nothing: no image weights on this machine and no recorded reading"
+
+
+def read_text_encoder(root: Path, profile, directory: Path) -> dict | None:
+    """The quantised text encoder this model would condition on, if one is here.
+
+    Read from the file's own metadata and tensor table, the same way the
+    transformer is read. The file is found by the architecture it declares rather
+    than by its name, which is the same discovery the tool performs, so the
+    document and the tool cannot disagree about which file is in use.
+
+    The conditioning layers are the profile's, because they are a property of the
+    model rather than of the weights; whether stacking them matches the diffusion
+    transformer's joint attention width is a comparison `--check` makes, and one
+    that needs the encoder's config, so it is not asserted here.
+    """
+    try:
+        from imgmodels import encoder as image_encoder
+    except Exception as error:
+        return {"unavailable": f"the image tool could not be read: {error}"}
+    if profile.text is None:
+        return None
+    try:
+        found = image_encoder.find(directory, profile)
+    except Exception as error:
+        return {"unavailable": f"{type(error).__name__}: {error}"}
+    if found is None:
+        # Nothing to look for found nothing: a legitimate state, and a different
+        # one from a check that could not be made.
+        return None
+    try:
+        index = gguf.read_index(found)
+        facts = image_encoder.facts_of(index, found)
+    except Exception as error:
+        return {"unavailable": f"{type(error).__name__}: {error}"}
+    return {
+        "file": found.name,
+        "class_name": profile.text.class_name,
+        "architecture": facts.architecture,
+        "layers": list(profile.text.layers),
+        "bytes": facts.bytes_on_disk,
+        "tensors": facts.tensor_count,
+        "quantised_tensors": facts.quantised_tensors,
+        "type_histogram": facts.histogram,
+        "blocks": facts.block_count,
+        "parameters": index.elements(),
+        "packed_bytes": facts.packed_bytes,
+        "exact_bytes": facts.exact_bytes,
+    }
 
 
 def write_image_record(root: Path, models: list[dict]) -> Path:

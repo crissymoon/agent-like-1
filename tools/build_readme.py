@@ -69,6 +69,7 @@ LAYOUT: tuple[tuple[str, str], ...] = (
     ("docker/", "The pinned engine image and the compose file that mounts one weight file."),
     ("desktop/", "The Electron view over a run directory; it drives the same harness, never a copy."),
     ("tools/", "Portable tooling: the benchmark that runs on both sides, the kernel builder, this builder."),
+    ("local-model-quick-tester/", "The interactive front end: a menu over the same GGUF weights, and the markdown transcript of a run."),
     ("results/", "What each run left behind. Evidence, committed, so a claim has a file behind it."),
     ("local-benchmarking.md", "The ladder: what a rung is, what decides it, and what a result does not claim."),
     ("LICENSE", "The terms the work is offered under, and the holder it belongs to."),
@@ -196,13 +197,19 @@ def models_section(root: Path, models: list[dict], origin: str) -> list[str]:
     # models is read out of the catalog the image tool itself resolves against,
     # so the split cannot drift from what that tool will actually run.
     image_files = source.image_model_files(root)
+    encoder_files = source.text_encoder_files(root)
     chat = [
         m
         for m in models
         if not str(m.get("file", "")).startswith(projector_prefix)
         and str(m.get("file", "")) not in image_files
+        and str(m.get("file", "")) not in encoder_files
     ]
     support = [m for m in models if str(m.get("file", "")).startswith(projector_prefix)]
+    # A file the encoder discovery claims is named here rather than in the table
+    # above. The names come from the same reading the image tool performs, so the
+    # document and the tool cannot disagree about which file is in use.
+    encoders = [m for m in models if str(m.get("file", "")) in encoder_files]
     selected = defaults.get("model", "")
 
     # The selected model first, then by file name: the order the runtime uses, so
@@ -275,6 +282,21 @@ def models_section(root: Path, models: list[dict], origin: str) -> list[str]:
             "vision task is asked for. A benchmark that treated it as a candidate would spend a "
             "run proving that an embedding file cannot answer a question, so the model set "
             "excludes it and a run's manifest records whether it was loaded."
+        )
+        lines.append("")
+
+    if encoders:
+        entries = ", ".join(
+            f"`{model.get('file', '')}` ({model.get('architecture', '')}, "
+            f"{model.get('quantisation', '')}, {byte_label(int(model.get('bytes', 0)))})"
+            for model in encoders
+        )
+        lines.append(
+            f"The text encoder is listed apart for the same reason the projector is: it is not a "
+            f"candidate. {entries} is a language model in its own right, and here it is the encoder "
+            "an image pipeline conditions on rather than a chat model to answer a question, so it "
+            "is a row of the image section below and not of this table. Running it as a candidate "
+            "would measure it against tasks it is not asked to do."
         )
         lines.append("")
 
@@ -381,14 +403,26 @@ def image_models_section(root: Path) -> list[str]:
         f"`{model.get('repository', '')}`" for model in models if model.get("repository")
     )
     keys = ", ".join(f"`{model.get('key', '')}`" for model in models if model.get("key"))
-    lines.append(
-        "One weight file is one component of a pipeline and not a pipeline. The diffusion "
-        "transformer is loaded from the file and handed to a pipeline assembled from the base "
-        "repository that goes with it, and that repository is where the text encoder, the VAE "
-        f"and the scheduler come from: {repositories}. That is where the memory actually goes, "
-        "and it is the reason a model can be small on disk and still not run on a laptop."
-    )
+    encoders = [model for model in models if model.get("text_encoder")]
+    if encoders:
+        lines.append(
+            "One weight file is one component of a pipeline and not a pipeline. The diffusion "
+            "transformer is loaded from the file and handed to a pipeline assembled from the base "
+            "repository that goes with it, and that repository is where the VAE, the scheduler "
+            f"and the tokenizer come from: {repositories}. The text encoder does not have to come "
+            "from there, and that is the difference between a model that fits on a laptop and one "
+            "that does not."
+        )
+    else:
+        lines.append(
+            "One weight file is one component of a pipeline and not a pipeline. The diffusion "
+            "transformer is loaded from the file and handed to a pipeline assembled from the base "
+            "repository that goes with it, and that repository is where the text encoder, the VAE "
+            f"and the scheduler come from: {repositories}. That is where the memory actually goes, "
+            "and it is the reason a model can be small on disk and still not run on a laptop."
+        )
     lines.append("")
+    lines.extend(text_encoder_section(encoders))
     lines.append(
         f"Which one runs is `--model` with a key: {keys}. `--list` reports every image model and "
         "every weight file no profile drives, and `--check` holds a file against the model that "
@@ -396,6 +430,89 @@ def image_models_section(root: Path) -> list[str]:
         "run against this machine, all before anything is downloaded."
     )
     lines.append("")
+    return lines
+
+
+def text_encoder_section(models: list[dict]) -> list[str]:
+    """The quantised text encoders, and what holding one packed is worth.
+
+    An encoder is a language model, so it is read and described the same way the
+    transformer is: from the file's own tensor table. A model whose encoder could
+    not be read says so here rather than being left out, because a file that was
+    looked for and not found is a different fact from one that was never sought.
+    """
+    records = [(model, model.get("text_encoder") or {}) for model in models]
+    read = [(model, record) for model, record in records if record.get("file")]
+    unread = [(model, record) for model, record in records if record.get("unavailable")]
+    if not read and not unread:
+        return []
+
+    lines = ["#### Text encoders", ""]
+    lines.append(
+        "The text encoder of the pipeline above is a language model in its own right, and it is "
+        "usually the larger half of the two. A quantised file of that encoder can be held in "
+        "place of the repository's own, and it is held packed: a quantised tensor is expanded a "
+        "block at a time inside the forward pass, so the file costs what the file costs. The file "
+        "is found by the architecture it declares in its own metadata, and it is checked against "
+        "the base repository's own encoder config, field by field, before anything is loaded."
+    )
+    lines.append("")
+
+    if read:
+        rows = []
+        for model, encoder in read:
+            layers = ", ".join(str(layer) for layer in encoder.get("layers", []))
+            name = encoder.get("class_name", "")
+            rows.append(
+                [
+                    encoder.get("file", ""),
+                    model.get("label", ""),
+                    encoder.get("architecture", ""),
+                    f"{name} layers {layers}" if layers else name,
+                    " + ".join(str(kind) for kind in (encoder.get("type_histogram") or {})),
+                    plain_count(encoder.get("parameters")),
+                    byte_label(int(encoder.get("packed_bytes") or 0)),
+                    byte_label(int(encoder.get("exact_bytes") or 0)),
+                ]
+            )
+        lines.extend(
+            table(
+                [
+                    "file",
+                    "conditions",
+                    "architecture",
+                    "encoder",
+                    "types",
+                    "weights",
+                    "as stored",
+                    "if held exactly",
+                ],
+                rows,
+            )
+        )
+        lines.append("")
+
+    for model, encoder in read:
+        packed = int(encoder.get("packed_bytes") or 0)
+        exact = int(encoder.get("exact_bytes") or 0)
+        if not packed or not exact:
+            continue
+        lines.append(
+            f"`{encoder.get('file', '')}` carries {byte_label(packed)} of weights where holding "
+            f"the same {plain_count(encoder.get('parameters'))} numbers exactly would take "
+            f"{byte_label(exact)}, which is {packed / exact:.0%} of it. Read without that file the "
+            f"encoder is the one in `{model.get('repository', '')}`, and it is the size in the last "
+            "column: the file saves the memory, not the arithmetic, and what that costs is the "
+            "precision of the conditioning rather than the size of the model."
+        )
+        lines.append("")
+
+    for model, encoder in unread:
+        lines.append(
+            f"Whether `{model.get('label', '')}` has a quantised text encoder could not be "
+            f"established: {encoder.get('unavailable')}."
+        )
+        lines.append("")
     return lines
 
 

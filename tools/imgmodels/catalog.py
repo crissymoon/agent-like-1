@@ -8,11 +8,10 @@ the argument names the pipeline's `__call__` expects. None of those differ in
 kind between models, so they are columns in a table.
 
 The repository is read rather than declared. A profile names the weight file it
-wants and nothing resolves a path until asked, so `python3 img_mdl_tester.py
---list` is instant and needs no diffusion library installed. A GGUF file in the
-model directory that no profile claims is reported as unclaimed rather than
-silently ignored, which is how a user finds out that a vision projector is not
-an image model.
+wants and nothing resolves a path until asked, so listing the models is instant
+and needs no diffusion library installed. A GGUF file in the model directory that
+no profile claims is reported as unclaimed rather than silently ignored, which is
+how a user finds out that a vision projector is not an image model.
 
 Adding a model is an entry in `PROFILES`. Nothing else changes: every module
 downstream of this one reads the profile and never a model name.
@@ -21,6 +20,7 @@ downstream of this one reads the profile and never a model name.
 from __future__ import annotations
 
 import os
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -63,6 +63,30 @@ class Signature:
 
 
 @dataclass(frozen=True)
+class TextEncoder:
+    """The second weight file: what turns a prompt into conditioning.
+
+    A diffusion model is driven by a language model, and a quantised language
+    model is a file of its own. Nothing here assumes that file is a GGUF: the
+    class it must load as comes from the profile, the shape it must have comes
+    from the base repository's own config, and the file is accepted only when
+    the two agree. `architecture` is the label the file must carry in its own
+    metadata, which is how a candidate is recognised before anything is
+    downloaded rather than by trusting a file name.
+
+    `layers` are the hidden states the pipeline reads as conditioning. They are
+    declared here because they are a property of the model and not of its
+    weights, and because stacking them is what has to equal the transformer's
+    joint attention width.
+    """
+
+    class_name: str
+    subfolder: str
+    architecture: str
+    layers: tuple[int, ...]
+
+
+@dataclass(frozen=True)
 class ModelProfile:
     """Everything a loader needs to know about one quantised image model."""
 
@@ -81,6 +105,7 @@ class ModelProfile:
     negative: str | None = None
     distilled: bool = False
     edits: bool = False
+    text: TextEncoder | None = None
     note: str = ""
     signature: Signature = field(default_factory=Signature)
 
@@ -123,6 +148,12 @@ class ModelProfile:
 #: as its text encoder and one wants a vision language model, and their
 #: pipelines name the guidance argument differently. A table with two rows that
 #: exercised nothing would not be worth having.
+#:
+#: Only one of the two declares a quantised text encoder, and the reason is a
+#: fact about the models rather than a gap here. Qwen-Image 2.1 conditions on a
+#: vision language model read through a processor, and a single quantised file
+#: of that shape does not exist to point at; its `text` stays None, and the tool
+#: says so rather than accepting a language model file that is not it.
 PROFILES: tuple[ModelProfile, ...] = (
     ModelProfile(
         key="qwen-image-2.1",
@@ -165,6 +196,12 @@ PROFILES: tuple[ModelProfile, ...] = (
         cfg_default=4.0,
         distilled=True,
         edits=True,
+        text=TextEncoder(
+            class_name="Qwen3ForCausalLM",
+            subfolder="text_encoder",
+            architecture="qwen3",
+            layers=(9, 18, 27),
+        ),
         note=(
             "step distilled, so the pipeline reports the guidance scale as "
             "ignored and runs without classifier free guidance; eight steps is "
@@ -212,14 +249,19 @@ def weight_files(directory: Path) -> list[Path]:
     return sorted(path for path in directory.glob("*.gguf") if path.is_file())
 
 
-def unclaimed(directory: Path) -> list[Path]:
+def unclaimed(directory: Path, also: Iterable[str] = ()) -> list[Path]:
     """Weight files in the directory that no profile knows how to drive.
 
     A projector, a language model, or a download that no longer matches its
     profile. Reported so that a file sitting in the models directory is either
     runnable or explained, never simply invisible.
+
+    `also` names files a caller has already accounted for by reading them rather
+    than by their name. A quantised text encoder is found that way: it is
+    recognised by the architecture in its own metadata, so the caller subtracts
+    it here instead of this module guessing from a file name.
     """
-    claimed = {profile.weights for profile in PROFILES}
+    claimed = {profile.weights for profile in PROFILES} | set(also)
     return [path for path in weight_files(directory) if path.name not in claimed]
 
 

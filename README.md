@@ -15,6 +15,7 @@ A harness for measuring what a small local language model can actually finish. I
 | docker/ | The pinned engine image and the compose file that mounts one weight file. |
 | desktop/ | The Electron view over a run directory; it drives the same harness, never a copy. |
 | tools/ | Portable tooling: the benchmark that runs on both sides, the kernel builder, this builder. |
+| local-model-quick-tester/ | The interactive front end: a menu over the same GGUF weights, and the markdown transcript of a run. |
 | results/ | What each run left behind. Evidence, committed, so a claim has a file behind it. |
 | local-benchmarking.md | The ladder: what a rung is, what decides it, and what a result does not claim. |
 | LICENSE | The terms the work is offered under, and the holder it belongs to. |
@@ -42,6 +43,8 @@ The other files in the directory are the breadth of the study rather than a pref
 
 The projector is listed apart because it is not a chat model. `mmproj-F16.gguf` (clip, F16, 940.0 MB) maps image embeddings into the language model beside it, and the engine loads it only when a vision task is asked for. A benchmark that treated it as a candidate would spend a run proving that an embedding file cannot answer a question, so the model set excludes it and a run's manifest records whether it was loaded.
 
+The text encoder is listed apart for the same reason the projector is: it is not a candidate. `Qwen3-4B-Q2_K.gguf` (qwen3, Q2_K, 1.55 GB) is a language model in its own right, and here it is the encoder an image pipeline conditions on rather than a chat model to answer a question, so it is a row of the image section below and not of this table. Running it as a candidate would measure it against tasks it is not asked to do.
+
 ### Image models
 
 The directory also holds diffusion models, which generate an image rather than answer a question. They are listed apart because they are not candidates for the benchmark and not comparable with the rows above. This table was built from the weight files on this machine. A diffusion GGUF describes very little of itself in its metadata block and one of these describes nothing at all, so every cell comes from the tensor table, which is what the loader reads: the block counts are the architecture, and the byte counts are the quantisation.
@@ -55,7 +58,17 @@ The directory also holds diffusion models, which generate an image rather than a
 
 `flux-2-klein-4b-Q4_K_M.gguf` carries 2.43 GB of weights where holding the same 3,875,544,576 numbers exactly would take 7.22 GB, which is 34% of it. The weights stay packed the whole way: a quantised tensor is expanded a block at a time inside the forward pass rather than expanded once on load, so the byte column is what the process carries and the file size on disk is not.
 
-One weight file is one component of a pipeline and not a pipeline. The diffusion transformer is loaded from the file and handed to a pipeline assembled from the base repository that goes with it, and that repository is where the text encoder, the VAE and the scheduler come from: `Qwen/Qwen-Image-2.1`, `black-forest-labs/FLUX.2-klein-4B`. That is where the memory actually goes, and it is the reason a model can be small on disk and still not run on a laptop.
+One weight file is one component of a pipeline and not a pipeline. The diffusion transformer is loaded from the file and handed to a pipeline assembled from the base repository that goes with it, and that repository is where the VAE, the scheduler and the tokenizer come from: `Qwen/Qwen-Image-2.1`, `black-forest-labs/FLUX.2-klein-4B`. The text encoder does not have to come from there, and that is the difference between a model that fits on a laptop and one that does not.
+
+#### Text encoders
+
+The text encoder of the pipeline above is a language model in its own right, and it is usually the larger half of the two. A quantised file of that encoder can be held in place of the repository's own, and it is held packed: a quantised tensor is expanded a block at a time inside the forward pass, so the file costs what the file costs. The file is found by the architecture it declares in its own metadata, and it is checked against the base repository's own encoder config, field by field, before anything is loaded.
+
+| file | conditions | architecture | encoder | types | weights | as stored | if held exactly |
+|---|---|---|---|---|---|---|---|
+| Qwen3-4B-Q2_K.gguf | FLUX.2 klein 4B | qwen3 | Qwen3ForCausalLM layers 9, 18, 27 | F32 + Q2_K + Q3_K + Q4_K + Q6_K | 4,022,468,096 | 1.55 GB | 7.49 GB |
+
+`Qwen3-4B-Q2_K.gguf` carries 1.55 GB of weights where holding the same 4,022,468,096 numbers exactly would take 7.49 GB, which is 21% of it. Read without that file the encoder is the one in `black-forest-labs/FLUX.2-klein-4B`, and it is the size in the last column: the file saves the memory, not the arithmetic, and what that costs is the precision of the conditioning rather than the size of the model.
 
 Which one runs is `--model` with a key: `qwen-image-2.1`, `flux-2-klein-4b`. `--list` reports every image model and every weight file no profile drives, and `--check` holds a file against the model that claims it, checks the quantisation against what the loader can expand, and prices the run against this machine, all before anything is downloaded.
 

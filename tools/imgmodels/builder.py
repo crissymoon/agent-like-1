@@ -42,7 +42,8 @@ class BuildError(RuntimeError):
     """The installed library cannot build what the profile asks for."""
 
 
-def _torch_dtype(name: str):
+def torch_dtype(name: str):
+    """A dtype name from the command line, resolved to a torch dtype."""
     import torch
 
     table = {"bfloat16": torch.bfloat16, "float16": torch.float16, "float32": torch.float32}
@@ -78,14 +79,19 @@ def _quantisation_config(dtype):
     return GGUFQuantizationConfig(compute_dtype=dtype)
 
 
-def load_transformer(profile: ModelProfile, path: Path, dtype_name: str):
+def load_transformer(profile: ModelProfile, path: Path, dtype_name: str, device: str | None = None):
     """Load the diffusion transformer from the GGUF file, weights left packed.
 
     The architecture config is fetched from the profile's repository rather than
     the library's default, which is a different model and, for one of these, a
     gated one that cannot be read at all.
+
+    `device` places each tensor as it is read instead of assembling the model in
+    host memory first and moving it afterwards. On a machine where the host is the
+    tighter of the two memories that ordering is the difference between loading
+    and paging.
     """
-    dtype = _torch_dtype(dtype_name)
+    dtype = torch_dtype(dtype_name)
     transformer_class = _library_class(profile.transformer)
     return transformer_class.from_single_file(
         str(path),
@@ -94,6 +100,7 @@ def load_transformer(profile: ModelProfile, path: Path, dtype_name: str):
         quantization_config=_quantisation_config(dtype),
         dtype=dtype,
         low_cpu_mem_usage=True,
+        device=device,
     )
 
 
@@ -147,14 +154,26 @@ class Built:
     dtype_name: str
 
 
-def build(profile: ModelProfile, weights: Weights, plan: Plan, dtype_name: str) -> Built:
-    """Assemble the pipeline: the file for one component, the repo for the rest."""
-    transformer = load_transformer(profile, weights.transformer, dtype_name)
+def build(profile: ModelProfile, weights: Weights, plan: Plan, dtype_name: str, encoder=None) -> Built:
+    """Assemble the pipeline: the file for one component, the repo for the rest.
+
+    `encoder` is a text encoder already built from its own weight file. Passing it
+    as a finished component is what stops the pipeline from fetching the full
+    precision encoder the repository holds, exactly as the transformer is passed
+    rather than downloaded.
+    """
+    transformer = load_transformer(
+        profile,
+        weights.transformer,
+        dtype_name,
+        device=plan.device if plan.offload == "none" else None,
+    )
     pipeline_class = _library_class(profile.pipeline)
     pipeline = pipeline_class.from_pretrained(
         profile.repo,
         transformer=transformer,
-        dtype=_torch_dtype(dtype_name),
+        text_encoder=encoder,
+        dtype=torch_dtype(dtype_name),
         low_cpu_mem_usage=True,
     )
     enable_memory_savers(pipeline)

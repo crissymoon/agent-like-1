@@ -1,0 +1,82 @@
+# Which weight file plays which part.
+#
+# This file is the answer to one question: of the files in the weight directory,
+# which are language models, which are image models, and which are neither. It is
+# data rather than code, so a model is added by writing a block here and no
+# module changes.
+#
+#   file     the file name in the weight directory. Required.
+#   roles    any of text, image, projector, encoder, ignore. Defaults to text.
+#              text       a language model this tool can hold a conversation with
+#              image      a diffusion model this tool can generate with
+#              projector  a vision projector, read by a language model's host
+#              encoder    a language model used as another model's text encoder
+#              ignore     present, deliberately not offered
+#   profile  for an image model, the architecture this file holds. The names are
+#            in tools/imgmodels/catalog.py, because a profile is what a diffusion
+#            library needs in order to run a file and that belongs with the loader
+#            rather than duplicated here.
+#   label    what to call it on screen. Defaults to the key, title cased.
+#   context  the window to open for a text model. Defaults to 4096.
+#   modes    which conversation modes to offer it. Defaults to every one in
+#            modes.toml. Narrow it for a model that is poor at one of them.
+#   note     one line shown beside the model wherever it is offered.
+#
+# A file in the weight directory that no block mentions is reported as
+# unregistered rather than hidden, so nothing sits in the directory unexplained.
+#
+# One thing to know about the header. A dot inside a bare key is read by TOML as
+# a path, so `[models.llama-3.2-3b]` would become a table named `llama-3` holding
+# a table named `2-3b`. Any name with a dot in it is therefore quoted, as
+# [models."llama-3.2-3b"], and the reader refuses an unquoted one with the
+# corrected header rather than dropping the model silently.
+
+[models.gemma-4-e2b]
+label = "Gemma 4 E2B"
+file = "gemma-4-E2B-it-Q4_K_M.gguf"
+roles = ["text"]
+context = 8192
+note = "the model the harness itself runs, and the one the vision fixtures were read with"
+
+[models."qwen2.5-coder-1.5b"]
+label = "Qwen2.5 Coder 1.5B"
+file = "qwen2.5-coder-1.5b-instruct-q4_k_m.gguf"
+roles = ["text"]
+context = 8192
+note = "small and fast; the one to reach for when a whole suite is being read"
+
+[models."llama-3.2-3b"]
+label = "Llama 3.2 3B"
+file = "Llama-3.2-3B-Instruct-Q4_K_M.gguf"
+roles = ["text"]
+
+[models."phi-3.5-mini"]
+label = "Phi 3.5 mini"
+file = "Phi-3.5-mini-instruct-Q4_K_M.gguf"
+roles = ["text"]
+
+[models.qwen3-4b-q2k]
+label = "Qwen3 4B"
+file = "Qwen3-4B-Q2_K.gguf"
+roles = ["text", "encoder"]
+context = 4096
+note = "two bits per weight, so it reads as a rough writer but it is what stands in for FLUX.2 klein's encoder"
+
+[models.flux-2-klein-4b]
+label = "FLUX.2 klein 4B"
+file = "flux-2-klein-4b-Q4_K_M.gguf"
+roles = ["image"]
+profile = "flux-2-klein-4b"
+note = "step distilled, eight steps; the smaller of the two image models in every part"
+
+[models."qwen-image-2.1"]
+label = "Qwen-Image 2.1"
+file = "qwen-image-2.1-Q4_K_M.gguf"
+roles = ["image"]
+profile = "qwen-image-2.1"
+note = "wider transformer and no quantised text encoder exists for it, so it needs more memory"
+
+[models.mmproj-f16]
+file = "mmproj-F16.gguf"
+roles = ["projector"]
+note = "the vision projector the multimodal host reads photographs through"

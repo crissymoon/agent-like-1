@@ -43,6 +43,7 @@ class Weights:
     transformer_bytes: int
     components: dict[str, int]
     components_known: bool
+    encoder: Path | None = None
 
     @property
     def support_bytes(self) -> int:
@@ -92,14 +93,23 @@ def component_sizes(repo: str, components: tuple[str, ...]) -> tuple[dict[str, i
     return sizes, True
 
 
-def read_weights(profile: ModelProfile, path: Path) -> Weights:
-    """Measure the weight file and ask the Hub for the parts it does not carry."""
+def read_weights(profile: ModelProfile, path: Path, encoder: Path | None = None) -> Weights:
+    """Measure the weight file and ask the Hub for the parts it does not carry.
+
+    A text encoder file, when one is given, replaces the repository's own encoder
+    in the accounting. The size that matters is the one that will be held, and the
+    full precision encoder the file stands in for is precisely the thing this
+    machine is trying not to hold.
+    """
     sizes, known = component_sizes(profile.repo, profile.components)
+    if encoder is not None:
+        sizes["text_encoder"] = encoder.stat().st_size
     return Weights(
         transformer=path,
         transformer_bytes=path.stat().st_size,
         components=sizes,
         components_known=known,
+        encoder=encoder,
     )
 
 
@@ -170,6 +180,13 @@ class Plan:
             f"total to hold     "
             f"{human_bytes(weights.total_bytes) if weights.components_known else 'unknown'}",
         ]
+        if weights.encoder is not None:
+            held = weights.components.get("text_encoder")
+            lines.append(
+                f"text encoder      {weights.encoder.name} "
+                f"({human_bytes(held) if held else 'unknown'}), held packed in place of "
+                f"{self.profile.repo}'s own"
+            )
         if weights.components_known:
             for name, size in sorted(weights.components.items(), key=lambda item: -item[1]):
                 lines.append(f"{indent}{name:<14}{human_bytes(size)}")
@@ -244,7 +261,11 @@ def plan_run(profile: ModelProfile, weights: Weights, requested: str | None = No
         plan.verdict = OFFLOAD_SEQUENTIAL
 
     floor = weights.resident_floor()
-    if known and host is not None and floor > int(host * BUDGET_FRACTION):
+    if plan.verdict != FITS and known and host is not None and floor > int(host * BUDGET_FRACTION):
+        # Only when the arrangement keeps weights in host memory. An arrangement
+        # that fits on the device streams through the host one tensor at a time
+        # rather than living there, so the floor does not describe it, and saying
+        # otherwise would refuse a run that would have worked.
         plan.verdict = EXCEEDS_HOST
         plan.offload = "sequential"
         plan.warnings.append(

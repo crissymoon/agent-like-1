@@ -26,7 +26,7 @@ from .catalog import ModelProfile
 from .sizes import human_bytes, saved
 
 
-def _gguf():
+def reader():
     """This repository's GGUF reader, imported by its package path.
 
     Imported as `tools.gguf` rather than as the top level `gguf`, because the
@@ -81,7 +81,7 @@ def _observe(index, path: Path, prefixes: tuple[str, ...]) -> Observation:
         packed_bytes=index.packed_bytes(),
         exact_bytes=index.exact_bytes(),
         architecture=str(index.metadata.get("general.architecture", "")),
-        file_type=_gguf().file_type_name(index.metadata.get("general.file_type")),
+        file_type=reader().file_type_name(index.metadata.get("general.file_type")),
     )
 
 
@@ -154,7 +154,7 @@ def match(profile: ModelProfile, path: Path, check_library: bool = True) -> Verd
     unsupported quantisation reports both, because fixing one and rediscovering
     the other costs another download.
     """
-    index = _gguf().read_index(path)
+    index = reader().read_index(path)
     verdict = Verdict(
         profile=profile,
         observation=_observe(index, path, tuple(name for name, _ in profile.signature.blocks)),
