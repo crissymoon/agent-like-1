@@ -1,0 +1,77 @@
+{
+  "document": "benchmark-dataset",
+  "schema_version": "1",
+  "rows": 36,
+  "records": 36,
+  "columns": [
+    "side",
+    "run_id",
+    "model",
+    "tool_mode",
+    "task_id",
+    "capability",
+    "success",
+    "composite",
+    "task_success",
+    "protocol_compliance",
+    "tool_validity",
+    "error_recovery",
+    "efficiency",
+    "steps_used",
+    "budget",
+    "budget_exhausted",
+    "finished",
+    "tool_calls",
+    "successful_tool_calls",
+    "invalid_actions",
+    "unstructured_tool_calls",
+    "unknown_tools",
+    "invalid_args",
+    "tool_errors",
+    "redundant_calls",
+    "repeated_failed_turns",
+    "recovered",
+    "checks_passed",
+    "checks_total",
+    "latency_ms",
+    "prompt_tokens",
+    "completion_tokens",
+    "signals",
+    "areas"
+  ],
+  "sides": [
+    "kaggle",
+    "local"
+  ],
+  "solvers": [
+    "kaggle/naive-solver",
+    "kaggle/reference-solver",
+    "local/naive-solver",
+    "local/reference-solver"
+  ],
+  "areas": [
+    "verification",
+    "planning",
+    "argument_schema",
+    "loop_control",
+    "error_handling",
+    "stopping_criteria"
+  ],
+  "files": {
+    "csv": "dataset.csv",
+    "jsonl": "dataset.jsonl",
+    "signals": "signals.json",
+    "learning": "learning.json",
+    "reading": "learning.txt"
+  },
+  "comparison": {
+    "columns": [
+      "local/naive-solver",
+      "local/reference-solver",
+      "kaggle/naive-solver",
+      "kaggle/reference-solver"
+    ],
+    "tasks": 9,
+    "findings": []
+  }
+}

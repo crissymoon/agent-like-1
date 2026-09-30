@@ -15,9 +15,15 @@
 #   models/Phi-3.5-mini-instruct-Q4_K_M.gguf   2393232672
 #   models/qwen2.5-coder-1.5b-instruct-q4_k_m.gguf 1117320768
 # The bare patterns below also catch a weight file dropped at the root and the
-# two stray empty directories named for weight files that a bad bind mount
-# once created.
-models/
+# two stray empty directories named for weight files that a bad bind mount once
+# created: a directory whose name is a weight file name is matched by the file
+# patterns, which is why those two never needed a rule of their own.
+#
+# The directory is anchored to the root on purpose. Written unanchored, `models/`
+# also matches a directory of that name anywhere in the tree, which is how the
+# record of what these files are stopped being committed: results/models holds
+# the header reading, and a pattern meant for the weights swept it up.
+/models/
 *.gguf
 *.ggml
 *.safetensors
@@ -27,6 +33,17 @@ models/
 *.bin
 *.h5
 *.ckpt
+
+# ---------------------------------------------------------------------------
+# Local research input. The pricing captures and the working paper are inputs to
+# this project rather than outputs of it: both are draft, both quote vendors and
+# figures that are not settled, and a draft in a repository is a draft that ends
+# up quoted somewhere. They were committed once, before this rule existed, so
+# they are dropped from the index rather than from disk. The pre-push check
+# refuses these two by name as well, because a rule that lives in one file is a
+# rule that can be walked past by one command.
+/paper/
+/pricing-data/
 
 # ---------------------------------------------------------------------------
 # Google Drive sync scratch. The single entry in .tmp.driveupload is a 2.9 GB
@@ -53,11 +70,22 @@ desktop/out/
 # ---------------------------------------------------------------------------
 # Derived caches. Model fingerprints and cache entries are recomputed from
 # the weights and the source on demand, and a stale one is worse than none.
-cache/
+# Anchored to the root for the same reason the weights are: a directory named
+# cache somewhere else is somebody's artefact, not this one's.
+/cache/
 
 # Task scratch. workspace/ is bind mounted into the harness container as the
 # task root and is rewritten by every run.
-workspace/
+/workspace/
+
+# ---------------------------------------------------------------------------
+# The platform's own copy of a finished run. `kaggle_kernel.py watch --path`
+# downloads the whole output tree, which is the same evidence already recorded
+# under results/benchmark/kaggle plus the notebook's figures, dataset and zip.
+# It is a download, not a measurement: the round trip is recorded by
+# kernel-roundtrip.json and the runs by results/benchmark/kaggle, so keeping a
+# second copy here would only be a place for the two to disagree.
+results/benchmark/kaggle-pull/
 
 # ---------------------------------------------------------------------------
 # Heavy media and archives. The four dated photographs are vision fixtures
@@ -91,3 +119,12 @@ images/*.mp4
 .fseventsd
 .Spotlight-V100
 .Trashes
+
+# ---------------------------------------------------------------------------
+# Python bytecode. tools/kaggle/ is the portable benchmark and the kernel
+# builder, and importing either leaves a __pycache__ per package. The .pyc is
+# a build product of the .py beside it, and a committed one is a second copy of
+# the source that can disagree with it.
+__pycache__/
+*.pyc
+*.pyo

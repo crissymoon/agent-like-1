@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="438" viewBox="0 0 940 438" role="img" shape-rendering="crispEdges">
+<title>End state reached, by task and by column</title>
+<rect x="0.0" y="0.0" width="940.0" height="438.0" rx="0" ry="0" fill="#ffffff"/>
+<text x="16.0" y="24.0" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#202020" text-anchor="start" font-weight="bold">End state reached, by task and by column</text>
+<text x="16.0" y="42.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#6a6a6a" text-anchor="start" font-weight="normal">a column is one side and one solver label; a row is one task</text>
+<text x="263.0" y="68.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#6a6a6a" text-anchor="middle" font-weight="normal">1</text>
+<rect x="250.0" y="78.0" width="26.0" height="1.0" rx="0" ry="0" fill="#8a8a8a"/>
+<text x="293.0" y="68.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#6a6a6a" text-anchor="middle" font-weight="normal">2</text>
+<rect x="280.0" y="78.0" width="26.0" height="1.0" rx="0" ry="0" fill="#8a8a8a"/>
+<text x="323.0" y="68.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#6a6a6a" text-anchor="middle" font-weight="normal">3</text>
+<rect x="310.0" y="78.0" width="26.0" height="1.0" rx="0" ry="0" fill="#8a8a8a"/>
+<text x="353.0" y="68.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#6a6a6a" text-anchor="middle" font-weight="normal">4</text>
+<rect x="340.0" y="78.0" width="26.0" height="1.0" rx="0" ry="0" fill="#8a8a8a"/>
+<text x="16.0" y="95.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#202020" text-anchor="start" font-weight="normal">prune_by_extension (conditional_action)</text>
+<rect x="250.0" y="78.0" width="26.0" height="26.0" rx="0" ry="0" fill="#b3261e"/>
+<text x="263.0" y="95.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">F</text>
+<rect x="280.0" y="78.0" width="26.0" height="26.0" rx="0" ry="0" fill="#1f7a3d"/>
+<text x="293.0" y="95.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">P</text>
+<rect x="310.0" y="78.0" width="26.0" height="26.0" rx="0" ry="0" fill="#b3261e"/>
+<text x="323.0" y="95.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">F</text>
+<rect x="340.0" y="78.0" width="26.0" height="26.0" rx="0" ry="0" fill="#1f7a3d"/>
+<text x="353.0" y="95.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">P</text>
+<text x="16.0" y="125.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#202020" text-anchor="start" font-weight="normal">recover_misnamed_file (error_recovery)</text>
+<rect x="250.0" y="108.0" width="26.0" height="26.0" rx="0" ry="0" fill="#b3261e"/>
+<text x="263.0" y="125.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">F</text>
+<rect x="280.0" y="108.0" width="26.0" height="26.0" rx="0" ry="0" fill="#1f7a3d"/>
+<text x="293.0" y="125.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">P</text>
+<rect x="310.0" y="108.0" width="26.0" height="26.0" rx="0" ry="0" fill="#b3261e"/>
+<text x="323.0" y="125.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">F</text>
+<rect x="340.0" y="108.0" width="26.0" height="26.0" rx="0" ry="0" fill="#1f7a3d"/>
+<text x="353.0" y="125.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">P</text>
+<text x="16.0" y="155.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#202020" text-anchor="start" font-weight="normal">organize_directory (file_system_management)</text>
+<rect x="250.0" y="138.0" width="26.0" height="26.0" rx="0" ry="0" fill="#b3261e"/>
+<text x="263.0" y="155.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">F</text>
+<rect x="280.0" y="138.0" width="26.0" height="26.0" rx="0" ry="0" fill="#1f7a3d"/>
+<text x="293.0" y="155.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">P</text>
+<rect x="310.0" y="138.0" width="26.0" height="26.0" rx="0" ry="0" fill="#b3261e"/>
+<text x="323.0" y="155.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">F</text>
+<rect x="340.0" y="138.0" width="26.0" height="26.0" rx="0" ry="0" fill="#1f7a3d"/>
+<text x="353.0" y="155.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">P</text>
+<text x="16.0" y="185.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#202020" text-anchor="start" font-weight="normal">create_exact_file (instruction_following)</text>
+<rect x="250.0" y="168.0" width="26.0" height="26.0" rx="0" ry="0" fill="#1f7a3d"/>
+<text x="263.0" y="185.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">P</text>
+<rect x="280.0" y="168.0" width="26.0" height="26.0" rx="0" ry="0" fill="#1f7a3d"/>
+<text x="293.0" y="185.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">P</text>
+<rect x="310.0" y="168.0" width="26.0" height="26.0" rx="0" ry="0" fill="#1f7a3d"/>
+<text x="323.0" y="185.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">P</text>
+<rect x="340.0" y="168.0" width="26.0" height="26.0" rx="0" ry="0" fill="#1f7a3d"/>
+<text x="353.0" y="185.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">P</text>
+<text x="16.0" y="215.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#202020" text-anchor="start" font-weight="normal">sum_two_files (multi_step_composition)</text>
+<rect x="250.0" y="198.0" width="26.0" height="26.0" rx="0" ry="0" fill="#b3261e"/>
+<text x="263.0" y="215.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">F</text>
+<rect x="280.0" y="198.0" width="26.0" height="26.0" rx="0" ry="0" fill="#1f7a3d"/>
+<text x="293.0" y="215.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">P</text>
+<rect x="310.0" y="198.0" width="26.0" height="26.0" rx="0" ry="0" fill="#b3261e"/>
+<text x="323.0" y="215.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">F</text>
+<rect x="340.0" y="198.0" width="26.0" height="26.0" rx="0" ry="0" fill="#1f7a3d"/>
+<text x="353.0" y="215.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">P</text>
+<text x="16.0" y="245.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#202020" text-anchor="start" font-weight="normal">follow_typos (robustness)</text>
+<rect x="250.0" y="228.0" width="26.0" height="26.0" rx="0" ry="0" fill="#1f7a3d"/>
+<text x="263.0" y="245.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">P</text>
+<rect x="280.0" y="228.0" width="26.0" height="26.0" rx="0" ry="0" fill="#1f7a3d"/>
+<text x="293.0" y="245.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">P</text>
+<rect x="310.0" y="228.0" width="26.0" height="26.0" rx="0" ry="0" fill="#1f7a3d"/>
+<text x="323.0" y="245.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">P</text>
+<rect x="340.0" y="228.0" width="26.0" height="26.0" rx="0" ry="0" fill="#1f7a3d"/>
+<text x="353.0" y="245.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">P</text>
+<text x="16.0" y="275.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#202020" text-anchor="start" font-weight="normal">refuse_impossible (stopping_criteria)</text>
+<rect x="250.0" y="258.0" width="26.0" height="26.0" rx="0" ry="0" fill="#b3261e"/>
+<text x="263.0" y="275.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">F</text>
+<rect x="280.0" y="258.0" width="26.0" height="26.0" rx="0" ry="0" fill="#1f7a3d"/>
+<text x="293.0" y="275.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">P</text>
+<rect x="310.0" y="258.0" width="26.0" height="26.0" rx="0" ry="0" fill="#b3261e"/>
+<text x="323.0" y="275.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">F</text>
+<rect x="340.0" y="258.0" width="26.0" height="26.0" rx="0" ry="0" fill="#1f7a3d"/>
+<text x="353.0" y="275.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">P</text>
+<text x="16.0" y="305.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#202020" text-anchor="start" font-weight="normal">extract_field_map (structured_output)</text>
+<rect x="250.0" y="288.0" width="26.0" height="26.0" rx="0" ry="0" fill="#b3261e"/>
+<text x="263.0" y="305.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">F</text>
+<rect x="280.0" y="288.0" width="26.0" height="26.0" rx="0" ry="0" fill="#1f7a3d"/>
+<text x="293.0" y="305.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">P</text>
+<rect x="310.0" y="288.0" width="26.0" height="26.0" rx="0" ry="0" fill="#b3261e"/>
+<text x="323.0" y="305.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">F</text>
+<rect x="340.0" y="288.0" width="26.0" height="26.0" rx="0" ry="0" fill="#1f7a3d"/>
+<text x="353.0" y="305.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">P</text>
+<text x="16.0" y="335.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#202020" text-anchor="start" font-weight="normal">count_by_extension (tool_query)</text>
+<rect x="250.0" y="318.0" width="26.0" height="26.0" rx="0" ry="0" fill="#1f7a3d"/>
+<text x="263.0" y="335.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">P</text>
+<rect x="280.0" y="318.0" width="26.0" height="26.0" rx="0" ry="0" fill="#1f7a3d"/>
+<text x="293.0" y="335.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">P</text>
+<rect x="310.0" y="318.0" width="26.0" height="26.0" rx="0" ry="0" fill="#1f7a3d"/>
+<text x="323.0" y="335.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">P</text>
+<rect x="340.0" y="318.0" width="26.0" height="26.0" rx="0" ry="0" fill="#1f7a3d"/>
+<text x="353.0" y="335.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="normal">P</text>
+<text x="16.0" y="362.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#6a6a6a" text-anchor="start" font-weight="normal">1. local/naive-solver</text>
+<text x="16.0" y="378.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#6a6a6a" text-anchor="start" font-weight="normal">2. local/reference-solver</text>
+<text x="16.0" y="394.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#6a6a6a" text-anchor="start" font-weight="normal">3. kaggle/naive-solver</text>
+<text x="16.0" y="410.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#6a6a6a" text-anchor="start" font-weight="normal">4. kaggle/reference-solver</text>
+<text x="250.0" y="410.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">P reached the end state, F did not, ? not measured</text>
+</svg>

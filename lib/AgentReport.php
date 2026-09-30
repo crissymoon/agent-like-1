@@ -143,6 +143,11 @@ final class AgentReport
             'finished_at' => $run['finished_at'],
             'duration_s' => $run['duration_s'],
             'tool_mode' => $run['tool_mode'],
+            // The task suite the run drew from. It is recorded beside the task
+            // count because a comparison that reads two runs and finds a
+            // different number of tasks has to be able to say whether that was
+            // a different suite or a different selection from one suite.
+            'suite' => (string) ($run['suite'] ?? AgentTask::SUITE_CORE),
             'prompt_version' => AgentPrompt::VERSION,
             'prompt_sha256' => $run['prompt_sha256'],
             'step_budget_cap' => HARNESS_AGENT_MAX_STEPS,

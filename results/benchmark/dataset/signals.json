@@ -1,0 +1,56 @@
+{
+  "document": "benchmark-signals",
+  "schema_version": "1",
+  "signals": [
+    {
+      "name": "ran_out_of_turns",
+      "area": "loop_control",
+      "note": "the episode spent its whole step budget: the stop condition or the length of a plan is the lever"
+    },
+    {
+      "name": "failed_with_turns_left",
+      "area": "planning",
+      "note": "the episode failed while steps remained, so the plan was wrong rather than long"
+    },
+    {
+      "name": "unstructured_action",
+      "area": "output_contract",
+      "note": "an intended action never became a structured call: the format the loop reads is the lever"
+    },
+    {
+      "name": "unknown_tool",
+      "area": "tool_catalog",
+      "note": "a tool was named that the harness does not have: the catalog or the way it is prompted is the lever"
+    },
+    {
+      "name": "invalid_arguments",
+      "area": "argument_schema",
+      "note": "a call was refused on its arguments: the schema or the examples beside it are the lever"
+    },
+    {
+      "name": "tool_error_unrecovered",
+      "area": "error_handling",
+      "note": "a tool error was met and not recovered from: the retry rule is the lever"
+    },
+    {
+      "name": "repeated_failing_turn",
+      "area": "error_handling",
+      "note": "the same failing turn was repeated: the loop needs to change what it does on a repeat"
+    },
+    {
+      "name": "redundant_work",
+      "area": "efficiency",
+      "note": "calls were repeated that a shorter path skips: the plan or the memory of what was already done is the lever"
+    },
+    {
+      "name": "partial_checks",
+      "area": "verification",
+      "note": "some of the task's own checks passed: the verifier names exactly what the end state missed"
+    },
+    {
+      "name": "answer_not_given",
+      "area": "stopping_criteria",
+      "note": "the honest answer was not given on a task whose goal is to stop: refusal has to be a teachable output"
+    }
+  ]
+}

@@ -258,3 +258,30 @@ define('HARNESS_AGENT_DECODER_FIELD', getenv('HARNESS_AGENT_DECODER_FIELD') ?: '
  * the manifest says which policy produced a result.
  */
 define('HARNESS_AGENT_SANDBOX_POLICY', getenv('HARNESS_AGENT_SANDBOX_POLICY') ?: 'documented');
+
+/**
+ * The task suite an agent run draws from.
+ *
+ * `core` is the six tasks every recorded run in this project used, so it stays
+ * the default: changing the default would change the suite behind a manifest
+ * that says nothing about the change, which is the one way a recorded baseline
+ * could be compared against a run that did not measure the same thing.
+ *
+ * `levels` adds the extended tasks that test the behaviours the benchmarking
+ * notes name and the core six do not: recovery from noisy instruction text,
+ * file system organisation, and the stopping rule where the honest answer is to
+ * refuse rather than to loop. `all` runs both.
+ */
+define('HARNESS_AGENT_SUITE', getenv('HARNESS_AGENT_SUITE') ?: 'core');
+
+/**
+ * Where the local benchmark writes.
+ *
+ * One run directory per model sits beneath this, and the comparison document
+ * sits beside them, so a reader who opens the benchmark directory finds every
+ * model's run and the table that reads them together. It is kept apart from
+ * `results/agent` because a benchmark run is a different condition from a study
+ * run: the model was swapped rather than the controls, and the two should not be
+ * able to be confused for one another on disk.
+ */
+define('HARNESS_BENCHMARK_DIR', getenv('HARNESS_BENCHMARK_DIR') ?: HARNESS_RESULTS_DIR . '/benchmark');

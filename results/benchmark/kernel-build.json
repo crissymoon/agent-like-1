@@ -1,0 +1,16 @@
+{
+  "directory": "kernels/gemma-benchmark",
+  "notebook": "kernels/gemma-benchmark/notebook.ipynb",
+  "metadata": "kernels/gemma-benchmark/kernel-metadata.json",
+  "identifier": "crissymoon/agent-benchmark",
+  "cells": 33,
+  "code_cells": 14,
+  "markdown_cells": 19,
+  "tools_dir": "~/Documents/sql-mgr/tools",
+  "findings": [],
+  "commands": [
+    "python3 ~/Documents/sql-mgr/tools/kaggle_kernel.py push --dir kernels/gemma-benchmark",
+    "python3 ~/Documents/sql-mgr/tools/kaggle_kernel.py watch crissymoon/agent-benchmark --timeout 1800 --path results/benchmark/kaggle-pull",
+    "python3 ~/Documents/sql-mgr/tools/kaggle_kernel.py verify-notebook crissymoon/agent-benchmark --dir kernels/gemma-benchmark --json results/benchmark/kernel-roundtrip.json"
+  ]
+}

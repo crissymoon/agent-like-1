@@ -21,6 +21,11 @@ declare(strict_types=1);
  *     accepts the ordinary commands the six tasks need;
  *   - the report's flat columns carry the new counters, so a control that fired
  *     is visible in the CSV rather than only in the JSON;
+ *   - the local benchmark reads a run it wrote itself: the model catalog is a
+ *     reading of the models directory, a name that matches nothing is refused,
+ *     and the comparison reads a recorded row by column name, reports a run
+ *     that measured a different task set, and refuses a flat CSV with a column
+ *     missing rather than shifting every figure after it;
  *   - when it is run inside the harness container, the container boundary holds
  *     as well: the source it is executing is not writable, the results directory
  *     is, the root filesystem is read only, no socket or weight file is reachable
@@ -53,6 +58,7 @@ final class AgentSelfCheck
         $this->boundaryChecks($out);
         $this->engineProfileChecks($out);
         $this->reportChecks($out);
+        $this->benchmarkChecks($out);
         $this->streamChecks($out);
 
         $out(sprintf(
@@ -699,6 +705,224 @@ final class AgentSelfCheck
         foreach ($stream->failures() as $name) {
             $this->failures[] = $name;
         }
+    }
+
+    /**
+     * The capability each task in this check belongs to.
+     *
+     * It is written down here rather than read from the task set because the
+     * fixture is two columns and a number: the only property under test is that
+     * the benchmark reports a capability it read from a row.
+     */
+    private const BENCHMARK_CAPABILITIES = [
+        'create_exact_file' => 'instruction_following',
+        'sum_two_files' => 'multi_step_composition',
+    ];
+
+    /**
+     * The local benchmark, checked against documents this run writes itself.
+     *
+     * The benchmark is the one part of the harness whose input is other
+     * documents, so the checks that matter are about reading them: a column
+     * taken by position instead of by name, or a run that measured a different
+     * suite being averaged in with the rest, both produce a table that reads as
+     * correct and is not. Each of those is reproduced here on a fixture written
+     * for the purpose, so the failure is found here rather than in a paper.
+     */
+    private function benchmarkChecks(callable $out): void
+    {
+        $models = ModelCatalog::all();
+        $weights = glob(ModelCatalog::directory() . '/*.gguf') ?: [];
+        $projector = ModelCatalog::projector();
+        if ($projector !== null) {
+            $this->expect(
+                $out,
+                'the catalog does not offer the projector as a model',
+                !in_array($projector['file'], array_column($models, 'file'), true)
+            );
+        }
+        $this->expect(
+            $out,
+            'the catalog holds every weight file that is not a support file',
+            count($models) === count($weights) - ($projector === null ? 0 : 1)
+        );
+        $selected = ModelCatalog::selected();
+        $this->expect(
+            $out,
+            'the catalog puts the selected model first',
+            $selected === null || ($models[0]['label'] ?? '') === $selected['label']
+        );
+        $this->expect(
+            $out,
+            'resolving all returns the whole catalog',
+            count(ModelCatalog::resolve('all')) === count($models)
+        );
+        if ($models !== []) {
+            $this->expect(
+                $out,
+                'a selection resolves by label and by file name',
+                ($models[0]['file'] === (ModelCatalog::resolve($models[0]['label'])[0]['file'] ?? ''))
+                && ($models[0]['file'] === (ModelCatalog::resolve($models[0]['file'])[0]['file'] ?? ''))
+            );
+        }
+
+        // A name that matches nothing is refused rather than dropped: a
+        // benchmark that ran three models when four were asked for would leave
+        // a row missing for a reason nobody recorded.
+        $refused = false;
+        try {
+            ModelCatalog::resolve('definitely-not-a-weight-file');
+        } catch (InvalidArgumentException) {
+            $refused = true;
+        }
+        $this->expect($out, 'a model name that matches nothing is refused', $refused);
+        $this->expect(
+            $out,
+            'a compose source is relative to the compose file and points at the same weight file',
+            $models === [] || (
+                !str_starts_with((string) $models[0]['compose_source'], '/')
+                && realpath(HARNESS_ROOT . '/docker/' . $models[0]['compose_source']) === realpath($models[0]['path'])
+            )
+        );
+
+        $directory = self::scratch('benchmark');
+        self::writeBenchmarkRun($directory . '/run-a', 'run-a', [
+            'm-one' => ['create_exact_file' => [97.5, 1]],
+            'm-two' => ['create_exact_file' => [20.0, 0]],
+        ]);
+        self::writeBenchmarkRun($directory . '/run-b', 'run-b', [
+            'm-one' => ['create_exact_file' => [90.0, 1]],
+        ]);
+
+        $document = ModelBenchmark::build(ModelBenchmark::runDirectories($directory));
+        $this->expect($out, 'the benchmark reads every run beneath the directory', count($document['runs']) === 2);
+        $this->expect(
+            $out,
+            'the benchmark reads a recorded row by its column name',
+            ($document['matrix']['m-one']['create_exact_file']['composite'] ?? 0.0) === 97.5
+        );
+        $this->expect(
+            $out,
+            'two runs over the same task set are reported as one suite',
+            $document['suite']['consistent'] === true
+        );
+        $this->expect(
+            $out,
+            'the per capability table carries every model that was measured',
+            ($document['capabilities']['instruction_following']['m-two']['composite'] ?? null) === 20.0
+        );
+        $this->expect(
+            $out,
+            'a model that passed nothing is reported as passing nothing',
+            ($document['summary']['m-two']['tasks_passed'] ?? -1) === 0
+            && ($document['summary']['m-one']['tasks_passed'] ?? -1) === 1
+        );
+        $this->expect(
+            $out,
+            'the rendered table names every model',
+            str_contains(ModelBenchmark::render($document), 'm-two')
+        );
+
+        // A third run that measured a different set is a finding and not an
+        // error, so it is reported and the document is still produced.
+        self::writeBenchmarkRun($directory . '/run-c', 'run-c', [
+            'm-one' => ['create_exact_file' => [90.0, 1], 'sum_two_files' => [10.0, 0]],
+        ]);
+        $mismatch = ModelBenchmark::build(ModelBenchmark::runDirectories($directory));
+        $this->expect(
+            $out,
+            'a run that measured a different task set is reported as one',
+            $mismatch['suite']['consistent'] === false && $mismatch['suite']['findings'] !== []
+        );
+
+        // A flat CSV with a column missing must be refused, because reading it
+        // from the columns that do exist would take every figure after the gap
+        // from the wrong index.
+        $broken = $directory . '/run-broken';
+        if (!is_dir($broken)) {
+            mkdir($broken, 0775, true);
+        }
+        file_put_contents($broken . '/tasks.csv', "task_id,success\na,1\n");
+        $refusedRows = ModelBenchmark::build([$broken]);
+        $this->expect(
+            $out,
+            'a flat CSV missing a column is refused rather than read shifted',
+            $refusedRows['matrix'] === [] && $refusedRows['notes'] !== []
+        );
+
+        self::clean($directory);
+    }
+
+    private static function scratch(string $name): string
+    {
+        $dir = sys_get_temp_dir() . '/gemma-selfcheck-' . $name . '-' . getmypid();
+        if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
+            throw new RuntimeException('cannot create the scratch directory: ' . $dir);
+        }
+
+        return $dir;
+    }
+
+    private static function clean(string $dir): void
+    {
+        if (!is_dir($dir)) {
+            return;
+        }
+        $items = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
+        foreach ($items as $item) {
+            $item->isDir() ? rmdir($item->getPathname()) : unlink($item->getPathname());
+        }
+        rmdir($dir);
+    }
+
+    /**
+     * Write one run the report's own writer would accept.
+     *
+     * The header is taken from `AgentReport::columns()`, so this fixture is
+     * bound to the writer rather than to a copy of its shape: a column added to
+     * the report moves the fixture with it, which is what makes the check a
+     * check of the two modules agreeing.
+     *
+     * @param array<string, array<string, array{0: float, 1: int}>> $matrix model to task to composite and success
+     */
+    private static function writeBenchmarkRun(string $dir, string $runId, array $matrix): void
+    {
+        if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
+            throw new RuntimeException('cannot create the fixture run: ' . $dir);
+        }
+
+        $columns = AgentReport::columns();
+        $handle = fopen($dir . '/tasks.csv', 'w');
+        if ($handle === false) {
+            throw new RuntimeException('cannot write the fixture CSV: ' . $dir);
+        }
+        fputcsv($handle, $columns, ',', '"', '');
+        foreach ($matrix as $model => $tasks) {
+            foreach ($tasks as $taskId => [$composite, $success]) {
+                $row = array_fill_keys($columns, '');
+                $row['run_id'] = $runId;
+                $row['model'] = (string) $model;
+                $row['tool_mode'] = 'prompt';
+                $row['task_id'] = (string) $taskId;
+                $row['capability'] = self::BENCHMARK_CAPABILITIES[$taskId] ?? 'unknown';
+                $row['success'] = (string) $success;
+                $row['composite'] = (string) $composite;
+                $row['budget'] = '4';
+                $row['steps_used'] = '2';
+                $row['checks_passed'] = (string) $success;
+                $row['checks_total'] = '1';
+                fputcsv($handle, array_values($row), ',', '"', '');
+            }
+        }
+        fclose($handle);
+
+        file_put_contents($dir . '/manifest.json', (string) json_encode([
+            'document' => 'agent-manifest',
+            'run' => ['run_id' => $runId, 'suite' => AgentTask::SUITE_ALL, 'tool_mode' => 'prompt'],
+        ]));
     }
 
     private function expect(callable $out, string $name, bool $passed, string $detail = ''): void

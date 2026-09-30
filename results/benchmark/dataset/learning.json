@@ -1,0 +1,265 @@
+{
+  "document": "benchmark-learning",
+  "schema_version": "1",
+  "solvers": {
+    "local/naive-solver": {
+      "tasks": 9,
+      "passed": 3,
+      "lost": 399.34,
+      "dimensions": {
+        "task_success": 0.3333,
+        "protocol_compliance": 0.7963,
+        "tool_validity": 0.7222,
+        "error_recovery": 0.6667,
+        "efficiency": 0.7204
+      }
+    },
+    "local/reference-solver": {
+      "tasks": 9,
+      "passed": 9,
+      "lost": 40.4,
+      "dimensions": {
+        "task_success": 1.0,
+        "protocol_compliance": 1.0,
+        "tool_validity": 0.8889,
+        "error_recovery": 1.0,
+        "efficiency": 0.7177
+      }
+    },
+    "kaggle/naive-solver": {
+      "tasks": 9,
+      "passed": 3,
+      "lost": 399.34,
+      "dimensions": {
+        "task_success": 0.3333,
+        "protocol_compliance": 0.7963,
+        "tool_validity": 0.7222,
+        "error_recovery": 0.6667,
+        "efficiency": 0.7204
+      }
+    },
+    "kaggle/reference-solver": {
+      "tasks": 9,
+      "passed": 9,
+      "lost": 40.4,
+      "dimensions": {
+        "task_success": 1.0,
+        "protocol_compliance": 1.0,
+        "tool_validity": 0.8889,
+        "error_recovery": 1.0,
+        "efficiency": 0.7177
+      }
+    }
+  },
+  "capabilities": {
+    "instruction_following": {
+      "tasks": 4,
+      "passed": 4,
+      "lost": 10.0,
+      "solvers": [
+        "local/naive-solver",
+        "local/reference-solver",
+        "kaggle/naive-solver",
+        "kaggle/reference-solver"
+      ]
+    },
+    "tool_query": {
+      "tasks": 4,
+      "passed": 4,
+      "lost": 12.0,
+      "solvers": [
+        "local/naive-solver",
+        "local/reference-solver",
+        "kaggle/naive-solver",
+        "kaggle/reference-solver"
+      ]
+    },
+    "multi_step_composition": {
+      "tasks": 4,
+      "passed": 2,
+      "lost": 100.0,
+      "solvers": [
+        "local/naive-solver",
+        "local/reference-solver",
+        "kaggle/naive-solver",
+        "kaggle/reference-solver"
+      ]
+    },
+    "error_recovery": {
+      "tasks": 4,
+      "passed": 2,
+      "lost": 187.14,
+      "solvers": [
+        "local/naive-solver",
+        "local/reference-solver",
+        "kaggle/naive-solver",
+        "kaggle/reference-solver"
+      ]
+    },
+    "structured_output": {
+      "tasks": 4,
+      "passed": 2,
+      "lost": 97.14,
+      "solvers": [
+        "local/naive-solver",
+        "local/reference-solver",
+        "kaggle/naive-solver",
+        "kaggle/reference-solver"
+      ]
+    },
+    "conditional_action": {
+      "tasks": 4,
+      "passed": 2,
+      "lost": 190.0,
+      "solvers": [
+        "local/naive-solver",
+        "local/reference-solver",
+        "kaggle/naive-solver",
+        "kaggle/reference-solver"
+      ]
+    },
+    "robustness": {
+      "tasks": 4,
+      "passed": 4,
+      "lost": 12.0,
+      "solvers": [
+        "local/naive-solver",
+        "local/reference-solver",
+        "kaggle/naive-solver",
+        "kaggle/reference-solver"
+      ]
+    },
+    "file_system_management": {
+      "tasks": 4,
+      "passed": 2,
+      "lost": 102.86,
+      "solvers": [
+        "local/naive-solver",
+        "local/reference-solver",
+        "kaggle/naive-solver",
+        "kaggle/reference-solver"
+      ]
+    },
+    "stopping_criteria": {
+      "tasks": 4,
+      "passed": 2,
+      "lost": 168.34,
+      "solvers": [
+        "local/naive-solver",
+        "local/reference-solver",
+        "kaggle/naive-solver",
+        "kaggle/reference-solver"
+      ]
+    }
+  },
+  "areas": {
+    "verification": {
+      "tasks": 12,
+      "lost": 781.68,
+      "signal_counts": {
+        "partial_checks": 12
+      },
+      "tasks_named": [
+        "sum_two_files",
+        "recover_misnamed_file",
+        "extract_field_map",
+        "prune_by_extension",
+        "organize_directory",
+        "refuse_impossible"
+      ],
+      "solvers": [
+        "local/naive-solver",
+        "kaggle/naive-solver"
+      ],
+      "note": "some of the task's own checks passed: the verifier names exactly what the end state missed"
+    },
+    "planning": {
+      "tasks": 8,
+      "lost": 463.34,
+      "signal_counts": {
+        "failed_with_turns_left": 8
+      },
+      "tasks_named": [
+        "sum_two_files",
+        "recover_misnamed_file",
+        "extract_field_map",
+        "organize_directory"
+      ],
+      "solvers": [
+        "local/naive-solver",
+        "kaggle/naive-solver"
+      ],
+      "note": "the episode failed while steps remained, so the plan was wrong rather than long"
+    },
+    "argument_schema": {
+      "tasks": 4,
+      "lost": 318.34,
+      "signal_counts": {
+        "invalid_arguments": 4
+      },
+      "tasks_named": [
+        "prune_by_extension",
+        "refuse_impossible"
+      ],
+      "solvers": [
+        "local/naive-solver",
+        "kaggle/naive-solver"
+      ],
+      "note": "a call was refused on its arguments: the schema or the examples beside it are the lever"
+    },
+    "loop_control": {
+      "tasks": 4,
+      "lost": 318.34,
+      "signal_counts": {
+        "ran_out_of_turns": 4
+      },
+      "tasks_named": [
+        "prune_by_extension",
+        "refuse_impossible"
+      ],
+      "solvers": [
+        "local/naive-solver",
+        "kaggle/naive-solver"
+      ],
+      "note": "the episode spent its whole step budget: the stop condition or the length of a plan is the lever"
+    },
+    "error_handling": {
+      "tasks": 2,
+      "lost": 183.34,
+      "signal_counts": {
+        "repeated_failing_turn": 2
+      },
+      "tasks_named": [
+        "prune_by_extension"
+      ],
+      "solvers": [
+        "local/naive-solver",
+        "kaggle/naive-solver"
+      ],
+      "note": "the same failing turn was repeated: the loop needs to change what it does on a repeat"
+    },
+    "stopping_criteria": {
+      "tasks": 2,
+      "lost": 135.0,
+      "signal_counts": {
+        "answer_not_given": 2
+      },
+      "tasks_named": [
+        "refuse_impossible"
+      ],
+      "solvers": [
+        "local/naive-solver",
+        "kaggle/naive-solver"
+      ],
+      "note": "the honest answer was not given on a task whose goal is to stop: refusal has to be a teachable output"
+    }
+  },
+  "priority": [
+    "verification",
+    "planning",
+    "argument_schema",
+    "loop_control",
+    "error_handling",
+    "stopping_criteria"
+  ]
+}

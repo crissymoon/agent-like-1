@@ -1,0 +1,173 @@
+{
+  "document": "benchmark-bundle",
+  "schema_version": "1",
+  "created": "2026-09-30T02:33:35+00:00",
+  "manifest": "bundle.json",
+  "members": [
+    {
+      "path": "dataset/dataset.csv",
+      "bytes": 6891,
+      "sha256": "c5eb3fc6c0bc5968"
+    },
+    {
+      "path": "dataset/dataset.json",
+      "bytes": 1468,
+      "sha256": "03db6b9794e2fcf6"
+    },
+    {
+      "path": "dataset/dataset.jsonl",
+      "bytes": 28528,
+      "sha256": "1c1ec307e8950fa9"
+    },
+    {
+      "path": "dataset/learning.json",
+      "bytes": 6291,
+      "sha256": "415fc36e8eb4a179"
+    },
+    {
+      "path": "dataset/learning.txt",
+      "bytes": 1970,
+      "sha256": "5b8c12322ebc6393"
+    },
+    {
+      "path": "dataset/signals.json",
+      "bytes": 1949,
+      "sha256": "310d3bc951b942e3"
+    },
+    {
+      "path": "figures/capability.svg",
+      "bytes": 14288,
+      "sha256": "f11596eae18e3d26"
+    },
+    {
+      "path": "figures/composite.svg",
+      "bytes": 14285,
+      "sha256": "d3e92f5f9d7005a6"
+    },
+    {
+      "path": "figures/dimensions.svg",
+      "bytes": 9286,
+      "sha256": "e44946c93cd666f6"
+    },
+    {
+      "path": "figures/matrix.svg",
+      "bytes": 12534,
+      "sha256": "2c6f411ac5735ecf"
+    },
+    {
+      "path": "figures/summary.svg",
+      "bytes": 6707,
+      "sha256": "dfb98af795c77337"
+    },
+    {
+      "path": "kaggle/comparison.csv",
+      "bytes": 1632,
+      "sha256": "0e4b0b5728f60f57"
+    },
+    {
+      "path": "kaggle/comparison.json",
+      "bytes": 16497,
+      "sha256": "f6b4fe9ccc3eb25c"
+    },
+    {
+      "path": "kaggle/comparison.txt",
+      "bytes": 2172,
+      "sha256": "14ca7ea1a17df9b8"
+    },
+    {
+      "path": "kaggle/naive-solver/manifest.json",
+      "bytes": 1605,
+      "sha256": "b900bae9f0718167"
+    },
+    {
+      "path": "kaggle/naive-solver/tasks.csv",
+      "bytes": 1648,
+      "sha256": "6b28aa92f771e2f1"
+    },
+    {
+      "path": "kaggle/reference-solver/manifest.json",
+      "bytes": 1611,
+      "sha256": "00d791139318ed35"
+    },
+    {
+      "path": "kaggle/reference-solver/tasks.csv",
+      "bytes": 1763,
+      "sha256": "150ebfafcb906c40"
+    },
+    {
+      "path": "kernel-build.json",
+      "bytes": 944,
+      "sha256": "462896f3c9b38a0e"
+    },
+    {
+      "path": "kernel-roundtrip.json",
+      "bytes": 400,
+      "sha256": "ba426e708c899528"
+    },
+    {
+      "path": "local/comparison.csv",
+      "bytes": 1632,
+      "sha256": "775cc098f6016a06"
+    },
+    {
+      "path": "local/comparison.json",
+      "bytes": 16495,
+      "sha256": "cdc8153110f71b7e"
+    },
+    {
+      "path": "local/comparison.txt",
+      "bytes": 2172,
+      "sha256": "14ca7ea1a17df9b8"
+    },
+    {
+      "path": "local/naive-solver/manifest.json",
+      "bytes": 1554,
+      "sha256": "47588b9c6a4844aa"
+    },
+    {
+      "path": "local/naive-solver/tasks.csv",
+      "bytes": 1648,
+      "sha256": "8a1485118d12319f"
+    },
+    {
+      "path": "local/reference-solver/manifest.json",
+      "bytes": 1564,
+      "sha256": "ed5361aa4a9ce743"
+    },
+    {
+      "path": "local/reference-solver/tasks.csv",
+      "bytes": 1763,
+      "sha256": "a97825ce4d232def"
+    },
+    {
+      "path": "sides.csv",
+      "bytes": 2488,
+      "sha256": "4a21fccd439e99dd"
+    },
+    {
+      "path": "sides.json",
+      "bytes": 6652,
+      "sha256": "f762cb431bdffe22"
+    },
+    {
+      "path": "sides.txt",
+      "bytes": 2027,
+      "sha256": "37c26804996998e4"
+    }
+  ],
+  "totals": {
+    "members": 30,
+    "bytes": 170464
+  },
+  "containing": {
+    "dataset": 6,
+    "figures": 5,
+    "kaggle": 7,
+    "kernel-build.json": 1,
+    "kernel-roundtrip.json": 1,
+    "local": 7,
+    "sides.csv": 1,
+    "sides.json": 1,
+    "sides.txt": 1
+  }
+}

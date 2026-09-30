@@ -446,7 +446,20 @@ final class AgentLoop
             }
         }
 
-        $checks = ($task['verify'])($sandbox);
+        // The verifier is handed the workspace and, as a second argument, what
+        // the episode itself did. A verifier that only reads the workspace
+        // declares its one parameter and ignores the rest, so every existing
+        // task is unchanged. The extra argument exists for the one behaviour
+        // that cannot be read from the workspace at all: whether the model
+        // stopped and said what it was missing, which is a property of the
+        // closing answer rather than of a file.
+        $checks = ($task['verify'])($sandbox, [
+            'answer' => $answer,
+            'finished' => $finished,
+            'steps_used' => count($turns),
+            'budget' => $budget,
+            'counters' => $counters,
+        ]);
         $passed = $checks !== [] && !in_array(false, array_column($checks, 'passed'), true);
 
         return [

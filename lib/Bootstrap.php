@@ -34,6 +34,7 @@ final class Bootstrap
             'StreamingSse', 'AgentLoop', 'AgentStream', 'AgentScoring',
             'EventStream', 'ContainerBoundary', 'EngineProfile', 'AgentSelfCheck', 'AgentReport',
             'PostTrainGap', 'TrajectoryReplay', 'LadderCompare', 'StreamSelfCheck',
+            'ModelCatalog', 'ModelBenchmark',
         ];
     }
 

@@ -1,0 +1,304 @@
+{
+  "document": "benchmark-sides",
+  "generated_at": "2026-09-29T19:33:35-07:00",
+  "sides": [
+    "local",
+    "kaggle"
+  ],
+  "columns": {
+    "local/naive-solver": {
+      "side": "local",
+      "model": "naive-solver",
+      "tasks": 9,
+      "passed": 3,
+      "composite": 55.6289
+    },
+    "local/reference-solver": {
+      "side": "local",
+      "model": "reference-solver",
+      "tasks": 9,
+      "passed": 9,
+      "composite": 95.5111
+    },
+    "kaggle/naive-solver": {
+      "side": "kaggle",
+      "model": "naive-solver",
+      "tasks": 9,
+      "passed": 3,
+      "composite": 55.6289
+    },
+    "kaggle/reference-solver": {
+      "side": "kaggle",
+      "model": "reference-solver",
+      "tasks": 9,
+      "passed": 9,
+      "composite": 95.5111
+    }
+  },
+  "tasks": [
+    {
+      "id": "prune_by_extension",
+      "capability": "conditional_action"
+    },
+    {
+      "id": "recover_misnamed_file",
+      "capability": "error_recovery"
+    },
+    {
+      "id": "organize_directory",
+      "capability": "file_system_management"
+    },
+    {
+      "id": "create_exact_file",
+      "capability": "instruction_following"
+    },
+    {
+      "id": "sum_two_files",
+      "capability": "multi_step_composition"
+    },
+    {
+      "id": "follow_typos",
+      "capability": "robustness"
+    },
+    {
+      "id": "refuse_impossible",
+      "capability": "stopping_criteria"
+    },
+    {
+      "id": "extract_field_map",
+      "capability": "structured_output"
+    },
+    {
+      "id": "count_by_extension",
+      "capability": "tool_query"
+    }
+  ],
+  "matrix": {
+    "local/naive-solver": {
+      "create_exact_file": {
+        "composite": 97.5,
+        "success": true,
+        "steps_used": 2,
+        "budget": 4
+      },
+      "count_by_extension": {
+        "composite": 97.0,
+        "success": true,
+        "steps_used": 3,
+        "budget": 5
+      },
+      "sum_two_files": {
+        "composite": 53.33,
+        "success": false,
+        "steps_used": 2,
+        "budget": 6
+      },
+      "recover_misnamed_file": {
+        "composite": 9.29,
+        "success": false,
+        "steps_used": 1,
+        "budget": 7
+      },
+      "extract_field_map": {
+        "composite": 53.57,
+        "success": false,
+        "steps_used": 2,
+        "budget": 7
+      },
+      "prune_by_extension": {
+        "composite": 8.33,
+        "success": false,
+        "steps_used": 6,
+        "budget": 6
+      },
+      "follow_typos": {
+        "composite": 97.0,
+        "success": true,
+        "steps_used": 3,
+        "budget": 5
+      },
+      "organize_directory": {
+        "composite": 52.14,
+        "success": false,
+        "steps_used": 4,
+        "budget": 7
+      },
+      "refuse_impossible": {
+        "composite": 32.5,
+        "success": false,
+        "steps_used": 6,
+        "budget": 6
+      }
+    },
+    "local/reference-solver": {
+      "create_exact_file": {
+        "composite": 97.5,
+        "success": true,
+        "steps_used": 2,
+        "budget": 4
+      },
+      "count_by_extension": {
+        "composite": 97.0,
+        "success": true,
+        "steps_used": 3,
+        "budget": 5
+      },
+      "sum_two_files": {
+        "composite": 96.67,
+        "success": true,
+        "steps_used": 4,
+        "budget": 6
+      },
+      "recover_misnamed_file": {
+        "composite": 97.14,
+        "success": true,
+        "steps_used": 4,
+        "budget": 7
+      },
+      "extract_field_map": {
+        "composite": 97.86,
+        "success": true,
+        "steps_used": 3,
+        "budget": 7
+      },
+      "prune_by_extension": {
+        "composite": 96.67,
+        "success": true,
+        "steps_used": 4,
+        "budget": 6
+      },
+      "follow_typos": {
+        "composite": 97.0,
+        "success": true,
+        "steps_used": 3,
+        "budget": 5
+      },
+      "organize_directory": {
+        "composite": 96.43,
+        "success": true,
+        "steps_used": 5,
+        "budget": 7
+      },
+      "refuse_impossible": {
+        "composite": 83.33,
+        "success": true,
+        "steps_used": 2,
+        "budget": 6
+      }
+    },
+    "kaggle/naive-solver": {
+      "create_exact_file": {
+        "composite": 97.5,
+        "success": true,
+        "steps_used": 2,
+        "budget": 4
+      },
+      "count_by_extension": {
+        "composite": 97.0,
+        "success": true,
+        "steps_used": 3,
+        "budget": 5
+      },
+      "sum_two_files": {
+        "composite": 53.33,
+        "success": false,
+        "steps_used": 2,
+        "budget": 6
+      },
+      "recover_misnamed_file": {
+        "composite": 9.29,
+        "success": false,
+        "steps_used": 1,
+        "budget": 7
+      },
+      "extract_field_map": {
+        "composite": 53.57,
+        "success": false,
+        "steps_used": 2,
+        "budget": 7
+      },
+      "prune_by_extension": {
+        "composite": 8.33,
+        "success": false,
+        "steps_used": 6,
+        "budget": 6
+      },
+      "follow_typos": {
+        "composite": 97.0,
+        "success": true,
+        "steps_used": 3,
+        "budget": 5
+      },
+      "organize_directory": {
+        "composite": 52.14,
+        "success": false,
+        "steps_used": 4,
+        "budget": 7
+      },
+      "refuse_impossible": {
+        "composite": 32.5,
+        "success": false,
+        "steps_used": 6,
+        "budget": 6
+      }
+    },
+    "kaggle/reference-solver": {
+      "create_exact_file": {
+        "composite": 97.5,
+        "success": true,
+        "steps_used": 2,
+        "budget": 4
+      },
+      "count_by_extension": {
+        "composite": 97.0,
+        "success": true,
+        "steps_used": 3,
+        "budget": 5
+      },
+      "sum_two_files": {
+        "composite": 96.67,
+        "success": true,
+        "steps_used": 4,
+        "budget": 6
+      },
+      "recover_misnamed_file": {
+        "composite": 97.14,
+        "success": true,
+        "steps_used": 4,
+        "budget": 7
+      },
+      "extract_field_map": {
+        "composite": 97.86,
+        "success": true,
+        "steps_used": 3,
+        "budget": 7
+      },
+      "prune_by_extension": {
+        "composite": 96.67,
+        "success": true,
+        "steps_used": 4,
+        "budget": 6
+      },
+      "follow_typos": {
+        "composite": 97.0,
+        "success": true,
+        "steps_used": 3,
+        "budget": 5
+      },
+      "organize_directory": {
+        "composite": 96.43,
+        "success": true,
+        "steps_used": 5,
+        "budget": 7
+      },
+      "refuse_impossible": {
+        "composite": 83.33,
+        "success": true,
+        "steps_used": 2,
+        "budget": 6
+      }
+    }
+  },
+  "findings": [],
+  "disagreements": []
+}

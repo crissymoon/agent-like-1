@@ -1,0 +1,535 @@
+{
+    "document": "local-benchmark-comparison",
+    "schema_version": "1",
+    "generated_at": "2026-09-30T02:10:30+00:00",
+    "runs": [
+        {
+            "run_id": "naive-solver",
+            "dir": "results/benchmark/local/naive-solver",
+            "suite": "all",
+            "tool_mode": "naive",
+            "task_ids": [
+                "create_exact_file",
+                "count_by_extension",
+                "sum_two_files",
+                "recover_misnamed_file",
+                "extract_field_map",
+                "prune_by_extension",
+                "follow_typos",
+                "organize_directory",
+                "refuse_impossible"
+            ],
+            "rows": 9,
+            "models": [
+                "naive-solver"
+            ]
+        },
+        {
+            "run_id": "reference-solver",
+            "dir": "results/benchmark/local/reference-solver",
+            "suite": "all",
+            "tool_mode": "reference",
+            "task_ids": [
+                "create_exact_file",
+                "count_by_extension",
+                "sum_two_files",
+                "recover_misnamed_file",
+                "extract_field_map",
+                "prune_by_extension",
+                "follow_typos",
+                "organize_directory",
+                "refuse_impossible"
+            ],
+            "rows": 9,
+            "models": [
+                "reference-solver"
+            ]
+        }
+    ],
+    "models": [
+        "naive-solver",
+        "reference-solver"
+    ],
+    "tasks": [
+        {
+            "id": "prune_by_extension",
+            "capability": "conditional_action"
+        },
+        {
+            "id": "recover_misnamed_file",
+            "capability": "error_recovery"
+        },
+        {
+            "id": "organize_directory",
+            "capability": "file_system_management"
+        },
+        {
+            "id": "create_exact_file",
+            "capability": "instruction_following"
+        },
+        {
+            "id": "sum_two_files",
+            "capability": "multi_step_composition"
+        },
+        {
+            "id": "follow_typos",
+            "capability": "robustness"
+        },
+        {
+            "id": "refuse_impossible",
+            "capability": "stopping_criteria"
+        },
+        {
+            "id": "extract_field_map",
+            "capability": "structured_output"
+        },
+        {
+            "id": "count_by_extension",
+            "capability": "tool_query"
+        }
+    ],
+    "matrix": {
+        "naive-solver": {
+            "create_exact_file": {
+                "composite": 97.5,
+                "success": true,
+                "steps_used": 2,
+                "budget": 4,
+                "checks_passed": 2,
+                "checks_total": 2,
+                "latency_ms": 0.4,
+                "dimensions": {
+                    "task_success": 1,
+                    "protocol_compliance": 1,
+                    "tool_validity": 1,
+                    "error_recovery": 1,
+                    "efficiency": 0.75
+                }
+            },
+            "count_by_extension": {
+                "composite": 97,
+                "success": true,
+                "steps_used": 3,
+                "budget": 5,
+                "checks_passed": 2,
+                "checks_total": 2,
+                "latency_ms": 0.3,
+                "dimensions": {
+                    "task_success": 1,
+                    "protocol_compliance": 1,
+                    "tool_validity": 1,
+                    "error_recovery": 1,
+                    "efficiency": 0.7
+                }
+            },
+            "sum_two_files": {
+                "composite": 53.33,
+                "success": false,
+                "steps_used": 2,
+                "budget": 6,
+                "checks_passed": 1,
+                "checks_total": 2,
+                "latency_ms": 0.3,
+                "dimensions": {
+                    "task_success": 0,
+                    "protocol_compliance": 1,
+                    "tool_validity": 1,
+                    "error_recovery": 1,
+                    "efficiency": 0.8333
+                }
+            },
+            "recover_misnamed_file": {
+                "composite": 9.29,
+                "success": false,
+                "steps_used": 1,
+                "budget": 7,
+                "checks_passed": 0,
+                "checks_total": 2,
+                "latency_ms": 0.1,
+                "dimensions": {
+                    "task_success": 0,
+                    "protocol_compliance": 0,
+                    "tool_validity": 0,
+                    "error_recovery": 0,
+                    "efficiency": 0.9286
+                }
+            },
+            "extract_field_map": {
+                "composite": 53.57,
+                "success": false,
+                "steps_used": 2,
+                "budget": 7,
+                "checks_passed": 1,
+                "checks_total": 3,
+                "latency_ms": 0.3,
+                "dimensions": {
+                    "task_success": 0,
+                    "protocol_compliance": 1,
+                    "tool_validity": 1,
+                    "error_recovery": 1,
+                    "efficiency": 0.8571
+                }
+            },
+            "prune_by_extension": {
+                "composite": 8.33,
+                "success": false,
+                "steps_used": 6,
+                "budget": 6,
+                "checks_passed": 2,
+                "checks_total": 3,
+                "latency_ms": 0.3,
+                "dimensions": {
+                    "task_success": 0,
+                    "protocol_compliance": 0.1667,
+                    "tool_validity": 0,
+                    "error_recovery": 0,
+                    "efficiency": 0.5
+                }
+            },
+            "follow_typos": {
+                "composite": 97,
+                "success": true,
+                "steps_used": 3,
+                "budget": 5,
+                "checks_passed": 2,
+                "checks_total": 2,
+                "latency_ms": 0.3,
+                "dimensions": {
+                    "task_success": 1,
+                    "protocol_compliance": 1,
+                    "tool_validity": 1,
+                    "error_recovery": 1,
+                    "efficiency": 0.7
+                }
+            },
+            "organize_directory": {
+                "composite": 52.14,
+                "success": false,
+                "steps_used": 4,
+                "budget": 7,
+                "checks_passed": 6,
+                "checks_total": 10,
+                "latency_ms": 1,
+                "dimensions": {
+                    "task_success": 0,
+                    "protocol_compliance": 1,
+                    "tool_validity": 1,
+                    "error_recovery": 1,
+                    "efficiency": 0.7143
+                }
+            },
+            "refuse_impossible": {
+                "composite": 32.5,
+                "success": false,
+                "steps_used": 6,
+                "budget": 6,
+                "checks_passed": 0,
+                "checks_total": 3,
+                "latency_ms": 0.2,
+                "dimensions": {
+                    "task_success": 0,
+                    "protocol_compliance": 1,
+                    "tool_validity": 0.5,
+                    "error_recovery": 0,
+                    "efficiency": 0.5
+                }
+            }
+        },
+        "reference-solver": {
+            "create_exact_file": {
+                "composite": 97.5,
+                "success": true,
+                "steps_used": 2,
+                "budget": 4,
+                "checks_passed": 2,
+                "checks_total": 2,
+                "latency_ms": 0.4,
+                "dimensions": {
+                    "task_success": 1,
+                    "protocol_compliance": 1,
+                    "tool_validity": 1,
+                    "error_recovery": 1,
+                    "efficiency": 0.75
+                }
+            },
+            "count_by_extension": {
+                "composite": 97,
+                "success": true,
+                "steps_used": 3,
+                "budget": 5,
+                "checks_passed": 2,
+                "checks_total": 2,
+                "latency_ms": 0.4,
+                "dimensions": {
+                    "task_success": 1,
+                    "protocol_compliance": 1,
+                    "tool_validity": 1,
+                    "error_recovery": 1,
+                    "efficiency": 0.7
+                }
+            },
+            "sum_two_files": {
+                "composite": 96.67,
+                "success": true,
+                "steps_used": 4,
+                "budget": 6,
+                "checks_passed": 2,
+                "checks_total": 2,
+                "latency_ms": 0.3,
+                "dimensions": {
+                    "task_success": 1,
+                    "protocol_compliance": 1,
+                    "tool_validity": 1,
+                    "error_recovery": 1,
+                    "efficiency": 0.6667
+                }
+            },
+            "recover_misnamed_file": {
+                "composite": 97.14,
+                "success": true,
+                "steps_used": 4,
+                "budget": 7,
+                "checks_passed": 2,
+                "checks_total": 2,
+                "latency_ms": 0.4,
+                "dimensions": {
+                    "task_success": 1,
+                    "protocol_compliance": 1,
+                    "tool_validity": 1,
+                    "error_recovery": 1,
+                    "efficiency": 0.7143
+                }
+            },
+            "extract_field_map": {
+                "composite": 97.86,
+                "success": true,
+                "steps_used": 3,
+                "budget": 7,
+                "checks_passed": 3,
+                "checks_total": 3,
+                "latency_ms": 0.3,
+                "dimensions": {
+                    "task_success": 1,
+                    "protocol_compliance": 1,
+                    "tool_validity": 1,
+                    "error_recovery": 1,
+                    "efficiency": 0.7857
+                }
+            },
+            "prune_by_extension": {
+                "composite": 96.67,
+                "success": true,
+                "steps_used": 4,
+                "budget": 6,
+                "checks_passed": 3,
+                "checks_total": 3,
+                "latency_ms": 0.6,
+                "dimensions": {
+                    "task_success": 1,
+                    "protocol_compliance": 1,
+                    "tool_validity": 1,
+                    "error_recovery": 1,
+                    "efficiency": 0.6667
+                }
+            },
+            "follow_typos": {
+                "composite": 97,
+                "success": true,
+                "steps_used": 3,
+                "budget": 5,
+                "checks_passed": 2,
+                "checks_total": 2,
+                "latency_ms": 0.4,
+                "dimensions": {
+                    "task_success": 1,
+                    "protocol_compliance": 1,
+                    "tool_validity": 1,
+                    "error_recovery": 1,
+                    "efficiency": 0.7
+                }
+            },
+            "organize_directory": {
+                "composite": 96.43,
+                "success": true,
+                "steps_used": 5,
+                "budget": 7,
+                "checks_passed": 10,
+                "checks_total": 10,
+                "latency_ms": 1.7,
+                "dimensions": {
+                    "task_success": 1,
+                    "protocol_compliance": 1,
+                    "tool_validity": 1,
+                    "error_recovery": 1,
+                    "efficiency": 0.6429
+                }
+            },
+            "refuse_impossible": {
+                "composite": 83.33,
+                "success": true,
+                "steps_used": 2,
+                "budget": 6,
+                "checks_passed": 3,
+                "checks_total": 3,
+                "latency_ms": 0.1,
+                "dimensions": {
+                    "task_success": 1,
+                    "protocol_compliance": 1,
+                    "tool_validity": 0,
+                    "error_recovery": 1,
+                    "efficiency": 0.8333
+                }
+            }
+        }
+    },
+    "capabilities": {
+        "conditional_action": {
+            "naive-solver": {
+                "tasks": 1,
+                "composite": 8.33,
+                "task_success": 0
+            },
+            "reference-solver": {
+                "tasks": 1,
+                "composite": 96.67,
+                "task_success": 1
+            }
+        },
+        "error_recovery": {
+            "naive-solver": {
+                "tasks": 1,
+                "composite": 9.29,
+                "task_success": 0
+            },
+            "reference-solver": {
+                "tasks": 1,
+                "composite": 97.14,
+                "task_success": 1
+            }
+        },
+        "file_system_management": {
+            "naive-solver": {
+                "tasks": 1,
+                "composite": 52.14,
+                "task_success": 0
+            },
+            "reference-solver": {
+                "tasks": 1,
+                "composite": 96.43,
+                "task_success": 1
+            }
+        },
+        "instruction_following": {
+            "naive-solver": {
+                "tasks": 1,
+                "composite": 97.5,
+                "task_success": 1
+            },
+            "reference-solver": {
+                "tasks": 1,
+                "composite": 97.5,
+                "task_success": 1
+            }
+        },
+        "multi_step_composition": {
+            "naive-solver": {
+                "tasks": 1,
+                "composite": 53.33,
+                "task_success": 0
+            },
+            "reference-solver": {
+                "tasks": 1,
+                "composite": 96.67,
+                "task_success": 1
+            }
+        },
+        "robustness": {
+            "naive-solver": {
+                "tasks": 1,
+                "composite": 97,
+                "task_success": 1
+            },
+            "reference-solver": {
+                "tasks": 1,
+                "composite": 97,
+                "task_success": 1
+            }
+        },
+        "stopping_criteria": {
+            "naive-solver": {
+                "tasks": 1,
+                "composite": 32.5,
+                "task_success": 0
+            },
+            "reference-solver": {
+                "tasks": 1,
+                "composite": 83.33,
+                "task_success": 1
+            }
+        },
+        "structured_output": {
+            "naive-solver": {
+                "tasks": 1,
+                "composite": 53.57,
+                "task_success": 0
+            },
+            "reference-solver": {
+                "tasks": 1,
+                "composite": 97.86,
+                "task_success": 1
+            }
+        },
+        "tool_query": {
+            "naive-solver": {
+                "tasks": 1,
+                "composite": 97,
+                "task_success": 1
+            },
+            "reference-solver": {
+                "tasks": 1,
+                "composite": 97,
+                "task_success": 1
+            }
+        }
+    },
+    "summary": {
+        "naive-solver": {
+            "tasks": 9,
+            "tasks_passed": 3,
+            "pass_rate": 0.3333,
+            "composite": 55.6289,
+            "dimensions": {
+                "task_success": 0.3333,
+                "protocol_compliance": 0.7963,
+                "tool_validity": 0.7222,
+                "error_recovery": 0.6667,
+                "efficiency": 0.7204
+            },
+            "steps_mean": 3.2222,
+            "latency_ms_mean": 0.3556,
+            "budget_exhausted": 2
+        },
+        "reference-solver": {
+            "tasks": 9,
+            "tasks_passed": 9,
+            "pass_rate": 1,
+            "composite": 95.5111,
+            "dimensions": {
+                "task_success": 1,
+                "protocol_compliance": 1,
+                "tool_validity": 0.8889,
+                "error_recovery": 1,
+                "efficiency": 0.7177
+            },
+            "steps_mean": 3.3333,
+            "latency_ms_mean": 0.5111,
+            "budget_exhausted": 0
+        }
+    },
+    "suite": {
+        "consistent": true,
+        "task_count": 9,
+        "findings": []
+    },
+    "notes": []
+}

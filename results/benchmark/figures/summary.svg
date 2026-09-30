@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="294" viewBox="0 0 940 294" role="img" shape-rendering="crispEdges">
+<title>A run in one line</title>
+<rect x="0.0" y="0.0" width="940.0" height="294.0" rx="0" ry="0" fill="#ffffff"/>
+<text x="16.0" y="24.0" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#202020" text-anchor="start" font-weight="bold">A run in one line</text>
+<text x="16.0" y="42.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#6a6a6a" text-anchor="start" font-weight="normal">the composite is the blend of the five dimensions, reported out of 100</text>
+<rect x="16.0" y="51.0" width="10.0" height="10.0" rx="0" ry="0" fill="#2f5d8a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="31.0" y="60.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#6a6a6a" text-anchor="start" font-weight="normal">local/naive-solver</text>
+<rect x="164.2" y="51.0" width="10.0" height="10.0" rx="0" ry="0" fill="#8a6a2f" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="179.2" y="60.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#6a6a6a" text-anchor="start" font-weight="normal">local/reference-solver</text>
+<rect x="338.0" y="51.0" width="10.0" height="10.0" rx="0" ry="0" fill="#4a7a5a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="353.0" y="60.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#6a6a6a" text-anchor="start" font-weight="normal">kaggle/naive-solver</text>
+<rect x="492.6" y="51.0" width="10.0" height="10.0" rx="0" ry="0" fill="#7a3f6a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="507.6" y="60.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#6a6a6a" text-anchor="start" font-weight="normal">kaggle/reference-solver</text>
+<line x1="250.0" y1="78.0" x2="250.0" y2="268.0" stroke="#d8d8d8" stroke-width="0.8"/>
+<text x="250.0" y="72.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="middle" font-weight="normal">0</text>
+<line x1="404.0" y1="78.0" x2="404.0" y2="268.0" stroke="#d8d8d8" stroke-width="0.8"/>
+<text x="404.0" y="72.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="middle" font-weight="normal">25</text>
+<line x1="558.0" y1="78.0" x2="558.0" y2="268.0" stroke="#d8d8d8" stroke-width="0.8"/>
+<text x="558.0" y="72.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="middle" font-weight="normal">50</text>
+<line x1="712.0" y1="78.0" x2="712.0" y2="268.0" stroke="#d8d8d8" stroke-width="0.8"/>
+<text x="712.0" y="72.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="middle" font-weight="normal">75</text>
+<line x1="866.0" y1="78.0" x2="866.0" y2="268.0" stroke="#d8d8d8" stroke-width="0.8"/>
+<text x="866.0" y="72.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="middle" font-weight="normal">100</text>
+<text x="16.0" y="111.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#202020" text-anchor="start" font-weight="normal">composite</text>
+<rect x="250.0" y="78.0" width="342.7" height="13.0" rx="0" ry="0" fill="#2f5d8a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="89.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">55.6</text>
+<rect x="250.0" y="93.0" width="588.3" height="13.0" rx="0" ry="0" fill="#8a6a2f" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="104.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">95.5</text>
+<rect x="250.0" y="108.0" width="342.7" height="13.0" rx="0" ry="0" fill="#4a7a5a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="119.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">55.6</text>
+<rect x="250.0" y="123.0" width="588.3" height="13.0" rx="0" ry="0" fill="#7a3f6a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="134.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">95.5</text>
+<text x="16.0" y="177.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#202020" text-anchor="start" font-weight="normal">tasks passed</text>
+<rect x="250.0" y="144.0" width="616.0" height="13.0" rx="0" ry="0" fill="#2f5d8a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="155.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">100.0</text>
+<rect x="250.0" y="159.0" width="616.0" height="13.0" rx="0" ry="0" fill="#8a6a2f" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="170.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">100.0</text>
+<rect x="250.0" y="174.0" width="616.0" height="13.0" rx="0" ry="0" fill="#4a7a5a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="185.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">100.0</text>
+<rect x="250.0" y="189.0" width="616.0" height="13.0" rx="0" ry="0" fill="#7a3f6a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="200.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">100.0</text>
+<text x="16.0" y="243.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#202020" text-anchor="start" font-weight="normal">budget spent</text>
+<rect x="250.0" y="210.0" width="344.5" height="13.0" rx="0" ry="0" fill="#2f5d8a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="221.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">55.9</text>
+<rect x="250.0" y="225.0" width="347.8" height="13.0" rx="0" ry="0" fill="#8a6a2f" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="236.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">56.5</text>
+<rect x="250.0" y="240.0" width="344.5" height="13.0" rx="0" ry="0" fill="#4a7a5a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="251.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">55.9</text>
+<rect x="250.0" y="255.0" width="347.8" height="13.0" rx="0" ry="0" fill="#7a3f6a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="266.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">56.5</text>
+</svg>

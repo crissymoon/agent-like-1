@@ -1,0 +1,39 @@
+Where the lost composite sits
+
+  one row per side, solver and task, so a solver measured on two sides is counted twice
+
+  area                 tasks     lost  signals
+  verification            12   781.68  partial_checks 12
+  planning                 8   463.34  failed_with_turns_left 8
+  argument_schema          4   318.34  invalid_arguments 4
+  loop_control             4   318.34  ran_out_of_turns 4
+  error_handling           2   183.34  repeated_failing_turn 2
+  stopping_criteria        2   135.00  answer_not_given 2
+
+  the lever beside each area
+
+    verification: some of the task's own checks passed: the verifier names exactly what the end state missed
+    planning: the episode failed while steps remained, so the plan was wrong rather than long
+    argument_schema: a call was refused on its arguments: the schema or the examples beside it are the lever
+    loop_control: the episode spent its whole step budget: the stop condition or the length of a plan is the lever
+    error_handling: the same failing turn was repeated: the loop needs to change what it does on a repeat
+    stopping_criteria: the honest answer was not given on a task whose goal is to stop: refusal has to be a teachable output
+
+  by capability
+
+    conditional_action       passed 2/4  lost 190.00
+    error_recovery           passed 2/4  lost 187.14
+    file_system_management   passed 2/4  lost 102.86
+    instruction_following    passed 4/4  lost 10.00
+    multi_step_composition   passed 2/4  lost 100.00
+    robustness               passed 4/4  lost 12.00
+    stopping_criteria        passed 2/4  lost 168.34
+    structured_output        passed 2/4  lost 97.14
+    tool_query               passed 4/4  lost 12.00
+
+  by solver
+
+    kaggle/naive-solver                passed 3/9  lost 399.34
+    kaggle/reference-solver            passed 9/9  lost 40.40
+    local/naive-solver                 passed 3/9  lost 399.34
+    local/reference-solver             passed 9/9  lost 40.40

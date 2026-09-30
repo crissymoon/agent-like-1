@@ -41,3 +41,18 @@ To turn this concept into a hard mathematical score for your ablation tables:
 > 1. Run the exact same 10 levels through your **hosted reference model (deepseek-v4-flash)** to record a maximum baseline trajectory ceiling.  
 > 2. Calculate your **Proximity-to-Premium Score** as a direct percentage ratio of the local model's pass rate against the hosted target.  
 > 3. If your text-only Gemma 2B model achieves a high proximity score on a specific level (e.g., 90% proximity on Level 6, but 40% proximity on Level 9), you prove exactly where resource restrictions block reasoning capabilities versus where smart application framework design completely nullifies the hardware gap.
+
+## ---
+
+**What a run leaves behind**
+
+A run no longer ends at a table on a screen. The same portable benchmark runs on a machine and on a host, and the closing steps read every written run into four things:
+
+* `figures/*.svg` - the per-task composite, the five dimensions, the per-capability reading, the run in one line, and the pass matrix across sides. Written as SVG by the benchmark itself, so there is no plotting dependency and a figure opens in a browser or a pull request. Every rectangle is drawn with a zero corner radius, which is a constant in the source and not a style sheet.
+* `dataset/dataset.csv` and `dataset/dataset.jsonl` - one row per side, solver and task with the loop's own counters kept as columns, and the same rows as records for a training script.
+* `dataset/signals.json` and `dataset/learning.json` - the ten signals each failed row is read against, each naming the part of the harness it points at, and the work ordered by the composite it accounts for.
+* `benchmark-bundle.zip` beside `bundle.json` - all of the above in one file, with a size and a digest per member.
+
+```bash
+python3 tools/kaggle/gembench/report.py --side local=results/benchmark/local --side kaggle=results/benchmark/kaggle --out results/benchmark
+```

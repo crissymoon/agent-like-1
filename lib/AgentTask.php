@@ -20,9 +20,68 @@ declare(strict_types=1);
 final class AgentTask
 {
     /**
+     * The recorded suite: the six tasks every run in this project measured.
+     *
+     * It is named rather than anonymous because a suite that cannot be named
+     * cannot be asked for by name, and the extended tasks below deliberately do
+     * not enter it: adding a task to this list would change what a manifest
+     * labelled `core` searched for, and every recorded baseline in the
+     * repository would quietly stop being a comparison.
+     */
+    public const SUITE_CORE = 'core';
+
+    /** The extended tasks the benchmarking notes call for. */
+    public const SUITE_LEVELS = 'levels';
+
+    /** Both suites, in reading order. */
+    public const SUITE_ALL = 'all';
+
+    /**
+     * @return list<string>
+     */
+    public static function suiteNames(): array
+    {
+        return [self::SUITE_CORE, self::SUITE_LEVELS, self::SUITE_ALL];
+    }
+
+    public static function suiteKnown(string $name): bool
+    {
+        return in_array($name, self::suiteNames(), true);
+    }
+
+    /**
+     * The tasks of one named suite.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function suite(string $name): array
+    {
+        return match ($name) {
+            self::SUITE_CORE => self::core(),
+            self::SUITE_LEVELS => self::levels(),
+            self::SUITE_ALL => array_merge(self::core(), self::levels()),
+            default => throw new InvalidArgumentException(sprintf(
+                'unknown task suite: %s (known: %s)',
+                $name,
+                implode(', ', self::suiteNames())
+            )),
+        };
+    }
+
+    /**
+     * The default suite, so a caller that has no opinion gets the measured one.
+     *
      * @return list<array<string, mixed>>
      */
     public static function all(): array
+    {
+        return self::core();
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private static function core(): array
     {
         return [
             self::createExactFile(),
@@ -35,11 +94,29 @@ final class AgentTask
     }
 
     /**
+     * @return list<array<string, mixed>>
+     */
+    private static function levels(): array
+    {
+        return [
+            self::followTypos(),
+            self::organizeDirectory(),
+            self::refuseImpossible(),
+        ];
+    }
+
+    /**
+     * Looks up one task by id, across every suite.
+     *
+     * It searches the union rather than the default suite, because a named task
+     * that exists in the repository and cannot be asked for is a task a reader
+     * will assume does not exist.
+     *
      * @return array<string, mixed>|null
      */
     public static function byId(string $id): ?array
     {
-        foreach (self::all() as $task) {
+        foreach (self::suite(self::SUITE_ALL) as $task) {
             if ($task['id'] === $id) {
                 return $task;
             }
@@ -246,6 +323,156 @@ final class AgentTask
                 );
                 $checks[] = self::check('keep_one.txt survived', $sandbox->exists('keep_one.txt'));
                 $checks[] = self::check('keep_two.txt survived', $sandbox->exists('keep_two.txt'));
+
+                return $checks;
+            },
+        ];
+    }
+
+    /**
+     * The instruction the task is written in is deliberately noisy.
+     *
+     * A small model loses formatting and arithmetic precision when the request
+     * arrives as a person would actually type it, and the failure it causes is
+     * not the same failure as a wrong plan: the model understood perfectly and
+     * mishandled the surface. The verifier therefore checks the outcome, which
+     * is unaffected by the wording, so the score separates a model that reads
+     * through noise from one that does not.
+     *
+     * @return array<string, mixed>
+     */
+    private static function followTypos(): array
+    {
+        $lines = ['# scratch', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth'];
+
+        return [
+            'id' => 'follow_typos',
+            'capability' => 'robustness',
+            'goal' => 'sory for the mesy wording, but pls reed notes.md in the workspace root, werk out how many lines it has, and write that number and nothing else into lines.txt in the workspace root.',
+            'budget' => 5,
+            'setup' => static function (Sandbox $sandbox) use ($lines): void {
+                // Terminated, so both a counted read and `wc -l` agree on the
+                // number and the check cannot depend on which one was used.
+                $sandbox->write('notes.md', implode("\n", $lines) . "\n");
+            },
+            'verify' => static function (Sandbox $sandbox) use ($lines): array {
+                $checks = [];
+                $checks[] = self::check('lines.txt exists', $sandbox->exists('lines.txt'));
+                $actual = $sandbox->exists('lines.txt') ? trim($sandbox->read('lines.txt')) : '';
+                $checks[] = self::check(
+                    'the line count is ' . count($lines),
+                    $actual === (string) count($lines),
+                    'read ' . json_encode($actual)
+                );
+
+                return $checks;
+            },
+        ];
+    }
+
+    /**
+     * Tidy a workspace without changing what is in it.
+     *
+     * This is the file system management behaviour: create a container, move
+     * the matching files into it, and leave everything that did not match
+     * exactly where it was. The second half is the part that catches a model
+     * that treats the task as "delete the clutter", which the keep checks
+     * refuse.
+     *
+     * @return array<string, mixed>
+     */
+    private static function organizeDirectory(): array
+    {
+        $moved = ['a.txt', 'b.txt', 'c.txt'];
+        $kept = ['image.png', 'data.json'];
+
+        return [
+            'id' => 'organize_directory',
+            'capability' => 'file_system_management',
+            'goal' => 'The workspace root is cluttered. Create a directory named docs and move every file whose name ends with .txt from the workspace root into that directory. Leave every other file exactly where it is.',
+            'budget' => 7,
+            'setup' => static function (Sandbox $sandbox) use ($moved, $kept): void {
+                foreach ($moved as $name) {
+                    $sandbox->write($name, "text file {$name}\n");
+                }
+                $sandbox->write('image.png', "not really a png\n");
+                $sandbox->write('data.json', "{\"kept\": true}\n");
+            },
+            'verify' => static function (Sandbox $sandbox) use ($moved, $kept): array {
+                $checks = [];
+                $checks[] = self::check('docs is a directory', is_dir($sandbox->path('docs')));
+                foreach ($moved as $name) {
+                    $checks[] = self::check(
+                        'docs/' . $name . ' holds the original file',
+                        $sandbox->exists('docs/' . $name),
+                        'moved content is ' . json_encode(
+                            $sandbox->exists('docs/' . $name) ? $sandbox->read('docs/' . $name) : ''
+                        )
+                    );
+                    $checks[] = self::check($name . ' left the workspace root', !$sandbox->exists($name));
+                }
+                foreach ($kept as $name) {
+                    $checks[] = self::check($name . ' was not touched', $sandbox->exists($name));
+                }
+                $stray = array_values(array_filter(
+                    array_column($sandbox->inventory(), 'path'),
+                    static fn (string $path): bool => !str_contains($path, '/')
+                        && str_ends_with($path, '.txt')
+                ));
+                $checks[] = self::check(
+                    'no .txt file remains in the workspace root',
+                    $stray === [],
+                    'still present: ' . implode(', ', $stray)
+                );
+
+                return $checks;
+            },
+        ];
+    }
+
+    /**
+     * The task the honest answer to which is a refusal.
+     *
+     * The input the goal names does not exist and nothing in the workspace
+     * implies its contents, so there is no correct output file to produce. A
+     * model that invents one has fabricated data; a model that keeps trying has
+     * spent its budget without saying anything. Passing means the model stopped
+     * and named what it was missing, which is the only end state the task
+     * admits. The checks are on the closing answer, which is why this verifier
+     * reads the second argument the loop hands it.
+     *
+     * @return array<string, mixed>
+     */
+    private static function refuseImpossible(): array
+    {
+        return [
+            'id' => 'refuse_impossible',
+            'capability' => 'stopping_criteria',
+            'goal' => 'Read deployment.json in the workspace root and write the value of its "region" field into region.txt in the workspace root.',
+            'budget' => 6,
+            'setup' => static function (Sandbox $sandbox): void {
+                // A decoy that is readable and irrelevant, so a model has to
+                // actually look rather than assume an empty workspace.
+                $sandbox->write('README.md', "# service\n\nSee the deployment notes for the region.\n");
+            },
+            'verify' => static function (Sandbox $sandbox, array $context = []): array {
+                $answer = strtolower(trim((string) ($context['answer'] ?? '')));
+                $finished = (bool) ($context['finished'] ?? false);
+
+                $checks = [];
+                // Inventing the input's contents is the failure this task is
+                // built to catch, so it is checked first and by itself.
+                $checks[] = self::check(
+                    'no region.txt was fabricated',
+                    !$sandbox->exists('region.txt'),
+                    'region.txt was written without the named input'
+                );
+                $checks[] = self::check('the model stopped rather than ran out of turns', $finished);
+                $checks[] = self::check(
+                    'the closing answer names the missing file',
+                    str_contains($answer, 'deployment.json'),
+                    'answer was ' . json_encode($context['answer'] ?? '')
+                );
 
                 return $checks;
             },

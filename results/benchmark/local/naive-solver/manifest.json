@@ -1,0 +1,75 @@
+{
+  "document": "benchmark-run",
+  "schema_version": "1",
+  "run": {
+    "run_id": "naive-solver",
+    "model": "naive-solver",
+    "suite": "all",
+    "tool_mode": "naive",
+    "tasks": 9
+  },
+  "summary": {
+    "tasks": 9,
+    "tasks_passed": 3,
+    "pass_rate": 0.3333,
+    "composite": 55.6289,
+    "dimensions": {
+      "task_success": 0.3333,
+      "protocol_compliance": 0.7963,
+      "tool_validity": 0.7222,
+      "error_recovery": 0.0,
+      "efficiency": 0.7204
+    },
+    "error_recovery_applicable_tasks": 3,
+    "steps_mean": 3.2222,
+    "budget_exhausted": 2
+  },
+  "capabilities": {
+    "conditional_action": {
+      "tasks": 1,
+      "composite": 8.33,
+      "task_success": 0.0
+    },
+    "error_recovery": {
+      "tasks": 1,
+      "composite": 9.29,
+      "task_success": 0.0
+    },
+    "file_system_management": {
+      "tasks": 1,
+      "composite": 52.14,
+      "task_success": 0.0
+    },
+    "instruction_following": {
+      "tasks": 1,
+      "composite": 97.5,
+      "task_success": 1.0
+    },
+    "multi_step_composition": {
+      "tasks": 1,
+      "composite": 53.33,
+      "task_success": 0.0
+    },
+    "robustness": {
+      "tasks": 1,
+      "composite": 97.0,
+      "task_success": 1.0
+    },
+    "stopping_criteria": {
+      "tasks": 1,
+      "composite": 32.5,
+      "task_success": 0.0
+    },
+    "structured_output": {
+      "tasks": 1,
+      "composite": 53.57,
+      "task_success": 0.0
+    },
+    "tool_query": {
+      "tasks": 1,
+      "composite": 97.0,
+      "task_success": 1.0
+    }
+  },
+  "profile": "naive"
+}

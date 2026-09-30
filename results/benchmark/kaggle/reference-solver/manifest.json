@@ -1,0 +1,76 @@
+{
+  "document": "benchmark-run",
+  "schema_version": "1",
+  "run": {
+    "run_id": "reference-solver",
+    "model": "reference-solver",
+    "suite": "all",
+    "tool_mode": "reference",
+    "tasks": 9
+  },
+  "summary": {
+    "tasks": 9,
+    "tasks_passed": 9,
+    "pass_rate": 1.0,
+    "composite": 95.5111,
+    "dimensions": {
+      "task_success": 1.0,
+      "protocol_compliance": 1.0,
+      "tool_validity": 0.8889,
+      "error_recovery": 1.0,
+      "efficiency": 0.7177
+    },
+    "error_recovery_applicable_tasks": 1,
+    "steps_mean": 3.3333,
+    "budget_exhausted": 0
+  },
+  "capabilities": {
+    "conditional_action": {
+      "tasks": 1,
+      "composite": 96.67,
+      "task_success": 1.0
+    },
+    "error_recovery": {
+      "tasks": 1,
+      "composite": 97.14,
+      "task_success": 1.0
+    },
+    "file_system_management": {
+      "tasks": 1,
+      "composite": 96.43,
+      "task_success": 1.0
+    },
+    "instruction_following": {
+      "tasks": 1,
+      "composite": 97.5,
+      "task_success": 1.0
+    },
+    "multi_step_composition": {
+      "tasks": 1,
+      "composite": 96.67,
+      "task_success": 1.0
+    },
+    "robustness": {
+      "tasks": 1,
+      "composite": 97.0,
+      "task_success": 1.0
+    },
+    "stopping_criteria": {
+      "tasks": 1,
+      "composite": 83.33,
+      "task_success": 1.0
+    },
+    "structured_output": {
+      "tasks": 1,
+      "composite": 97.86,
+      "task_success": 1.0
+    },
+    "tool_query": {
+      "tasks": 1,
+      "composite": 97.0,
+      "task_success": 1.0
+    }
+  },
+  "side": "kaggle",
+  "runtime": "Linux-6.12.90+-x86_64-with-glibc2.35"
+}

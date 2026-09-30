@@ -47,6 +47,10 @@ function usage(): never
       --tool-mode MODE     prompt or native. Default: prompt.
       --task ID            Run one task. Repeatable.
       --limit N            Run at most N tasks.
+      --suite NAME         core, levels or all. Default: core, the six tasks
+                           every recorded run measured. levels adds the tasks
+                           that test noisy instruction text, file system
+                           organisation and the stopping rule.
       --no-gemma           Skip the local model.
       --no-deepseek        Skip the hosted reference model.
       --list-tasks         Print the task ids and exit.
@@ -101,6 +105,7 @@ function options(): array
         'runId' => date('Ymd-His'),
         'gemmaUrl' => GEMMA_SERVER_URL,
         'toolMode' => HARNESS_AGENT_TOOL_MODE,
+        'suite' => HARNESS_AGENT_SUITE,
         'tasks' => [],
         'limit' => 0,
         'gemma' => true,
@@ -140,6 +145,10 @@ function options(): array
                 break;
             case '--tool-mode':
                 $options['toolMode'] = $value;
+                $index++;
+                break;
+            case '--suite':
+                $options['suite'] = $value;
                 $index++;
                 break;
             case '--task':
@@ -206,8 +215,14 @@ function options(): array
                 $options['decoderProbe'] = true;
                 break;
             case '--list-tasks':
-                foreach (AgentTask::all() as $task) {
-                    printf("%-24s %s\n", $task['id'], $task['capability']);
+                $coreIds = array_column(AgentTask::suite(AgentTask::SUITE_CORE), 'id');
+                foreach (AgentTask::suite(AgentTask::SUITE_ALL) as $task) {
+                    printf(
+                        "%-7s %-24s %s\n",
+                        in_array($task['id'], $coreIds, true) ? 'core' : 'levels',
+                        $task['id'],
+                        $task['capability']
+                    );
                 }
                 exit(0);
                 // no break
@@ -222,6 +237,18 @@ function options(): array
 
     if (!in_array($options['toolMode'], ['prompt', 'native'], true)) {
         fwrite(STDERR, 'The tool mode must be prompt or native.' . PHP_EOL);
+        exit(2);
+    }
+
+    // Refused here rather than at the first task, so a mistyped suite name is a
+    // message about the name and not an empty run with no tasks in it.
+    if (!AgentTask::suiteKnown((string) $options['suite'])) {
+        fwrite(STDERR, sprintf(
+            'Unknown task suite: %s (known: %s)%s',
+            (string) $options['suite'],
+            implode(', ', AgentTask::suiteNames()),
+            PHP_EOL
+        ));
         exit(2);
     }
 
@@ -250,7 +277,7 @@ function options(): array
 function flatArguments(array $argv): array
 {
     $withValue = [
-        '--out-dir', '--run-id', '--gemma-url', '--tool-mode', '--task', '--limit',
+        '--out-dir', '--run-id', '--gemma-url', '--tool-mode', '--suite', '--task', '--limit',
         '--guard-repeat-limit', '--decoder', '--decoder-scope', '--decoder-field', '--sandbox', '--replay',
     ];
 
@@ -383,7 +410,7 @@ if ((string) $options['replay'] !== '') {
 }
 
 $tasks = $options['tasks'] === []
-    ? AgentTask::all()
+    ? AgentTask::suite((string) $options['suite'])
     : array_values(array_filter(array_map(
         static fn (string $id): ?array => AgentTask::byId($id),
         $options['tasks']
@@ -755,6 +782,7 @@ $run = [
     'finished_at' => date('c'),
     'duration_s' => round(microtime(true) - $startedAt, 2),
     'tool_mode' => (string) $options['toolMode'],
+    'suite' => (string) $options['suite'],
     'prompt_sha256' => $promptHash,
     'controls' => $controls->describe(),
     'engine' => $engineProfile,

@@ -1,0 +1,10 @@
+{
+  "kernel": "crissymoon/agent-benchmark",
+  "local": "kernels/gemma-benchmark/notebook.ipynb",
+  "platform": "<tmp>/kaggle-notebook-api8zmbd/agent-benchmark.ipynb",
+  "local_cells": "33 cell(s): 14 code, 19 markdown",
+  "platform_cells": "33 cell(s): 14 code, 19 markdown",
+  "metadata": "10 of 10 settings agree",
+  "findings": [],
+  "identical": true
+}

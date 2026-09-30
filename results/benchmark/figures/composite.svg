@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="690" viewBox="0 0 940 690" role="img" shape-rendering="crispEdges">
+<title>Composite by task, out of 100</title>
+<rect x="0.0" y="0.0" width="940.0" height="690.0" rx="0" ry="0" fill="#ffffff"/>
+<text x="16.0" y="24.0" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#202020" text-anchor="start" font-weight="bold">Composite by task, out of 100</text>
+<text x="16.0" y="42.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#6a6a6a" text-anchor="start" font-weight="normal">one bar per run and task; the composite is the weighted blend of the five dimensions</text>
+<rect x="16.0" y="51.0" width="10.0" height="10.0" rx="0" ry="0" fill="#2f5d8a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="31.0" y="60.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#6a6a6a" text-anchor="start" font-weight="normal">local/naive-solver</text>
+<rect x="164.2" y="51.0" width="10.0" height="10.0" rx="0" ry="0" fill="#8a6a2f" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="179.2" y="60.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#6a6a6a" text-anchor="start" font-weight="normal">local/reference-solver</text>
+<rect x="338.0" y="51.0" width="10.0" height="10.0" rx="0" ry="0" fill="#4a7a5a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="353.0" y="60.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#6a6a6a" text-anchor="start" font-weight="normal">kaggle/naive-solver</text>
+<rect x="492.6" y="51.0" width="10.0" height="10.0" rx="0" ry="0" fill="#7a3f6a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="507.6" y="60.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#6a6a6a" text-anchor="start" font-weight="normal">kaggle/reference-solver</text>
+<line x1="250.0" y1="78.0" x2="250.0" y2="664.0" stroke="#d8d8d8" stroke-width="0.8"/>
+<text x="250.0" y="72.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="middle" font-weight="normal">0</text>
+<line x1="404.0" y1="78.0" x2="404.0" y2="664.0" stroke="#d8d8d8" stroke-width="0.8"/>
+<text x="404.0" y="72.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="middle" font-weight="normal">25</text>
+<line x1="558.0" y1="78.0" x2="558.0" y2="664.0" stroke="#d8d8d8" stroke-width="0.8"/>
+<text x="558.0" y="72.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="middle" font-weight="normal">50</text>
+<line x1="712.0" y1="78.0" x2="712.0" y2="664.0" stroke="#d8d8d8" stroke-width="0.8"/>
+<text x="712.0" y="72.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="middle" font-weight="normal">75</text>
+<line x1="866.0" y1="78.0" x2="866.0" y2="664.0" stroke="#d8d8d8" stroke-width="0.8"/>
+<text x="866.0" y="72.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="middle" font-weight="normal">100</text>
+<text x="16.0" y="111.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#202020" text-anchor="start" font-weight="normal">create_exact_file</text>
+<rect x="250.0" y="78.0" width="600.6" height="13.0" rx="0" ry="0" fill="#2f5d8a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="89.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">97.5</text>
+<rect x="250.0" y="93.0" width="600.6" height="13.0" rx="0" ry="0" fill="#8a6a2f" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="104.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">97.5</text>
+<rect x="250.0" y="108.0" width="600.6" height="13.0" rx="0" ry="0" fill="#4a7a5a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="119.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">97.5</text>
+<rect x="250.0" y="123.0" width="600.6" height="13.0" rx="0" ry="0" fill="#7a3f6a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="134.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">97.5</text>
+<text x="16.0" y="177.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#202020" text-anchor="start" font-weight="normal">count_by_extension</text>
+<rect x="250.0" y="144.0" width="597.5" height="13.0" rx="0" ry="0" fill="#2f5d8a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="155.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">97.0</text>
+<rect x="250.0" y="159.0" width="597.5" height="13.0" rx="0" ry="0" fill="#8a6a2f" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="170.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">97.0</text>
+<rect x="250.0" y="174.0" width="597.5" height="13.0" rx="0" ry="0" fill="#4a7a5a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="185.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">97.0</text>
+<rect x="250.0" y="189.0" width="597.5" height="13.0" rx="0" ry="0" fill="#7a3f6a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="200.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">97.0</text>
+<text x="16.0" y="243.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#202020" text-anchor="start" font-weight="normal">sum_two_files</text>
+<rect x="250.0" y="210.0" width="328.5" height="13.0" rx="0" ry="0" fill="#2f5d8a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="221.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">53.3</text>
+<rect x="250.0" y="225.0" width="595.5" height="13.0" rx="0" ry="0" fill="#8a6a2f" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="236.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">96.7</text>
+<rect x="250.0" y="240.0" width="328.5" height="13.0" rx="0" ry="0" fill="#4a7a5a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="251.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">53.3</text>
+<rect x="250.0" y="255.0" width="595.5" height="13.0" rx="0" ry="0" fill="#7a3f6a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="266.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">96.7</text>
+<text x="16.0" y="309.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#202020" text-anchor="start" font-weight="normal">recover_misnamed_file</text>
+<rect x="250.0" y="276.0" width="57.2" height="13.0" rx="0" ry="0" fill="#2f5d8a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="287.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">9.3</text>
+<rect x="250.0" y="291.0" width="598.4" height="13.0" rx="0" ry="0" fill="#8a6a2f" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="302.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">97.1</text>
+<rect x="250.0" y="306.0" width="57.2" height="13.0" rx="0" ry="0" fill="#4a7a5a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="317.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">9.3</text>
+<rect x="250.0" y="321.0" width="598.4" height="13.0" rx="0" ry="0" fill="#7a3f6a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="332.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">97.1</text>
+<text x="16.0" y="375.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#202020" text-anchor="start" font-weight="normal">extract_field_map</text>
+<rect x="250.0" y="342.0" width="330.0" height="13.0" rx="0" ry="0" fill="#2f5d8a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="353.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">53.6</text>
+<rect x="250.0" y="357.0" width="602.8" height="13.0" rx="0" ry="0" fill="#8a6a2f" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="368.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">97.9</text>
+<rect x="250.0" y="372.0" width="330.0" height="13.0" rx="0" ry="0" fill="#4a7a5a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="383.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">53.6</text>
+<rect x="250.0" y="387.0" width="602.8" height="13.0" rx="0" ry="0" fill="#7a3f6a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="398.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">97.9</text>
+<text x="16.0" y="441.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#202020" text-anchor="start" font-weight="normal">prune_by_extension</text>
+<rect x="250.0" y="408.0" width="51.3" height="13.0" rx="0" ry="0" fill="#2f5d8a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="419.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">8.3</text>
+<rect x="250.0" y="423.0" width="595.5" height="13.0" rx="0" ry="0" fill="#8a6a2f" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="434.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">96.7</text>
+<rect x="250.0" y="438.0" width="51.3" height="13.0" rx="0" ry="0" fill="#4a7a5a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="449.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">8.3</text>
+<rect x="250.0" y="453.0" width="595.5" height="13.0" rx="0" ry="0" fill="#7a3f6a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="464.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">96.7</text>
+<text x="16.0" y="507.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#202020" text-anchor="start" font-weight="normal">follow_typos</text>
+<rect x="250.0" y="474.0" width="597.5" height="13.0" rx="0" ry="0" fill="#2f5d8a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="485.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">97.0</text>
+<rect x="250.0" y="489.0" width="597.5" height="13.0" rx="0" ry="0" fill="#8a6a2f" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="500.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">97.0</text>
+<rect x="250.0" y="504.0" width="597.5" height="13.0" rx="0" ry="0" fill="#4a7a5a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="515.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">97.0</text>
+<rect x="250.0" y="519.0" width="597.5" height="13.0" rx="0" ry="0" fill="#7a3f6a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="530.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">97.0</text>
+<text x="16.0" y="573.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#202020" text-anchor="start" font-weight="normal">organize_directory</text>
+<rect x="250.0" y="540.0" width="321.2" height="13.0" rx="0" ry="0" fill="#2f5d8a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="551.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">52.1</text>
+<rect x="250.0" y="555.0" width="594.0" height="13.0" rx="0" ry="0" fill="#8a6a2f" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="566.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">96.4</text>
+<rect x="250.0" y="570.0" width="321.2" height="13.0" rx="0" ry="0" fill="#4a7a5a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="581.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">52.1</text>
+<rect x="250.0" y="585.0" width="594.0" height="13.0" rx="0" ry="0" fill="#7a3f6a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="596.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">96.4</text>
+<text x="16.0" y="639.0" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#202020" text-anchor="start" font-weight="normal">refuse_impossible</text>
+<rect x="250.0" y="606.0" width="200.2" height="13.0" rx="0" ry="0" fill="#2f5d8a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="617.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">32.5</text>
+<rect x="250.0" y="621.0" width="513.3" height="13.0" rx="0" ry="0" fill="#8a6a2f" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="632.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">83.3</text>
+<rect x="250.0" y="636.0" width="200.2" height="13.0" rx="0" ry="0" fill="#4a7a5a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="647.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">32.5</text>
+<rect x="250.0" y="651.0" width="513.3" height="13.0" rx="0" ry="0" fill="#7a3f6a" stroke="#1d3b57" stroke-width="0.6"/>
+<text x="872.0" y="662.0" font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6a6a6a" text-anchor="start" font-weight="normal">83.3</text>
+</svg>

@@ -1,0 +1,10 @@
+run_id,model,tool_mode,task_id,capability,success,composite,task_success,protocol_compliance,tool_validity,error_recovery,efficiency,steps_used,budget,budget_exhausted,finished,tool_calls,successful_tool_calls,invalid_actions,unstructured_tool_calls,unknown_tools,invalid_args,tool_errors,redundant_calls,repeated_failed_turns,recovered,checks_passed,checks_total,latency_ms,prompt_tokens,completion_tokens
+reference-solver,reference-solver,reference,create_exact_file,instruction_following,1,97.5,1.0,1.0,1.0,1.0,0.75,2,4,0,1,1,1,0,0,0,0,0,0,0,0,2,2,0.4,0,0
+reference-solver,reference-solver,reference,count_by_extension,tool_query,1,97.0,1.0,1.0,1.0,1.0,0.7,3,5,0,1,2,2,0,0,0,0,0,0,0,0,2,2,0.4,0,0
+reference-solver,reference-solver,reference,sum_two_files,multi_step_composition,1,96.67,1.0,1.0,1.0,1.0,0.6667,4,6,0,1,3,3,0,0,0,0,0,0,0,0,2,2,0.3,0,0
+reference-solver,reference-solver,reference,recover_misnamed_file,error_recovery,1,97.14,1.0,1.0,1.0,1.0,0.7143,4,7,0,1,3,3,0,0,0,0,0,0,0,0,2,2,0.4,0,0
+reference-solver,reference-solver,reference,extract_field_map,structured_output,1,97.86,1.0,1.0,1.0,1.0,0.7857,3,7,0,1,2,2,0,0,0,0,0,0,0,0,3,3,0.3,0,0
+reference-solver,reference-solver,reference,prune_by_extension,conditional_action,1,96.67,1.0,1.0,1.0,1.0,0.6667,4,6,0,1,4,4,0,0,0,0,0,0,0,0,3,3,0.6,0,0
+reference-solver,reference-solver,reference,follow_typos,robustness,1,97.0,1.0,1.0,1.0,1.0,0.7,3,5,0,1,2,2,0,0,0,0,0,0,0,0,2,2,0.4,0,0
+reference-solver,reference-solver,reference,organize_directory,file_system_management,1,96.43,1.0,1.0,1.0,1.0,0.6429,5,7,0,1,5,5,0,0,0,0,0,0,0,0,10,10,1.7,0,0
+reference-solver,reference-solver,reference,refuse_impossible,stopping_criteria,1,83.33,1.0,1.0,0.0,1.0,0.8333,2,6,0,1,1,0,0,0,0,0,1,0,0,1,3,3,0.1,0,0

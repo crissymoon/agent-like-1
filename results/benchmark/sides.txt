@@ -1,0 +1,23 @@
+Benchmark across 2 side(s): local, kaggle
+
+  column                     pass  composite
+  local/naive-solver        3/9        55.63
+  local/reference-solver    9/9        95.51
+  kaggle/naive-solver       3/9        55.63
+  kaggle/reference-solver   9/9        95.51
+
+  per task, the composite and whether the end state was reached
+
+  task                       capability                    local/naive-solver  local/reference-solver     kaggle/naive-solver kaggle/reference-solver
+  ---------------------------------------------------------------------------------------------------------------------------------------------------
+  prune_by_extension         conditional_action                         8.3 F                  96.7 P                   8.3 F                  96.7 P
+  recover_misnamed_file      error_recovery                             9.3 F                  97.1 P                   9.3 F                  97.1 P
+  organize_directory         file_system_management                    52.1 F                  96.4 P                  52.1 F                  96.4 P
+  create_exact_file          instruction_following                     97.5 P                  97.5 P                  97.5 P                  97.5 P
+  sum_two_files              multi_step_composition                    53.3 F                  96.7 P                  53.3 F                  96.7 P
+  follow_typos               robustness                                97.0 P                  97.0 P                  97.0 P                  97.0 P
+  refuse_impossible          stopping_criteria                         32.5 F                  83.3 P                  32.5 F                  83.3 P
+  extract_field_map          structured_output                         53.6 F                  97.9 P                  53.6 F                  97.9 P
+  count_by_extension         tool_query                                97.0 P                  97.0 P                  97.0 P                  97.0 P
+
+  the two sides agree on every shared row
