@@ -69,7 +69,7 @@ LAYOUT: tuple[tuple[str, str], ...] = (
     ("docker/", "The pinned engine image and the compose file that mounts one weight file."),
     ("desktop/", "The Electron view over a run directory; it drives the same harness, never a copy."),
     ("tools/", "Portable tooling: the benchmark that runs on both sides, the kernel builder, this builder."),
-    ("local-model-quick-tester/", "The interactive front end: a menu over the same GGUF weights, and the markdown transcript of a run."),
+    ("local-model-quick-tester/", "The interactive front end: a menu over the same GGUF weights, and the markdown transcript of a run, written to a directory held out of version control."),
     ("results/", "What each run left behind. Evidence, committed, so a claim has a file behind it."),
     ("local-benchmarking.md", "The ladder: what a rung is, what decides it, and what a result does not claim."),
     ("LICENSE", "The terms the work is offered under, and the holder it belongs to."),
@@ -951,6 +951,14 @@ def exclusions_section() -> list[str]:
         "and they carry the absolute paths, the loopback address and the temporary directory of "
         "the device that produced them. The traces stay on the machine that made them; the "
         "measured documents beside them are what travels.",
+        "",
+        "The transcript of a conversation is held out for the same reason. The interactive front "
+        "end writes a markdown copy of each run into `model-tests/`, the directory the "
+        "`transcript_dir` setting names beside the tester, and that directory is created on the "
+        "first write rather than committed, so a checkout that has never run the tester does not "
+        "have one and does not need one. A transcript records the prompts that were tried and the "
+        "raw output that came back, which is the same kind of thing as a trace: a place a "
+        "conversation was worked out, not a claim about a model.",
         "",
     ]
 

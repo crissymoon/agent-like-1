@@ -217,3 +217,26 @@ __pycache__/
 # of the same name further down is not caught by accident.
 local-model-quick-tester/settings.local.json
 /.venv-local-model-quick-tester/
+
+# ---------------------------------------------------------------------------
+# Model test transcripts. `local-model-quick-tester/` writes a markdown copy of
+# every conversation into the directory the `transcript_dir` setting names, and
+# that setting points at `model-tests/` beside this file by default. A
+# conversation is a scratch pad rather than a measurement: it carries the
+# prompts that were tried, the model's raw output for each, and the notes of
+# whoever was at the keyboard. It is also where a scratch script against a
+# hosted model gets saved, which is a second reason for the directory to stay
+# on the machine that made it.
+#
+# The directory is created on the first write and is not committed, so a
+# checkout that has never run the tester does not have one and does not need
+# one. `quicktester/transcript.py` calls `mkdir(parents=True, exist_ok=True)`
+# before it writes, and so does the screen that opens the folder, so it appears
+# on demand rather than being asked of a reader by hand. Anchored to the root
+# for the same reason the weights are: a directory of this name further down is
+# somebody else's artefact.
+#
+# The rule is not the only defence. The pre-push check refuses this path by
+# name as well, because a rule that lives in one file is a rule that can be
+# walked past by one command.
+/model-tests/

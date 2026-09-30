@@ -121,6 +121,14 @@ FORBIDDEN_PATHS: tuple[ForbiddenPath, ...] = (
         note="Model weights. Nine gigabytes, read-only input, never repository content.",
     ),
     ForbiddenPath(
+        prefix="model-tests/",
+        note=(
+            "Model test transcripts. A conversation with the weights is a scratch pad kept on "
+            "the machine that ran it, written to a directory the tester creates on the first "
+            "write, and never repository content."
+        ),
+    ),
+    ForbiddenPath(
         prefix="venv_q_mdl_tester/",
         note=(
             "A virtual environment. Other people's installed packages, rebuilt from a "
