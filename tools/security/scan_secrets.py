@@ -117,6 +117,13 @@ FORBIDDEN_PATHS: tuple[ForbiddenPath, ...] = (
         note="Captured vendor pricing and planning notes. Local research input, not repository content.",
     ),
     ForbiddenPath(
+        prefix="Standard Operation Procedures/",
+        note=(
+            "Local operating procedures and the receipt a release review writes. How the work "
+            "is run rather than what it found, and never repository content in either copy."
+        ),
+    ),
+    ForbiddenPath(
         prefix="models/",
         note="Model weights. Nine gigabytes, read-only input, never repository content.",
     ),

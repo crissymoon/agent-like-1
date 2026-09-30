@@ -68,7 +68,7 @@ LAYOUT: tuple[tuple[str, str], ...] = (
     ("lib/", "The harness itself: the loop, the tools, the sandbox, the scoring, the reports."),
     ("docker/", "The pinned engine image and the compose file that mounts one weight file."),
     ("desktop/", "The Electron view over a run directory; it drives the same harness, never a copy."),
-    ("tools/", "Portable tooling: the benchmark that runs on both sides, the kernel builder, this builder."),
+    ("tools/", "Portable tooling: the benchmark that runs on both sides, the kernel builder, the release review, this builder."),
     ("local-model-quick-tester/", "The interactive front end: a menu over the same GGUF weights, and the markdown transcript of a run, written to a directory held out of version control."),
     ("results/", "What each run left behind. Evidence, committed, so a claim has a file behind it."),
     ("local-benchmarking.md", "The ladder: what a rung is, what decides it, and what a result does not claim."),
@@ -770,8 +770,22 @@ def run_section() -> list[str]:
             "# and this document",
             "python3 tools/build_readme.py",
             "python3 tools/build_readme.py --check",
+            "",
+            "# the review a checkout passes before any of it is published",
+            "python3 tools/release/release.py review",
+            "python3 tools/release/release.py publish",
             "```",
         ]
+    )
+    lines.append("")
+    lines.append(
+        "A checkout is published as a commit rather than as a push. `tools/release/` reads the "
+        "commit first: whether anything that belongs on this machine is in the tree, whether it "
+        "is the commit the private remote already holds, how large the largest file in it is, "
+        "and what every file hashes to. The reading is written down as a receipt beside the "
+        "procedure that asked for it, and `publish` takes the same reading rather than trusting "
+        "the receipt, so a commit that moved between the two is read again instead of assumed "
+        "still clean. Nothing is sent when the reading is not clean."
     )
     lines.append("")
     lines.append(
@@ -959,6 +973,16 @@ def exclusions_section() -> list[str]:
         "have one and does not need one. A transcript records the prompts that were tried and the "
         "raw output that came back, which is the same kind of thing as a trace: a place a "
         "conversation was worked out, not a claim about a model.",
+        "",
+        "The last one is not evidence and not scratch. `Standard Operation Procedures/` holds the "
+        "procedure a checkout passes before any of it is published to the public copy, and the "
+        "receipt that procedure writes, which names the commit, the time and every file that "
+        "would be sent. It is held out because it describes how the work is run rather than what "
+        "it found, and because a published procedure reads as a promise about the state of the "
+        "public copy, which it is not. The directory is created on the first review rather than "
+        "committed, so a checkout that has never published does not have one either. What the "
+        "procedure describes is a command, `python3 tools/release/release.py review`, so the "
+        "procedure and the check that runs it cannot come to describe different things.",
         "",
     ]
 

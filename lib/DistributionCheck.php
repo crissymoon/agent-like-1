@@ -32,6 +32,16 @@ final class DistributionCheck
     private const DEFAULT_OUTPUT = 'dist';
 
     /**
+     * The folder the local operating procedures live in.
+     *
+     * It holds the procedure that reviews this checkout before any of it is
+     * published to the public copy, and the receipt that review writes. Both
+     * describe this machine's process rather than the work, so the folder is
+     * held out of the tree by name.
+     */
+    private const SOP_DIRECTORY = 'Standard Operation Procedures';
+
+    /**
      * The phrases a license file has to carry, by the identifier a manifest
      * declares.
      *
@@ -276,8 +286,9 @@ final class DistributionCheck
 
     /**
      * The second line of defence behind the ignore file: a certificate is
-     * refused by extension, the directory holding one by name, and the build
-     * output is held out of the tree rather than committed beside the source.
+     * refused by extension, the directory holding one by name, the build output
+     * is held out of the tree rather than committed beside the source, and the
+     * local operating procedures stay where the review that reads them runs.
      *
      * @param array<string, mixed>|null $manifest
      * @return list<array{name: string, ok: bool, detail: string}>
@@ -318,6 +329,12 @@ final class DistributionCheck
                 'the ignore file does not hold the build resources out',
                 $text !== null && preg_match('#^\s*/?desktop/build/\s*$#m', $text) === 0,
                 'the entitlements and the hook live under desktop/build and have to be committed'
+            ),
+            self::state(
+                'the ignore file holds the operating procedures out',
+                $text !== null
+                    && preg_match('#^\s*/?' . preg_quote(self::SOP_DIRECTORY, '#') . '/#m', $text) === 1,
+                self::SOP_DIRECTORY . '/ is how the work is run rather than what it found, and a checkout that never published does not need one'
             ),
         ];
     }

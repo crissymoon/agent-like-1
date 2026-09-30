@@ -46,6 +46,24 @@
 /pricing-data/
 
 # ---------------------------------------------------------------------------
+# Local operating procedures. The folder describes how the work is run rather
+# than what it found: the procedure that reviews this checkout before any of it
+# is published to the public copy lives here, and so does the receipt that
+# review writes, which names the commit, the file list and the time it was read.
+# Both are the record of this machine's process.
+#
+# It is held out of both copies on purpose. A published procedure reads as a
+# promise about the state of the public copy, and it is not one.
+#
+# The directory is created by the first review rather than committed, so a
+# checkout that has never published does not have one and does not need one.
+# `tools/release/checks.py` makes it before writing the receipt. Anchored to the
+# root for the same reason the weights are, and the pre-push check refuses this
+# path by name as well, because a rule that lives in one file is a rule that can
+# be walked past by one command.
+/Standard Operation Procedures/
+
+# ---------------------------------------------------------------------------
 # Google Drive sync scratch. The single entry in .tmp.driveupload is a 2.9 GB
 # hardlink to the gemma weights, which means it is one inode with two names:
 # committing it would add a copy of a weight file, and deleting it would free
