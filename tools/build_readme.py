@@ -771,21 +771,27 @@ def run_section() -> list[str]:
             "python3 tools/build_readme.py",
             "python3 tools/build_readme.py --check",
             "",
-            "# the review a checkout passes before any of it is published",
-            "python3 tools/release/release.py review",
-            "python3 tools/release/release.py publish",
+            "# sending to the private repository, with the review run first",
+            "python3 tools/release/post_private.py --dry-run",
+            "python3 tools/release/post_private.py",
+            "",
+            "# and to the copy that leaves the machine, with the same reading",
+            "python3 tools/release/post_public.py --dry-run",
+            "python3 tools/release/post_public.py",
             "```",
         ]
     )
     lines.append("")
     lines.append(
-        "A checkout is published as a commit rather than as a push. `tools/release/` reads the "
-        "commit first: whether anything that belongs on this machine is in the tree, whether it "
-        "is the commit the private remote already holds, how large the largest file in it is, "
-        "and what every file hashes to. The reading is written down as a receipt beside the "
-        "procedure that asked for it, and `publish` takes the same reading rather than trusting "
-        "the receipt, so a commit that moved between the two is read again instead of assumed "
-        "still clean. Nothing is sent when the reading is not clean."
+        "A checkout is sent as a reviewed commit rather than as a push, and the two destinations "
+        "are two commands rather than one with a flag, because what they refuse is not the same. "
+        "`tools/release/` reads the commit first: whether anything that belongs on this machine "
+        "is in the tree, how large the largest file in it is, and what every file hashes to. "
+        "Then `post_private.py` sends it to the private repository, and `post_public.py` sends "
+        "it to the public copy, where the commit also has to be one the private remote already "
+        "holds. Neither trusts a receipt written earlier: the reading is taken again, so a "
+        "commit that moved between the two is read again instead of assumed still clean. "
+        "Nothing is sent when the reading is not clean."
     )
     lines.append("")
     lines.append(
@@ -975,14 +981,15 @@ def exclusions_section() -> list[str]:
         "conversation was worked out, not a claim about a model.",
         "",
         "The last one is not evidence and not scratch. `Standard Operation Procedures/` holds the "
-        "procedure a checkout passes before any of it is published to the public copy, and the "
-        "receipt that procedure writes, which names the commit, the time and every file that "
-        "would be sent. It is held out because it describes how the work is run rather than what "
-        "it found, and because a published procedure reads as a promise about the state of the "
-        "public copy, which it is not. The directory is created on the first review rather than "
-        "committed, so a checkout that has never published does not have one either. What the "
-        "procedure describes is a command, `python3 tools/release/release.py review`, so the "
-        "procedure and the check that runs it cannot come to describe different things.",
+        "procedure a checkout passes before any of it is sent to either copy, and the two "
+        "receipts that procedure writes, which name the commit, the time, the destination and "
+        "every file that would be sent. It is held out because it describes how the work is run "
+        "rather than what it found, and because a published procedure reads as a promise about "
+        "the state of the public copy, which it is not. The directory is created on the first "
+        "review rather than committed, so a checkout that has never sent anything does not have "
+        "one either. What the procedure describes is a command, `python3 "
+        "tools/release/post_public.py`, so the procedure and the check that runs it cannot come "
+        "to describe different things.",
         "",
     ]
 

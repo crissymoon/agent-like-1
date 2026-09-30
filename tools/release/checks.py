@@ -1,13 +1,18 @@
-"""The review a private checkout passes before any of it is published.
+"""The review a checkout passes before either copy is sent to.
 
-Two different questions are being answered, and both have to be answered before
-a commit is published. The first is whether anything that belongs on this
-machine is in the tree: a credential, a machine path in a recorded run, a
-directory that exists for local work added by name. The second is whether what
-would be published is whole and is what was read: the checkout holds no
-uncommitted edit, the branch is the one the private remote already has, and
-every file in the commit is written down with its size and the hash of its
-content so the list can be read and compared.
+Nine questions are asked of the commit every time, and each of the two send
+commands adds the two preconditions that belong to it. The nine are the ones
+that hold wherever the commit is going: whether anything that belongs on this
+machine is in the tree, whether the reading is of the commit a person is looking
+at, and whether every file in it is written down with its size and the hash of
+its content so the list can be read and compared.
+
+The two commands differ in what they refuse rather than in what they read. A
+send to the private repository must add to it rather than rewrite it, and must
+not be the public one; a send to the public copy must be a commit the private
+one already holds, and must not be the private one. Those four are checks too,
+so both commands report one list and one exit status rather than a list with a
+refusal bolted on beside it.
 
 The review reads the object database rather than the working tree wherever it
 can, because the question is what a push would send. The cleanliness check is
@@ -16,7 +21,7 @@ the two agree.
 
 Every check returns its verdict rather than raising, so one review reports the
 whole list instead of stopping at the first refusal. A command that cannot run
-at all is the exception: that raises `ReviewError`, because a review that could
+at all is the exception: that raises `ReleaseError`, because a review that could
 not be taken is not a review that passed.
 """
 
@@ -25,7 +30,6 @@ from __future__ import annotations
 import hashlib
 import json
 import shutil
-import subprocess
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -33,38 +37,50 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 TOOLS = HERE.parent
-PROJECT = TOOLS.parent
 
+if str(HERE) not in sys.path:
+    sys.path.insert(0, str(HERE))
 if str(TOOLS / "security") not in sys.path:
     sys.path.insert(0, str(TOOLS / "security"))
 
-# The closed directory list is the scanner's, not a second copy of it. Two
-# lists of the same thing is one list that drifts, and the one that drifts is
-# always the one nobody is running.
+from git_ops import (  # noqa: E402
+    ReleaseError,
+    command_text,
+    excerpt,
+    first_line,
+    git,
+    last_line,
+    remote_branch,
+    remote_url,
+    run_command,
+)
+
+# The closed directory list is the scanner's, not a second copy of it. Two lists
+# of the same thing is one list that drifts, and the one that drifts is always
+# the one nobody is running.
 from scan_secrets import FORBIDDEN_PATHS  # noqa: E402
 
 #: The directory the operating procedures live in, relative to the root. The
 #: name is held out by `.gitignore` and refused by name by the scanner; it is
-#: stated here so the receipt has somewhere to go that cannot be committed by
+#: stated here so the receipts have somewhere to go that cannot be committed by
 #: accident.
 SOP_DIRECTORY = "Standard Operation Procedures"
 
-#: The receipt a review writes, inside the directory above.
-RECEIPT_NAME = "release-review.json"
+#: The receipt each command writes. Two names rather than one, because the two
+#: records answer different questions: what went to the private repository, and
+#: what went to the copy that leaves the machine. One name would mean the second
+#: send erased the record of the first.
+PRIVATE_RECEIPT_NAME = "private-post.json"
+PUBLIC_RECEIPT_NAME = "public-post.json"
 
 #: A committed file larger than this is a mistake rather than an artefact. The
 #: weights, the Electron runtime and the archives are held out of the tree, so
 #: what is left is source, a figure, or a fixture.
 MAX_TRACKED_FILE_BYTES = 8 * 1024 * 1024
 
-#: How much of a command's own output a report keeps. A scanner prints its
-#: verdict on the first line and the findings under it, and the verdict is what
-#: a reader of the list wants; the rest is on the terminal when it is run alone.
-EXCERPT_LINES = 3
-
-
-class ReviewError(RuntimeError):
-    """A command the review depends on could not be run at all."""
+#: How many items a failing detail lists before it stops counting. The count is
+#: always in the line ahead of it, so nothing is lost by stopping.
+EXCERPT_ITEMS = 3
 
 
 @dataclass(frozen=True)
@@ -96,6 +112,7 @@ class Review:
 
     commit: str
     branch: str
+    operation: str
     checks: tuple[Check, ...]
     entries: tuple[Entry, ...]
 
@@ -114,7 +131,7 @@ class Review:
     def render(self) -> list[str]:
         lines = [
             f"release review: {len(self.checks)} check(s), {len(self.failures)} failed",
-            f"    commit {self.commit[:12]} on {self.branch}, "
+            f"    {self.operation} send of {self.commit[:12]} on {self.branch}, "
             f"{len(self.entries)} file(s), {size_label(self.total_bytes)}",
         ]
         lines.extend(check.render() for check in self.checks)
@@ -123,12 +140,13 @@ class Review:
     def as_document(self, destination: str | None = None) -> dict:
         """The receipt: the reading as data, so it can be kept and compared.
 
-        `destination` is the URL a publication was sent to, and it is null for a
-        review that stopped at reading.
+        `destination` is the URL a send went to, and it is null for a reading
+        that stopped at reading.
         """
         return {
             "schema_version": "1",
             "document": "release-review",
+            "operation": self.operation,
             "recorded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "branch": self.branch,
             "commit": self.commit,
@@ -167,61 +185,6 @@ def size_label(value: int) -> str:
     return f"{value} B"
 
 
-def run_command(
-    root: Path, argv: list[str], data: bytes | None = None
-) -> subprocess.CompletedProcess[bytes]:
-    """Run a command in the checkout and capture it.
-
-    Standard input is closed when nothing is being fed to the command, because a
-    git command that decides to ask for a credential would otherwise wait for an
-    answer that is never coming.
-    """
-    return subprocess.run(
-        argv,
-        cwd=str(root),
-        capture_output=True,
-        input=data,
-        stdin=None if data is not None else subprocess.DEVNULL,
-        check=False,
-    )
-
-
-def command_text(result: subprocess.CompletedProcess[bytes]) -> str:
-    """A command's standard output and error, worst first, as one string."""
-    parts = [
-        result.stdout.decode("utf-8", errors="replace"),
-        result.stderr.decode("utf-8", errors="replace"),
-    ]
-    return "\n".join(part for part in parts if part.strip())
-
-
-def first_line(text: str) -> str:
-    for line in text.splitlines():
-        if line.strip():
-            return line.strip()
-    return ""
-
-
-def last_line(text: str) -> str:
-    stripped = [line.strip() for line in text.splitlines() if line.strip()]
-    return stripped[-1] if stripped else ""
-
-
-def _excerpt(text: str) -> str:
-    stripped = [line.strip() for line in text.splitlines() if line.strip()]
-    return " / ".join(stripped[:EXCERPT_LINES]) if stripped else "no output"
-
-
-def _git(root: Path, *arguments: str) -> subprocess.CompletedProcess[bytes]:
-    result = run_command(root, ["git", *arguments])
-    if result.returncode not in (0, 1):
-        raise ReviewError(
-            f"git {arguments[0]} could not run: "
-            f"{first_line(command_text(result)) or 'no output'}"
-        )
-    return result
-
-
 # ---------------------------------------------------------------------------
 # The commit, read from the object database.
 # ---------------------------------------------------------------------------
@@ -236,7 +199,7 @@ def _blob_contents(root: Path, object_ids: list[str]) -> dict[str, bytes]:
     request = "".join(f"{object_id}\n" for object_id in unique).encode("ascii")
     result = run_command(root, ["git", "cat-file", "--batch"], data=request)
     if result.returncode != 0:
-        raise ReviewError("git cat-file could not run: " + first_line(command_text(result)))
+        raise ReleaseError("git cat-file could not run: " + first_line(command_text(result)))
 
     data = result.stdout
     contents: dict[str, bytes] = {}
@@ -264,7 +227,7 @@ def manifest(root: Path) -> tuple[Entry, ...]:
     would send. A file edited on disk and not committed is not part of the
     answer; the cleanliness check is what proves the two agree.
     """
-    listing = _git(root, "ls-tree", "-r", "-z", "--long", "HEAD")
+    listing = git(root, "ls-tree", "-r", "-z", "--long", "HEAD")
 
     records: list[tuple[str, int, str]] = []
     for record in listing.stdout.decode("utf-8", errors="replace").split("\0"):
@@ -291,7 +254,7 @@ def manifest(root: Path) -> tuple[Entry, ...]:
 
 
 # ---------------------------------------------------------------------------
-# The checks.
+# The questions asked of every commit, wherever it is going.
 # ---------------------------------------------------------------------------
 
 
@@ -303,45 +266,25 @@ def working_tree_check(root: Path) -> Check:
     come apart, and a review of one while looking at the other is not a review.
     """
     name = "the checkout holds the commit and nothing else"
-    lines = [line for line in command_text(_git(root, "status", "--porcelain")).splitlines() if line.strip()]
+    lines = [
+        line
+        for line in command_text(git(root, "status", "--porcelain")).splitlines()
+        if line.strip()
+    ]
     if not lines:
         return Check(name, True, "git status is empty")
 
-    return Check(name, False, f"{len(lines)} path(s) differ from the commit: {_excerpt(chr(10).join(lines))}")
+    return Check(name, False, f"{len(lines)} path(s) differ from the commit: {excerpt(chr(10).join(lines))}")
 
 
 def branch_check(root: Path, branch: str) -> Check:
-    """Publication names one branch, and this is the checkout that is on it."""
-    name = "the checkout is on the branch being published"
-    current = first_line(command_text(_git(root, "rev-parse", "--abbrev-ref", "HEAD"))) or "(detached)"
+    """A send names one branch, and this is the checkout that is on it."""
+    name = "the checkout is on the branch being sent"
+    current = first_line(command_text(git(root, "rev-parse", "--abbrev-ref", "HEAD"))) or "(detached)"
     if current == branch:
         return Check(name, True, f"HEAD is {branch}")
 
-    return Check(name, False, f"HEAD is {current}, and the review publishes {branch}")
-
-
-def private_remote_check(root: Path, branch: str, remote: str) -> Check:
-    """The commit is already in the private remote, so the order of the two holds.
-
-    A commit that reached the public copy before it reached the private one is a
-    commit the private history does not hold, and the next rewrite of either
-    would have to reconcile the two by hand.
-    """
-    name = "the commit is already in the private remote"
-    remote_branch = f"{remote}/{branch}"
-    head = first_line(command_text(_git(root, "rev-parse", "--short", "HEAD"))) or "HEAD"
-
-    result = run_command(root, ["git", "merge-base", "--is-ancestor", "HEAD", remote_branch])
-    if result.returncode == 0:
-        return Check(name, True, f"{head} is in {remote_branch}")
-    if result.returncode == 1:
-        return Check(
-            name,
-            False,
-            f"{head} is not in {remote_branch}; push it to {remote} before publishing",
-        )
-
-    return Check(name, False, f"{remote_branch} does not exist; fetch {remote} first")
+    return Check(name, False, f"HEAD is {current}, and the send names {branch}")
 
 
 def secret_scan_check(root: Path, mode: str) -> Check:
@@ -361,7 +304,7 @@ def secret_scan_check(root: Path, mode: str) -> Check:
     )
     verdict = first_line(command_text(result))
     if result.returncode == 2:
-        raise ReviewError("the secret scanner could not run: " + (verdict or "no output"))
+        raise ReleaseError("the secret scanner could not run: " + (verdict or "no output"))
 
     return Check(name, result.returncode == 0, verdict or "no output")
 
@@ -372,7 +315,7 @@ def recorded_path_check(root: Path) -> Check:
     result = run_command(root, [sys.executable, str(TOOLS / "normalize_paths.py"), "--check"])
     verdict = first_line(command_text(result))
     if result.returncode == 2:
-        raise ReviewError("the path shortener could not run: " + (verdict or "no output"))
+        raise ReleaseError("the path shortener could not run: " + (verdict or "no output"))
     if result.returncode == 0:
         return Check(name, True, verdict or "nothing to shorten")
 
@@ -389,7 +332,7 @@ def readme_check(root: Path) -> Check:
     result = run_command(root, [sys.executable, str(TOOLS / "build_readme.py"), "--check"])
     verdict = first_line(command_text(result))
     if result.returncode not in (0, 1):
-        raise ReviewError("the README builder could not run: " + (verdict or "no output"))
+        raise ReleaseError("the README builder could not run: " + (verdict or "no output"))
 
     return Check(name, result.returncode == 0, verdict or "no output")
 
@@ -425,7 +368,7 @@ def closed_directory_check(root: Path) -> Check:
         ignored = run_command(root, ["git", "check-ignore", "-q", rule.prefix]).returncode == 0
         if not ignored:
             unheld.append(directory)
-        listed = first_line(command_text(_git(root, "ls-files", "--", rule.prefix)))
+        listed = first_line(command_text(git(root, "ls-files", "--", rule.prefix)))
         if listed:
             tracked.append(directory)
 
@@ -464,24 +407,158 @@ def largest_file_check(entries: tuple[Entry, ...]) -> Check:
         name,
         False,
         f"{len(over)} file(s) over {size_label(MAX_TRACKED_FILE_BYTES)}: "
-        + ", ".join(f"{entry.path} at {size_label(entry.size)}" for entry in over[:EXCERPT_LINES]),
+        + ", ".join(f"{entry.path} at {size_label(entry.size)}" for entry in over[:EXCERPT_ITEMS]),
     )
 
 
-def review(root: Path, branch: str = "main", private_remote: str = "origin") -> Review:
-    """The whole reading, in the order a reader would ask the questions."""
+# ---------------------------------------------------------------------------
+# The preconditions that belong to one of the two sends.
+# ---------------------------------------------------------------------------
+
+
+def _distinct(
+    root: Path, destination: str, other: str, name: str, consequence: str
+) -> Check:
+    """Two remotes, resolved by URL rather than trusted by name.
+
+    The name is the thing that was wrong when this goes wrong, so the two names
+    are resolved and compared instead of the command being asked whether it
+    looks right.
+    """
+    here = remote_url(root, destination)
+    there = remote_url(root, other)
+    if not there:
+        return Check(
+            name,
+            True,
+            f"{other} is not a remote of this checkout, so there is nothing to be mistaken for it",
+        )
+    if here != there:
+        return Check(name, True, f"{destination} is {here}, and {other} is not")
+
+    return Check(name, False, f"{destination} and {other} are both {here}, so {consequence}")
+
+
+def not_the_public_copy_check(root: Path, destination: str, public_remote: str) -> Check:
+    """A send to the private repository that went to the public one instead.
+
+    That mistake has no symptom of its own: the push succeeds, the files land
+    where the reviewed commit already was, and the private checkout's records
+    have left the machine without the preconditions the public send applies.
+    """
+    return _distinct(
+        root,
+        destination,
+        public_remote,
+        "the destination is not the public repository",
+        "the private checkout would have gone to the public copy",
+    )
+
+
+def not_the_private_copy_check(root: Path, destination: str, private_remote: str) -> Check:
+    """A send to the public copy that went to the private repository instead.
+
+    The same mistake in the other direction, and the one the procedure exists
+    for. A push to the private repository is not a publication: it looks exactly
+    like a publication that worked, and the public copy is left behind.
+    """
+    return _distinct(
+        root,
+        destination,
+        private_remote,
+        "the destination is not the private repository",
+        "the public copy would not have been written to",
+    )
+
+
+def private_copy_is_ahead_check(root: Path, branch: str, remote: str) -> Check:
+    """The commit is already in the private remote, so the order of the two holds.
+
+    A commit that reached the public copy before it reached the private one is a
+    commit the private history does not hold, and the next rewrite of either
+    would have to reconcile the two by hand.
+    """
+    name = "the commit is already in the private remote"
+    remote_branch_name = f"{remote}/{branch}"
+    head = first_line(command_text(git(root, "rev-parse", "--short", "HEAD"))) or "HEAD"
+
+    result = run_command(root, ["git", "merge-base", "--is-ancestor", "HEAD", remote_branch_name])
+    if result.returncode == 0:
+        return Check(name, True, f"{head} is in {remote_branch_name}")
+    if result.returncode == 1:
+        return Check(
+            name,
+            False,
+            f"{head} is not in {remote_branch_name}; send it to {remote} first",
+        )
+
+    return Check(name, False, f"{remote_branch_name} does not exist; fetch {remote} first")
+
+
+def fast_forward_check(root: Path, branch: str, remote: str, force: bool) -> Check:
+    """What the push does to the remote branch: adds to it, or was asked to rewrite it.
+
+    The remote's branch is read from the remote rather than from the local
+    remote-tracking ref, so this is the state the push will meet rather than the
+    state of the last fetch. Where the branch holds something this commit does
+    not continue, the check passes only when a forced update was asked for, and
+    the push itself carries the lease that makes it deliberate.
+    """
+    name = "the push adds to the remote branch rather than rewriting it"
+    target = remote_branch(root, remote, branch)
+    if target is None:
+        return Check(name, True, f"{remote} has no {branch} yet, so the push creates it")
+
+    result = run_command(root, ["git", "merge-base", "--is-ancestor", target, "HEAD"])
+    if result.returncode == 0:
+        return Check(name, True, f"{remote}/{branch} is behind HEAD, so the push is a fast forward")
+    if result.returncode != 1:
+        return Check(
+            name,
+            False,
+            f"{target[:12]} is not in this checkout, so it cannot be compared; fetch {remote} first",
+        )
+    if force:
+        return Check(
+            name,
+            True,
+            f"{remote}/{branch} holds {target[:12]}, which this commit does not continue, "
+            "and a forced update was asked for, leased against that object",
+        )
+
+    return Check(
+        name,
+        False,
+        f"{remote}/{branch} holds {target[:12]}, which this commit does not continue; "
+        "--force sends a lease against it, and sending nothing is the other answer",
+    )
+
+
+# ---------------------------------------------------------------------------
+# The whole reading.
+# ---------------------------------------------------------------------------
+
+
+def review(
+    root: Path,
+    *,
+    branch: str = "main",
+    operation: str = "public",
+    extra_checks: tuple[Check, ...] = (),
+) -> Review:
+    """The whole reading: the nine shared questions, then the two that belong here."""
     entries = manifest(root)
-    commit = first_line(command_text(_git(root, "rev-parse", "HEAD")))
+    commit = first_line(command_text(git(root, "rev-parse", "HEAD")))
     if not commit:
-        raise ReviewError("HEAD could not be resolved, so there is nothing to review")
+        raise ReleaseError("HEAD could not be resolved, so there is nothing to review")
 
     return Review(
         commit=commit,
         branch=branch,
+        operation=operation,
         checks=(
             working_tree_check(root),
             branch_check(root, branch),
-            private_remote_check(root, branch, private_remote),
             secret_scan_check(root, "tracked"),
             secret_scan_check(root, "history"),
             recorded_path_check(root),
@@ -489,28 +566,36 @@ def review(root: Path, branch: str = "main", private_remote: str = "origin") -> 
             self_check(root),
             closed_directory_check(root),
             largest_file_check(entries),
-        ),
+        )
+        + extra_checks,
         entries=entries,
     )
 
 
-def receipt_path(root: Path, override: Path | None = None) -> Path:
-    """Where the receipt goes: beside the procedure it is the record of."""
-    return override if override is not None else root / SOP_DIRECTORY / RECEIPT_NAME
+# ---------------------------------------------------------------------------
+# The receipt.
+# ---------------------------------------------------------------------------
 
 
-def write_receipt(
-    root: Path,
-    report: Review,
-    destination: str | None = None,
-    override: Path | None = None,
-) -> Path:
-    """Write the reading down in the one directory that is not version controlled.
+def resolve_receipt(root: Path, override: str | None, name: str) -> Path:
+    """Where a reading is written: the name given, or the one the command owns.
+
+    A relative override is taken against the checkout rather than the process, so
+    the same command writes to the same place from anywhere.
+    """
+    if not override:
+        return root / SOP_DIRECTORY / name
+    path = Path(override).expanduser()
+    return path if path.is_absolute() else root / path
+
+
+def write_receipt(target: Path, report: Review, destination: str | None = None) -> Path:
+    """Write the reading down, in the one directory that is not version controlled.
 
     The directory is created on the first review rather than committed, so a
-    checkout that has never published does not have one and does not need one.
+    checkout that has never sent anything does not have one and does not need
+    one.
     """
-    target = receipt_path(root, override)
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(
         json.dumps(report.as_document(destination), indent=2) + "\n", encoding="utf-8"

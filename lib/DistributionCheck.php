@@ -73,6 +73,19 @@ final class DistributionCheck
         'com.apple.security.cs.disable-library-validation',
     ];
 
+    /**
+     * The commands the operating procedure names: the private send and the public one.
+     *
+     * The procedure itself is held out of the tree, so nothing committed can be
+     * read to prove it is current. What can be proved is that the commands it
+     * describes are where it says they are, which is what a rename under
+     * `tools/release/` would quietly break.
+     */
+    private const RELEASE_COMMANDS = [
+        'tools/release/post_private.py',
+        'tools/release/post_public.py',
+    ];
+
     /** Extensions that name signing material. None of them may be committable. */
     private const KEY_EXTENSIONS = [
         '.p12',
@@ -160,8 +173,40 @@ final class DistributionCheck
 
         $checks = array_merge($checks, self::signingChecks($manifest));
         $checks = array_merge($checks, self::ignoreChecks($manifest));
+        $checks = array_merge($checks, self::releaseCommandChecks());
 
         return $checks;
+    }
+
+    /**
+     * The two send commands, as files in the tree.
+     *
+     * The procedure that reviews this checkout before either copy is sent to is
+     * held out of version control, which is also why it cannot be read here. Its
+     * commands can be: the procedure names them, so a rename under
+     * `tools/release/` would leave a document describing something that is not
+     * there, and the document is not in the tree to notice.
+     *
+     * @return list<array{name: string, ok: bool, detail: string}>
+     */
+    private static function releaseCommandChecks(): array
+    {
+        $missing = [];
+        foreach (self::RELEASE_COMMANDS as $command) {
+            if (!is_file(HARNESS_ROOT . '/' . $command)) {
+                $missing[] = $command;
+            }
+        }
+
+        return [
+            self::state(
+                'the send commands the procedure names are in the tree',
+                $missing === [],
+                $missing === []
+                    ? implode(', ', self::RELEASE_COMMANDS)
+                    : 'not found: ' . implode(', ', $missing)
+            ),
+        ];
     }
 
     /**
