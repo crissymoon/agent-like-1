@@ -83,6 +83,32 @@ desktop/build/certs/
 *.mobileprovision
 *.provisionprofile
 
+# ---------------------------------------------------------------------------
+# Credentials and key files. A key belongs in the environment, and a dotenv
+# file is where one gets written when that is inconvenient: it was not ignored
+# here, which is the gap this block closes. The shape check in
+# tools/security/scan_secrets.py refuses a key by what it looks like, and a
+# file that is never added cannot depend on a shape somebody forgot to write a
+# rule for. The environment names are left unanchored so a dotenv beside a
+# nested tool is caught as well; `.env.example` is exempted because a template
+# with a placeholder in it is the thing that keeps a real value out.
+.env
+.env.*
+!.env.example
+.envrc
+.direnv/
+.netrc
+*.pem
+*.key
+*.jks
+*.keystore
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+credentials.json
+service-account*.json
+
 # Compiled artifacts. A static PHP binary is about 20 MB and is produced by
 # the build recipe, not committed beside it.
 *.phar
