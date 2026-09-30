@@ -1,0 +1,51 @@
+# syntax=docker/dockerfile:1
+
+# Pinned by digest, not by tag. A tag such as ":server" is mutable, so an
+# unpinned build would silently change the inference engine between two runs of
+# the same study. The digest below is the only engine this harness reports.
+ARG LLAMA_IMAGE=ghcr.io/ggml-org/llama.cpp:server@sha256:6257697a7f5d034b8fb499ddb07af3e250506352f94102054252a23f3b85e0af
+FROM ${LLAMA_IMAGE}
+
+# The base image ships llama-server and libmtmd (the multimodal projector
+# runtime). curl is used by the health check below and by the optional projector
+# bootstrap in the entrypoint.
+#
+# Two scripts, one purpose each: the entrypoint validates the settings and starts
+# the engine, and the recorder reads the process it started and writes the record
+# the harness reads. A start that fails stops the container; a reading that fails
+# leaves a working engine serving and says so.
+COPY entrypoint-server.sh /usr/local/bin/entrypoint-server.sh
+COPY engine-record.sh /usr/local/bin/engine-record.sh
+RUN chmod 0755 /usr/local/bin/entrypoint-server.sh /usr/local/bin/engine-record.sh
+
+ENV MODEL_PATH=/models/model.gguf \
+    MMPROJ_PATH=/models/mmproj.gguf \
+    MMPROJ_URL= \
+    HOST=0.0.0.0 \
+    PORT=8080 \
+    CTX_SIZE=4096 \
+    THREADS=4 \
+    GPU_LAYERS=0 \
+    PARALLEL=1 \
+    API_KEY= \
+    EXTRA_ARGS= \
+    VISION=off \
+    LOAD_MODE=mmap \
+    KV_TYPE_K=f16 \
+    KV_TYPE_V=f16 \
+    MODEL_HASH=off \
+    RECORD_DIR=/records \
+    ENGINE_IMAGE=unknown
+
+EXPOSE 8080
+
+# The image is deliberately CPU-only: the VM does not pass a Metal device
+# through, so every layer stays on the CPU. GPU_LAYERS is kept as an env knob
+# for a host that can offload.
+#
+# A cold start loads about 4.1 GB of weights, so the start period is generous
+# and the retries allow for a slow first page-in without flapping the container.
+HEALTHCHECK --interval=10s --timeout=5s --start-period=180s --retries=60 \
+    CMD curl -fsS "http://127.0.0.1:${PORT}/health" | grep -q '"ok"' || exit 1
+
+ENTRYPOINT ["/usr/local/bin/entrypoint-server.sh"]

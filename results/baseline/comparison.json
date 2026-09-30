@@ -1,0 +1,1653 @@
+{
+    "schema_version": "1",
+    "run_id": "baseline",
+    "generated_at": "2026-09-25T18:34:57+00:00",
+    "methodology": {
+        "unit": "one prepared image, one prompt, one answer per system",
+        "shared_inputs": "the identical prepared JPEG bytes are sent to both systems",
+        "shared_reader": "deepseek-vision JsonResponseParser and ScanSchema::normalise(scene)",
+        "text_similarity": "Jaccard overlap of normalised token sets",
+        "labels": [
+            "gemma-4-E2B-it-Q4_K_M",
+            "deepseek-vision"
+        ]
+    },
+    "prompt": {
+        "id": "ScanPrompts::scene",
+        "version": "3",
+        "sha256": "67258f67e56d045fd775ef9a57b97b505052b613d29669779183a63ab1551e10",
+        "chars": 2943
+    },
+    "conditions": {
+        "max_edge": 1400,
+        "jpeg_quality": 90,
+        "temperature": 0,
+        "max_tokens": 4096,
+        "thinking": false,
+        "detail": "high"
+    },
+    "models": {
+        "gemma-4-E2B-it-Q4_K_M": {
+            "statistics": {
+                "images": 4,
+                "status_counts": {
+                    "complete": 4
+                },
+                "finish_reason_counts": {
+                    "stop": 4
+                },
+                "parse_strategy_counts": {
+                    "direct": 4
+                },
+                "truncated": 0,
+                "parse_success_rate": 1,
+                "latency_ms": {
+                    "mean": 24252.63,
+                    "median": 24485.65,
+                    "p95": 32768.4
+                },
+                "prompt_tokens_mean": 1467,
+                "completion_tokens_mean": 662,
+                "field_coverage_mean": 0.92
+            },
+            "engine": "llama.cpp llama-server",
+            "endpoint": "http://127.0.0.1:8080/v1/chat/completions",
+            "model_file": "gemma-4-E2B-it-Q4_K_M.gguf",
+            "model_sha256": "740185b21d22ceb83a11c3aa62ad5842ef32c70f6096d756bbee85a1e4ec34b8",
+            "model_bytes": 3106738272,
+            "projector_file": "mmproj-F16.gguf",
+            "projector_sha256": "140be8d7849741f88c50757d529b84373ee8e27052cc2236855b537f4a8215fa",
+            "projector_bytes": 985654080,
+            "temperature": 0,
+            "max_tokens": 4096,
+            "thinking": false
+        },
+        "deepseek-vision": {
+            "statistics": {
+                "images": 4,
+                "status_counts": {
+                    "complete": 4
+                },
+                "finish_reason_counts": {
+                    "stop": 3,
+                    "length": 1
+                },
+                "parse_strategy_counts": {
+                    "direct": 3,
+                    "repaired": 1
+                },
+                "truncated": 1,
+                "parse_success_rate": 1,
+                "latency_ms": {
+                    "mean": 11172.33,
+                    "median": 8835.2,
+                    "p95": 18249.7
+                },
+                "prompt_tokens_mean": 1649,
+                "completion_tokens_mean": 1614,
+                "field_coverage_mean": 0.83
+            },
+            "engine": "deepseek-vision project client",
+            "endpoint": "https://api.deepseek.com/chat/completions",
+            "model_id": "deepseek-v4-flash-vision-exp",
+            "detail": "high",
+            "temperature": 0,
+            "max_tokens": 4096,
+            "thinking": false
+        }
+    },
+    "aggregate": {
+        "images_total": 4,
+        "images_compared": 4,
+        "images_preparation_failed": 0,
+        "seconds": 142.9,
+        "agreement": {
+            "scene_summary_similarity": {
+                "n": 4,
+                "mean": 0.21
+            },
+            "panel_layout_match_rate": {
+                "n": 4,
+                "mean": 1
+            },
+            "character_count_delta": {
+                "n": 4,
+                "mean": 0.5
+            },
+            "character_label_jaccard": {
+                "n": 4,
+                "mean": 0.25
+            },
+            "dialogue_count_delta": {
+                "n": 4,
+                "mean": 1.75
+            },
+            "dialogue_text_jaccard": {
+                "n": 4,
+                "mean": 0.5
+            },
+            "on_image_text_jaccard": {
+                "n": 4,
+                "mean": 0.26
+            },
+            "defects_jaccard": {
+                "n": 4,
+                "mean": 0.5
+            },
+            "scene_valence_delta": {
+                "n": 4,
+                "mean": 0.43
+            },
+            "scene_arousal_delta": {
+                "n": 4,
+                "mean": 0.48
+            },
+            "dominant_emotion_match_rate": {
+                "n": 4,
+                "mean": 0.25
+            },
+            "facial_exact_match_rate": {
+                "n": 4,
+                "mean": 0.11
+            },
+            "facial_similarity_mean": {
+                "n": 4,
+                "mean": 0.11
+            }
+        }
+    },
+    "per_image": [
+        {
+            "index": 0,
+            "filename": "20260925_110438.jpg",
+            "path": "images/20260925_110438.jpg",
+            "image": {
+                "filename": "20260925_110438.jpg",
+                "original_mime": "image/jpeg",
+                "width": 1400,
+                "height": 1050,
+                "prepared_bytes": 558336,
+                "was_scaled": true,
+                "original_sha256": "20cd14004343639047d6c2bea92e5e678040750e4bf75dc9bb57096732f97668",
+                "prepared_sha256": "d693eb766680c02225fe088fabdac7c3fb4cd917c76aabacd55127bebb24670e"
+            },
+            "preparation_error": "",
+            "models": {
+                "gemma-4-E2B-it-Q4_K_M": {
+                    "status": "complete",
+                    "error": "",
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "from_cache": false,
+                    "latency_ms": 27193.6,
+                    "prompt_tokens": 1467,
+                    "completion_tokens": 726,
+                    "parse_strategy": "direct",
+                    "field_coverage": 1,
+                    "payload": {
+                        "scene_summary": "A group of characters is depicted within a circular graphic with speech bubbles and an image of survivors.",
+                        "panel_layout": "single illustration",
+                        "characters_present": [
+                            {
+                                "label": "Woman with long red hair",
+                                "role_in_frame": "foreground",
+                                "pose": "looking directly at the viewer",
+                                "action": "staring",
+                                "gaze_target": "viewer/camera"
+                            },
+                            {
+                                "label": "Large muscular man",
+                                "role_in_frame": "midground",
+                                "pose": "lying down, looking forward",
+                                "action": "lying",
+                                "gaze_target": "viewer/camera"
+                            },
+                            {
+                                "label": "Two other figures (implied survivors)",
+                                "role_in_frame": "midground",
+                                "pose": "lying down",
+                                "action": "lying",
+                                "gaze_target": "viewer/camera"
+                            }
+                        ],
+                        "dialogue": [
+                            {
+                                "speaker_label": "Speech bubble pointing to the woman",
+                                "line": "THERE'S NO ONE ELSE ALIVE!"
+                            },
+                            {
+                                "speaker_label": "Speech bubble pointing to the group",
+                                "line": "WE FOUR ARE THE ONLY SURVIVORS!"
+                            }
+                        ],
+                        "on_image_text": [
+                            "DOOMSDAY",
+                            "all new",
+                            "CHARLTON COMICS",
+                            "NO. 5 MAR 76/CDC",
+                            "0123456789",
+                            "00121"
+                        ],
+                        "facial_features": [
+                            {
+                                "subject_label": "Woman with long red hair",
+                                "face_shape": "oval",
+                                "jawline": "defined",
+                                "cheekbones": "prominent",
+                                "brow_shape": "arched",
+                                "brow_tension": "slight",
+                                "eye_shape": "almond",
+                                "eye_color": "dark",
+                                "gaze_direction": "viewer/camera",
+                                "eyelid_openness": "open",
+                                "nose_shape": "straight",
+                                "lip_shape": "closed",
+                                "mouth_corners": "neutral",
+                                "skin_tone": "fair",
+                                "hair_color": "red",
+                                "hair_style": "long, flowing",
+                                "hair_length": "long",
+                                "facial_hair": "",
+                                "muscle_tension": "relaxed",
+                                "expression_primary": "serious",
+                                "expression_secondary": "",
+                                "affect_valence": -0.3,
+                                "affect_arousal": 0.2,
+                                "confidence": 0.8
+                            }
+                        ],
+                        "scene_affect": {
+                            "valence": -0.5,
+                            "arousal": 0.3,
+                            "dominant_emotion": "fear",
+                            "confidence": 0.7
+                        },
+                        "defects": []
+                    }
+                },
+                "deepseek-vision": {
+                    "status": "complete",
+                    "error": "",
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "from_cache": false,
+                    "latency_ms": 8848.9,
+                    "prompt_tokens": 1649,
+                    "completion_tokens": 979,
+                    "parse_strategy": "direct",
+                    "field_coverage": 1,
+                    "payload": {
+                        "scene_summary": "A comic book cover titled 'all new DOCTOR TOMORROW' featuring a large circular illustration of four characters against a fiery background, with two speech bubbles.",
+                        "panel_layout": "single illustration",
+                        "characters_present": [
+                            {
+                                "label": "woman with black hair",
+                                "role_in_frame": "foreground",
+                                "pose": "turned to her left, looking down",
+                                "action": "looking down",
+                                "gaze_target": "the man in the red and yellow suit"
+                            },
+                            {
+                                "label": "man in the red and yellow suit",
+                                "role_in_frame": "midground",
+                                "pose": "standing, facing forward",
+                                "action": "standing",
+                                "gaze_target": "viewer/camera"
+                            },
+                            {
+                                "label": "man with blond hair and fur vest",
+                                "role_in_frame": "foreground",
+                                "pose": "standing, turned to his right",
+                                "action": "holding a hammer",
+                                "gaze_target": "off-frame"
+                            },
+                            {
+                                "label": "woman with black hair and yellow top",
+                                "role_in_frame": "foreground",
+                                "pose": "standing, turned to her left",
+                                "action": "standing",
+                                "gaze_target": "off-frame"
+                            }
+                        ],
+                        "dialogue": [
+                            {
+                                "speaker_label": "woman with black hair",
+                                "line": "THERE'S NO ONE ELSE ALIVE!"
+                            },
+                            {
+                                "speaker_label": "man in the red and yellow suit",
+                                "line": "WE FOUR ARE THE ONLY SURVIVORS!"
+                            }
+                        ],
+                        "on_image_text": [
+                            "all new",
+                            "DOCTOR TOMORROW",
+                            "CHARLTON COMICS",
+                            "No. 5",
+                            "00121",
+                            "MAR",
+                            "76¢",
+                            "CDC",
+                            "00121",
+                            "0 1234 56789"
+                        ],
+                        "facial_features": [
+                            {
+                                "subject_label": "woman with black hair",
+                                "face_shape": "oval",
+                                "jawline": "soft",
+                                "cheekbones": "high",
+                                "brow_shape": "arched",
+                                "brow_tension": "relaxed",
+                                "eye_shape": "almond",
+                                "eye_color": "brown",
+                                "gaze_direction": "downward",
+                                "eyelid_openness": "wide",
+                                "nose_shape": "straight",
+                                "lip_shape": "full",
+                                "mouth_corners": "neutral",
+                                "skin_tone": "light",
+                                "hair_color": "black",
+                                "hair_style": "straight",
+                                "hair_length": "long",
+                                "facial_hair": "",
+                                "muscle_tension": "relaxed",
+                                "expression_primary": "concerned",
+                                "expression_secondary": "serious",
+                                "affect_valence": -0.3,
+                                "affect_arousal": 0.4,
+                                "confidence": 0.8
+                            },
+                            {
+                                "subject_label": "man in the red and yellow suit",
+                                "face_shape": "square",
+                                "jawline": "strong",
+                                "cheekbones": "prominent",
+                                "brow_shape": "straight",
+                                "brow_tension": "tense",
+                                "eye_shape": "almond",
+                                "eye_color": "blue",
+                                "gaze_direction": "forward",
+                                "eyelid_openness": "wide",
+                                "nose_shape": "straight",
+                                "lip_shape": "thin",
+                                "mouth_corners": "neutral",
+                                "skin_tone": "light",
+                                "hair_color": "blond",
+                                "hair_style": "wavy",
+                                "hair_length": "medium",
+                                "facial_hair": "",
+                                "muscle_tension": "tense",
+                                "expression_primary": "determined",
+                                "expression_secondary": "serious",
+                                "affect_valence": 0,
+                                "affect_arousal": 0.6,
+                                "confidence": 0.7
+                            }
+                        ],
+                        "scene_affect": {
+                            "valence": -0.2,
+                            "arousal": 0.6,
+                            "dominant_emotion": "tension",
+                            "confidence": 0.7
+                        },
+                        "defects": []
+                    }
+                }
+            },
+            "agreement": {
+                "scene_summary_similarity": 0.2188,
+                "panel_layout_match": true,
+                "character_count": {
+                    "left": 3,
+                    "right": 4,
+                    "delta": 1
+                },
+                "character_label_jaccard": 0,
+                "dialogue_count": {
+                    "left": 2,
+                    "right": 2,
+                    "delta": 0
+                },
+                "dialogue_text_jaccard": 1,
+                "on_image_text_jaccard": 0.25,
+                "defects_jaccard": 1,
+                "scene_affect": {
+                    "valence": {
+                        "left": -0.5,
+                        "right": -0.2,
+                        "delta": 0.3
+                    },
+                    "arousal": {
+                        "left": 0.3,
+                        "right": 0.6,
+                        "delta": 0.3
+                    },
+                    "dominant_emotion_match": false
+                },
+                "facial_features": {
+                    "paired_faces": 1,
+                    "fields_compared": 19,
+                    "exact_match_rate": 0.3684,
+                    "similarity_mean": 0.3684
+                }
+            }
+        },
+        {
+            "index": 1,
+            "filename": "20260925_110458.jpg",
+            "path": "images/20260925_110458.jpg",
+            "image": {
+                "filename": "20260925_110458.jpg",
+                "original_mime": "image/jpeg",
+                "width": 1400,
+                "height": 1050,
+                "prepared_bytes": 534503,
+                "was_scaled": true,
+                "original_sha256": "39bf5642bf0cbdf5c4de304781043ab8642e32db548c04a08cf27efc106b8ca2",
+                "prepared_sha256": "59a90550aad8756a7b2ac9ee545e484909ff82912c9d65ac5c6acb76995e9d97"
+            },
+            "preparation_error": "",
+            "models": {
+                "gemma-4-E2B-it-Q4_K_M": {
+                    "status": "complete",
+                    "error": "",
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "from_cache": false,
+                    "latency_ms": 32768.4,
+                    "prompt_tokens": 1467,
+                    "completion_tokens": 904,
+                    "parse_strategy": "direct",
+                    "field_coverage": 1,
+                    "payload": {
+                        "scene_summary": "Three versions of Spider-Woman are depicted in dynamic poses against a yellow background.",
+                        "panel_layout": "single illustration",
+                        "characters_present": [
+                            {
+                                "label": "Spider-Woman (top)",
+                                "role_in_frame": "midground",
+                                "pose": "flying/leaping with arms outstretched",
+                                "action": "flying",
+                                "gaze_target": "off-frame"
+                            },
+                            {
+                                "label": "Spider-Woman (bottom)",
+                                "role_in_frame": "midground",
+                                "pose": "crouching/lunging with a weapon",
+                                "action": "holding a large pipe/weapon",
+                                "gaze_target": "off-frame"
+                            },
+                            {
+                                "label": "Spider-Woman (left)",
+                                "role_in_frame": "midground",
+                                "pose": "flying/leaping",
+                                "action": "flying",
+                                "gaze_target": "off-frame"
+                            }
+                        ],
+                        "dialogue": [
+                            {
+                                "speaker_label": "Text in panel",
+                                "line": "SPIDER-WOMAN"
+                            },
+                            {
+                                "speaker_label": "Text in panel",
+                                "line": "EENIE MEENIE MINEY MO..."
+                            },
+                            {
+                                "speaker_label": "Text in panel",
+                                "line": "ONE SPIDER-WOMAN WILL HAVE TO GO!"
+                            }
+                        ],
+                        "on_image_text": [
+                            "MARVEL COMICS GROUP",
+                            "SPIDER-WOMAN",
+                            "40°C",
+                            "©1980 MARVEL COMICS GROUP",
+                            "Spider-Woman"
+                        ],
+                        "facial_features": [
+                            {
+                                "subject_label": "Spider-Woman (top)",
+                                "face_shape": "",
+                                "jawline": "",
+                                "cheekbones": "",
+                                "brow_shape": "",
+                                "brow_tension": "",
+                                "eye_shape": "",
+                                "eye_color": "",
+                                "gaze_direction": "",
+                                "eyelid_openness": "",
+                                "nose_shape": "",
+                                "lip_shape": "",
+                                "mouth_corners": "",
+                                "skin_tone": "red",
+                                "hair_color": "dark blue/black",
+                                "hair_style": "flowing",
+                                "hair_length": "long",
+                                "facial_hair": "",
+                                "muscle_tension": "neck and arm muscles engaged in flight",
+                                "expression_primary": "intense",
+                                "expression_secondary": "",
+                                "affect_valence": 0.5,
+                                "affect_arousal": 0.7,
+                                "confidence": 0.8
+                            },
+                            {
+                                "subject_label": "Spider-Woman (bottom)",
+                                "face_shape": "",
+                                "jawline": "",
+                                "cheekbones": "",
+                                "brow_shape": "",
+                                "brow_tension": "",
+                                "eye_shape": "",
+                                "eye_color": "",
+                                "gaze_direction": "",
+                                "eyelid_openness": "",
+                                "nose_shape": "",
+                                "lip_shape": "",
+                                "mouth_corners": "",
+                                "skin_tone": "red",
+                                "hair_color": "dark blue/black",
+                                "hair_style": "flowing",
+                                "hair_length": "long",
+                                "facial_hair": "",
+                                "muscle_tension": "mouth and jaw tense from exertion",
+                                "expression_primary": "determined",
+                                "expression_secondary": "",
+                                "affect_valence": 0.3,
+                                "affect_arousal": 0.5,
+                                "confidence": 0.7
+                            }
+                        ],
+                        "scene_affect": {
+                            "valence": 0.4,
+                            "arousal": 0.6,
+                            "dominant_emotion": "action",
+                            "confidence": 0.8
+                        },
+                        "defects": []
+                    }
+                },
+                "deepseek-vision": {
+                    "status": "complete",
+                    "error": "",
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "from_cache": false,
+                    "latency_ms": 8821.5,
+                    "prompt_tokens": 1649,
+                    "completion_tokens": 898,
+                    "parse_strategy": "direct",
+                    "field_coverage": 0.8333,
+                    "payload": {
+                        "scene_summary": "A comic book cover featuring Spider-Woman in two dynamic poses against a yellow circular background, with a hand holding a gun in the foreground.",
+                        "panel_layout": "single illustration",
+                        "characters_present": [
+                            {
+                                "label": "Spider-Woman (upper)",
+                                "role_in_frame": "midground",
+                                "pose": "airborne, leaning forward, legs bent",
+                                "action": "falling or leaping downward",
+                                "gaze_target": "viewer/camera"
+                            },
+                            {
+                                "label": "Spider-Woman (lower)",
+                                "role_in_frame": "midground",
+                                "pose": "airborne, leaning forward, legs extended",
+                                "action": "flying or leaping forward",
+                                "gaze_target": "viewer/camera"
+                            },
+                            {
+                                "label": "hand holding gun",
+                                "role_in_frame": "foreground",
+                                "pose": "gripping a large purple gun",
+                                "action": "aiming the gun upward",
+                                "gaze_target": ""
+                            }
+                        ],
+                        "dialogue": [],
+                        "on_image_text": [
+                            "MARVEL COMICS GROUP",
+                            "SPIDER-WOMAN",
+                            "EENIE MEENIE MINEY MO--",
+                            "ONE SPIDER-WOMAN WILL HAVE TO GO!",
+                            "40¢",
+                            "25",
+                            "APR",
+                            "02615",
+                            "©1980 MARVEL COMICS GROUP",
+                            "TM",
+                            "71486 02615",
+                            "0"
+                        ],
+                        "facial_features": [
+                            {
+                                "subject_label": "Spider-Woman (upper)",
+                                "face_shape": "oval",
+                                "jawline": "soft",
+                                "cheekbones": "high",
+                                "brow_shape": "arched",
+                                "brow_tension": "relaxed",
+                                "eye_shape": "almond",
+                                "eye_color": "blue",
+                                "gaze_direction": "forward",
+                                "eyelid_openness": "wide",
+                                "nose_shape": "straight",
+                                "lip_shape": "full",
+                                "mouth_corners": "neutral",
+                                "skin_tone": "fair",
+                                "hair_color": "black",
+                                "hair_style": "wavy",
+                                "hair_length": "long",
+                                "facial_hair": "",
+                                "muscle_tension": "relaxed",
+                                "expression_primary": "neutral",
+                                "expression_secondary": "determined",
+                                "affect_valence": 0,
+                                "affect_arousal": 0.3,
+                                "confidence": 0.8
+                            },
+                            {
+                                "subject_label": "Spider-Woman (lower)",
+                                "face_shape": "oval",
+                                "jawline": "soft",
+                                "cheekbones": "high",
+                                "brow_shape": "arched",
+                                "brow_tension": "relaxed",
+                                "eye_shape": "almond",
+                                "eye_color": "blue",
+                                "gaze_direction": "forward",
+                                "eyelid_openness": "wide",
+                                "nose_shape": "straight",
+                                "lip_shape": "full",
+                                "mouth_corners": "neutral",
+                                "skin_tone": "fair",
+                                "hair_color": "black",
+                                "hair_style": "wavy",
+                                "hair_length": "long",
+                                "facial_hair": "",
+                                "muscle_tension": "relaxed",
+                                "expression_primary": "neutral",
+                                "expression_secondary": "determined",
+                                "affect_valence": 0,
+                                "affect_arousal": 0.3,
+                                "confidence": 0.8
+                            }
+                        ],
+                        "scene_affect": {
+                            "valence": 0,
+                            "arousal": 0.6,
+                            "dominant_emotion": "action",
+                            "confidence": 0.7
+                        },
+                        "defects": [
+                            "duplicate-subject: Spider-Woman appears twice in the same frame"
+                        ]
+                    }
+                }
+            },
+            "agreement": {
+                "scene_summary_similarity": 0.3462,
+                "panel_layout_match": true,
+                "character_count": {
+                    "left": 3,
+                    "right": 3,
+                    "delta": 0
+                },
+                "character_label_jaccard": 0,
+                "dialogue_count": {
+                    "left": 3,
+                    "right": 0,
+                    "delta": 3
+                },
+                "dialogue_text_jaccard": 0,
+                "on_image_text_jaccard": 0.2308,
+                "defects_jaccard": 0,
+                "scene_affect": {
+                    "valence": {
+                        "left": 0.4,
+                        "right": 0,
+                        "delta": 0.4
+                    },
+                    "arousal": {
+                        "left": 0.6,
+                        "right": 0.6,
+                        "delta": 0
+                    },
+                    "dominant_emotion_match": true
+                },
+                "facial_features": {
+                    "paired_faces": 2,
+                    "fields_compared": 38,
+                    "exact_match_rate": 0.0526,
+                    "similarity_mean": 0.0702
+                }
+            }
+        },
+        {
+            "index": 2,
+            "filename": "20260925_110515.jpg",
+            "path": "images/20260925_110515.jpg",
+            "image": {
+                "filename": "20260925_110515.jpg",
+                "original_mime": "image/jpeg",
+                "width": 1400,
+                "height": 1050,
+                "prepared_bytes": 796294,
+                "was_scaled": true,
+                "original_sha256": "98c7a3384c404d76bf597626a25fef34e36e98c75acc3a8a8066dd0fd7fe302f",
+                "prepared_sha256": "ab016c970c1a40cb1711e6ba96801258858703dad8c111c54b786c51f75e1827"
+            },
+            "preparation_error": "",
+            "models": {
+                "gemma-4-E2B-it-Q4_K_M": {
+                    "status": "complete",
+                    "error": "",
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "from_cache": false,
+                    "latency_ms": 21777.7,
+                    "prompt_tokens": 1467,
+                    "completion_tokens": 609,
+                    "parse_strategy": "direct",
+                    "field_coverage": 0.8333,
+                    "payload": {
+                        "scene_summary": "A comic book cover featuring Spider-Man in a dynamic pose amidst various comic book elements and text.",
+                        "panel_layout": "single illustration",
+                        "characters_present": [
+                            {
+                                "label": "Spider-Man",
+                                "role_in_frame": "midground",
+                                "pose": "dynamic, crouching/leaping pose with limbs spread",
+                                "action": "posing dramatically",
+                                "gaze_target": "viewer/camera"
+                            }
+                        ],
+                        "dialogue": [],
+                        "on_image_text": [
+                            "MARVEL COMICS GROUP",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "BIG 100TH ISSUE!",
+                            "MARYLE TALES",
+                            "SPIDER-MAN",
+                            "SPIDEY BATTLES",
+                            "LUKES AGE POWERMAN",
+                            "PLUS AN ALL-NEW HAWKSYE AND TWO-GUN KID ADVENTURE! AND MUCH MORE!"
+                        ],
+                        "facial_features": [
+                            {
+                                "subject_label": "Spider-Man",
+                                "face_shape": "N/A",
+                                "jawline": "N/A",
+                                "cheekbones": "N/A",
+                                "brow_shape": "N/A",
+                                "brow_tension": "N/A",
+                                "eye_shape": "N/A",
+                                "eye_color": "N/A",
+                                "gaze_direction": "viewer/camera",
+                                "eyelid_openness": "N/A",
+                                "nose_shape": "N/A",
+                                "lip_shape": "N/A",
+                                "mouth_corners": "N/A",
+                                "skin_tone": "Red/Blue",
+                                "hair_color": "Red/Blue",
+                                "hair_style": "N/A",
+                                "hair_length": "N/A",
+                                "facial_hair": "N/A",
+                                "muscle_tension": "Arms and body muscles appear tense from the pose",
+                                "expression_primary": "Intense",
+                                "expression_secondary": "Action-oriented",
+                                "affect_valence": 0.5,
+                                "affect_arousal": 0.8,
+                                "confidence": 0.9
+                            }
+                        ],
+                        "scene_affect": {
+                            "valence": 0.5,
+                            "arousal": 0.8,
+                            "dominant_emotion": "Excitement",
+                            "confidence": 0.85
+                        },
+                        "defects": []
+                    }
+                },
+                "deepseek-vision": {
+                    "status": "complete",
+                    "error": "",
+                    "finish_reason": "length",
+                    "truncated": true,
+                    "from_cache": false,
+                    "latency_ms": 18249.7,
+                    "prompt_tokens": 1649,
+                    "completion_tokens": 4096,
+                    "parse_strategy": "repaired",
+                    "field_coverage": 0.6667,
+                    "payload": {
+                        "scene_summary": "A photograph of a bagged and boarded copy of Marvel Tales Starring Spider-Man #100 resting on a wooden table.",
+                        "panel_layout": "single illustration",
+                        "characters_present": [
+                            {
+                                "label": "Spider-Man",
+                                "role_in_frame": "foreground",
+                                "pose": "crouching, facing forward",
+                                "action": "leaping toward the viewer",
+                                "gaze_target": "viewer/camera"
+                            }
+                        ],
+                        "dialogue": [],
+                        "on_image_text": [
+                            "APPROVED BY THE COMICS CODE AUTHORITY",
+                            "MARVEL COMICS GROUP",
+                            "MARVEL TALES",
+                            "STARRING",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "100",
+                            "60c",
+                            "FEB",
+                            "02476",
+                            "©1978 MARVEL COMICS GROUP",
+                            "BIG",
+                            "100th",
+                            "ISSUE!",
+                            "MARVEL TALES",
+                            "SPIDEY BATTLES LUKE CAGE, POWER MAN! PLUS AN ALL-NEW HAWKEYE AND TWO-GUN KID ADVENTURE! AND MUCH MORE!",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES",
+                            "SPIDER-MAN",
+                            "MARVEL TALES"
+                        ],
+                        "facial_features": [],
+                        "scene_affect": {
+                            "valence": 0,
+                            "arousal": 0,
+                            "dominant_emotion": "",
+                            "confidence": 0
+                        },
+                        "defects": []
+                    }
+                }
+            },
+            "agreement": {
+                "scene_summary_similarity": 0.1429,
+                "panel_layout_match": true,
+                "character_count": {
+                    "left": 1,
+                    "right": 1,
+                    "delta": 0
+                },
+                "character_label_jaccard": 1,
+                "dialogue_count": {
+                    "left": 0,
+                    "right": 0,
+                    "delta": 0
+                },
+                "dialogue_text_jaccard": 1,
+                "on_image_text_jaccard": 0.1579,
+                "defects_jaccard": 1,
+                "scene_affect": {
+                    "valence": {
+                        "left": 0.5,
+                        "right": 0,
+                        "delta": 0.5
+                    },
+                    "arousal": {
+                        "left": 0.8,
+                        "right": 0,
+                        "delta": 0.8
+                    },
+                    "dominant_emotion_match": false
+                },
+                "facial_features": {
+                    "paired_faces": 0,
+                    "fields_compared": 0,
+                    "exact_match_rate": 0,
+                    "similarity_mean": 0
+                }
+            }
+        },
+        {
+            "index": 3,
+            "filename": "20260925_110536.jpg",
+            "path": "images/20260925_110536.jpg",
+            "image": {
+                "filename": "20260925_110536.jpg",
+                "original_mime": "image/jpeg",
+                "width": 1400,
+                "height": 1050,
+                "prepared_bytes": 573368,
+                "was_scaled": true,
+                "original_sha256": "dbd17a2452d6140d329398a61030a9c0f2a2574e0a000bd92a190b9b48da28c9",
+                "prepared_sha256": "01c828c57f46d23cbce6f506de1a1279dbcceb37c6e5c95c4cf595430211a230"
+            },
+            "preparation_error": "",
+            "models": {
+                "gemma-4-E2B-it-Q4_K_M": {
+                    "status": "complete",
+                    "error": "",
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "from_cache": false,
+                    "latency_ms": 15270.8,
+                    "prompt_tokens": 1467,
+                    "completion_tokens": 409,
+                    "parse_strategy": "direct",
+                    "field_coverage": 0.8333,
+                    "payload": {
+                        "scene_summary": "A comic book cover featuring a dynamic, colorful, and chaotic depiction of a superhero in a cosmic setting.",
+                        "panel_layout": "single illustration",
+                        "characters_present": [
+                            {
+                                "label": "Strange/Doctor Strange",
+                                "role_in_frame": "foreground",
+                                "pose": "flying/leaping dynamically",
+                                "action": "soaring through space",
+                                "gaze_target": "off-frame"
+                            }
+                        ],
+                        "dialogue": [
+                            {
+                                "speaker_label": "Text on cover",
+                                "line": "DR. STRANGE"
+                            },
+                            {
+                                "speaker_label": "Text on cover",
+                                "line": "12¢ MAY"
+                            },
+                            {
+                                "speaker_label": "Text on cover",
+                                "line": "MARVEL COMICS GROUP"
+                            },
+                            {
+                                "speaker_label": "Text on cover",
+                                "line": "ETERNITY, ETERNITY!"
+                            }
+                        ],
+                        "on_image_text": [
+                            "STRANGE",
+                            "DR. STRANGE",
+                            "12¢ MAY",
+                            "IND.",
+                            "MARVEL",
+                            "COMICS GROUP",
+                            "DOCTOR STRANGE",
+                            "12¢",
+                            "MAY",
+                            "ETERNITY, ETERNITY!"
+                        ],
+                        "facial_features": [],
+                        "scene_affect": {
+                            "valence": 0.5,
+                            "arousal": 0.8,
+                            "dominant_emotion": "excitement",
+                            "confidence": 0.9
+                        },
+                        "defects": [
+                            "text"
+                        ]
+                    }
+                },
+                "deepseek-vision": {
+                    "status": "complete",
+                    "error": "",
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "from_cache": false,
+                    "latency_ms": 8769.2,
+                    "prompt_tokens": 1649,
+                    "completion_tokens": 483,
+                    "parse_strategy": "direct",
+                    "field_coverage": 0.8333,
+                    "payload": {
+                        "scene_summary": "A photograph of a bagged and boarded copy of Doctor Strange #180 lying on a wooden table, showing the cover art of Doctor Strange flying before a giant cosmic silhouette.",
+                        "panel_layout": "single illustration",
+                        "characters_present": [
+                            {
+                                "label": "Doctor Strange",
+                                "role_in_frame": "foreground",
+                                "pose": "flying diagonally upward to the right, arms outstretched",
+                                "action": "flying",
+                                "gaze_target": "off-frame"
+                            },
+                            {
+                                "label": "Eternity",
+                                "role_in_frame": "background",
+                                "pose": "standing with arms outstretched",
+                                "action": "looming behind Doctor Strange",
+                                "gaze_target": "off-frame"
+                            }
+                        ],
+                        "dialogue": [],
+                        "on_image_text": [
+                            "DR. STRANGE",
+                            "DOCTOR STRANGE",
+                            "12¢",
+                            "180",
+                            "MAY",
+                            "MARVEL COMICS GROUP",
+                            "ETERNITY, ETERNITY!"
+                        ],
+                        "facial_features": [
+                            {
+                                "subject_label": "Doctor Strange",
+                                "face_shape": "",
+                                "jawline": "",
+                                "cheekbones": "",
+                                "brow_shape": "",
+                                "brow_tension": "",
+                                "eye_shape": "",
+                                "eye_color": "",
+                                "gaze_direction": "",
+                                "eyelid_openness": "",
+                                "nose_shape": "",
+                                "lip_shape": "",
+                                "mouth_corners": "",
+                                "skin_tone": "",
+                                "hair_color": "",
+                                "hair_style": "",
+                                "hair_length": "",
+                                "facial_hair": "",
+                                "muscle_tension": "",
+                                "expression_primary": "",
+                                "expression_secondary": "",
+                                "affect_valence": 0,
+                                "affect_arousal": 0,
+                                "confidence": 0
+                            }
+                        ],
+                        "scene_affect": {
+                            "valence": 0,
+                            "arousal": 0,
+                            "dominant_emotion": "",
+                            "confidence": 0
+                        },
+                        "defects": []
+                    }
+                }
+            },
+            "agreement": {
+                "scene_summary_similarity": 0.1515,
+                "panel_layout_match": true,
+                "character_count": {
+                    "left": 1,
+                    "right": 2,
+                    "delta": 1
+                },
+                "character_label_jaccard": 0,
+                "dialogue_count": {
+                    "left": 4,
+                    "right": 0,
+                    "delta": 4
+                },
+                "dialogue_text_jaccard": 0,
+                "on_image_text_jaccard": 0.4167,
+                "defects_jaccard": 0,
+                "scene_affect": {
+                    "valence": {
+                        "left": 0.5,
+                        "right": 0,
+                        "delta": 0.5
+                    },
+                    "arousal": {
+                        "left": 0.8,
+                        "right": 0,
+                        "delta": 0.8
+                    },
+                    "dominant_emotion_match": false
+                },
+                "facial_features": {
+                    "paired_faces": 0,
+                    "fields_compared": 0,
+                    "exact_match_rate": 0,
+                    "similarity_mean": 0
+                }
+            }
+        }
+    ]
+}

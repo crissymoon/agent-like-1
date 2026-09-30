@@ -1,0 +1,363 @@
+{
+    "document": "agent-control-replay",
+    "source_run": "baseline",
+    "source_prompt_sha256": "1e504afdcff681520d3aee058c80d2ff73216b8a0f17e6da5ca17b9e810b8bd4",
+    "guard_repeat_limit": 2,
+    "reading": "Each row is a recorded turn compared against the two controls. A refused turn is a turn the control rejects on the transcript that was recorded, not a prediction of what a rerun would score, because the guard changes what the model sees next.",
+    "action_schema_sha256": "fb02911a9fb8b108185b4ab2be4aa7aa3104178d6159f3e6f8d3d4dbd921707d",
+    "models": {
+        "gemma-4-E2B-it-Q4_K_M": {
+            "label": "gemma-4-E2B-it-Q4_K_M",
+            "probe": null,
+            "tasks": {
+                "create_exact_file": {
+                    "capability": "instruction_following",
+                    "turns_recorded": 2,
+                    "invalid_actions_recorded": 0,
+                    "repeated_failed_turns_recorded": 0,
+                    "turns_the_decoder_refuses": 0,
+                    "turns_the_guard_refuses": 0,
+                    "guard_interventions": 0,
+                    "recorded_composite": 97.5,
+                    "rows": [
+                        {
+                            "step": 1,
+                            "keys": [
+                                "action",
+                                "path",
+                                "content"
+                            ],
+                            "layout": "flattened",
+                            "recorded_failure": false,
+                            "decoder_permitted": true,
+                            "decoder_reason": "",
+                            "guard_refusal": false,
+                            "turn": "{\"action\": \"write_file\", \"path\": \"release.txt\", \"content\": \"name=atlas\\nversion=3\"}"
+                        },
+                        {
+                            "step": 2,
+                            "keys": [
+                                "action",
+                                "answer"
+                            ],
+                            "layout": "finish",
+                            "recorded_failure": false,
+                            "decoder_permitted": true,
+                            "decoder_reason": "",
+                            "guard_refusal": false,
+                            "turn": "{\"action\": \"finish\", \"answer\": \"File release.txt created with the specified content.\"}"
+                        }
+                    ]
+                },
+                "count_by_extension": {
+                    "capability": "tool_query",
+                    "turns_recorded": 3,
+                    "invalid_actions_recorded": 0,
+                    "repeated_failed_turns_recorded": 0,
+                    "turns_the_decoder_refuses": 0,
+                    "turns_the_guard_refuses": 0,
+                    "guard_interventions": 0,
+                    "recorded_composite": 97,
+                    "rows": [
+                        {
+                            "step": 1,
+                            "keys": [
+                                "action",
+                                "command"
+                            ],
+                            "layout": "flattened",
+                            "recorded_failure": false,
+                            "decoder_permitted": true,
+                            "decoder_reason": "",
+                            "guard_refusal": false,
+                            "turn": "{\"action\": \"run_command\", \"command\": \"find data -name '*.log' | wc -l > count.txt\"}"
+                        },
+                        {
+                            "step": 2,
+                            "keys": [
+                                "action",
+                                "path"
+                            ],
+                            "layout": "flattened",
+                            "recorded_failure": false,
+                            "decoder_permitted": true,
+                            "decoder_reason": "",
+                            "guard_refusal": false,
+                            "turn": "{\"action\": \"read_file\", \"path\": \"count.txt\"}"
+                        },
+                        {
+                            "step": 3,
+                            "keys": [
+                                "action",
+                                "answer"
+                            ],
+                            "layout": "finish",
+                            "recorded_failure": false,
+                            "decoder_permitted": true,
+                            "decoder_reason": "",
+                            "guard_refusal": false,
+                            "turn": "{\"action\": \"finish\", \"answer\": \"4\"}"
+                        }
+                    ]
+                },
+                "sum_two_files": {
+                    "capability": "multi_step_composition",
+                    "turns_recorded": 4,
+                    "invalid_actions_recorded": 0,
+                    "repeated_failed_turns_recorded": 0,
+                    "turns_the_decoder_refuses": 0,
+                    "turns_the_guard_refuses": 0,
+                    "guard_interventions": 0,
+                    "recorded_composite": 96.67,
+                    "rows": [
+                        {
+                            "step": 1,
+                            "keys": [
+                                "action",
+                                "path"
+                            ],
+                            "layout": "flattened",
+                            "recorded_failure": false,
+                            "decoder_permitted": true,
+                            "decoder_reason": "",
+                            "guard_refusal": false,
+                            "turn": "{\"action\": \"read_file\", \"path\": \"a.txt\"}"
+                        },
+                        {
+                            "step": 2,
+                            "keys": [
+                                "action",
+                                "path"
+                            ],
+                            "layout": "flattened",
+                            "recorded_failure": false,
+                            "decoder_permitted": true,
+                            "decoder_reason": "",
+                            "guard_refusal": false,
+                            "turn": "{\"action\": \"read_file\", \"path\": \"b.txt\"}"
+                        },
+                        {
+                            "step": 3,
+                            "keys": [
+                                "action",
+                                "path",
+                                "content"
+                            ],
+                            "layout": "flattened",
+                            "recorded_failure": false,
+                            "decoder_permitted": true,
+                            "decoder_reason": "",
+                            "guard_refusal": false,
+                            "turn": "{\"action\": \"write_file\", \"path\": \"total.txt\", \"content\": \"42\"}"
+                        },
+                        {
+                            "step": 4,
+                            "keys": [
+                                "action",
+                                "answer"
+                            ],
+                            "layout": "finish",
+                            "recorded_failure": false,
+                            "decoder_permitted": true,
+                            "decoder_reason": "",
+                            "guard_refusal": false,
+                            "turn": "{\"action\": \"finish\", \"answer\": \"The sum of the numbers in a.txt and b.txt is 42, written to total.txt.\"}"
+                        }
+                    ]
+                },
+                "recover_misnamed_file": {
+                    "capability": "error_recovery",
+                    "turns_recorded": 4,
+                    "invalid_actions_recorded": 0,
+                    "repeated_failed_turns_recorded": 0,
+                    "turns_the_decoder_refuses": 0,
+                    "turns_the_guard_refuses": 0,
+                    "guard_interventions": 0,
+                    "recorded_composite": 97.14,
+                    "rows": [
+                        {
+                            "step": 1,
+                            "keys": [
+                                "action",
+                                "args"
+                            ],
+                            "layout": "named",
+                            "recorded_failure": false,
+                            "decoder_permitted": true,
+                            "decoder_reason": "",
+                            "guard_refusal": false,
+                            "turn": "{\"action\": \"list_files\", \"args\": {\"path\": \".\"}}"
+                        },
+                        {
+                            "step": 2,
+                            "keys": [
+                                "action",
+                                "args"
+                            ],
+                            "layout": "named",
+                            "recorded_failure": false,
+                            "decoder_permitted": true,
+                            "decoder_reason": "",
+                            "guard_refusal": false,
+                            "turn": "{\"action\": \"read_file\", \"args\": {\"path\": \"service.yml\"}}"
+                        },
+                        {
+                            "step": 3,
+                            "keys": [
+                                "action",
+                                "args"
+                            ],
+                            "layout": "named",
+                            "recorded_failure": false,
+                            "decoder_permitted": true,
+                            "decoder_reason": "",
+                            "guard_refusal": false,
+                            "turn": "{\"action\": \"write_file\", \"args\": {\"path\": \"output.txt\", \"content\": \"port: 9090\\nhost: localhost\"}}"
+                        },
+                        {
+                            "step": 4,
+                            "keys": [
+                                "action",
+                                "answer"
+                            ],
+                            "layout": "finish",
+                            "recorded_failure": false,
+                            "decoder_permitted": true,
+                            "decoder_reason": "",
+                            "guard_refusal": false,
+                            "turn": "{\"action\": \"finish\", \"answer\": \"The contents of the service settings file (service.yml) have been copied to output.txt.\"}"
+                        }
+                    ]
+                },
+                "extract_field_map": {
+                    "capability": "structured_output",
+                    "turns_recorded": 3,
+                    "invalid_actions_recorded": 0,
+                    "repeated_failed_turns_recorded": 0,
+                    "turns_the_decoder_refuses": 0,
+                    "turns_the_guard_refuses": 0,
+                    "guard_interventions": 0,
+                    "recorded_composite": 97.86,
+                    "rows": [
+                        {
+                            "step": 1,
+                            "keys": [
+                                "action",
+                                "tool",
+                                "args"
+                            ],
+                            "layout": "named",
+                            "recorded_failure": false,
+                            "decoder_permitted": true,
+                            "decoder_reason": "",
+                            "guard_refusal": false,
+                            "turn": "{\"action\": \"read_file\", \"tool\": \"read_file\", \"args\": {\"path\": \"notes.txt\"}}"
+                        },
+                        {
+                            "step": 2,
+                            "keys": [
+                                "action",
+                                "tool",
+                                "args"
+                            ],
+                            "layout": "named",
+                            "recorded_failure": false,
+                            "decoder_permitted": true,
+                            "decoder_reason": "",
+                            "guard_refusal": false,
+                            "turn": "{\"action\": \"write_file\", \"tool\": \"write_file\", \"args\": {\"path\": \"parsed.json\", \"content\": \"{\\\"alpha\\\": 1, \\\"beta\\\": 2, \\\"gamma\\\": 3}\"}}"
+                        },
+                        {
+                            "step": 3,
+                            "keys": [
+                                "action",
+                                "answer"
+                            ],
+                            "layout": "finish",
+                            "recorded_failure": false,
+                            "decoder_permitted": true,
+                            "decoder_reason": "",
+                            "guard_refusal": false,
+                            "turn": "{\"action\": \"finish\", \"answer\": \"Successfully parsed notes.txt and wrote the result to parsed.json.\"}"
+                        }
+                    ]
+                },
+                "prune_by_extension": {
+                    "capability": "conditional_action",
+                    "turns_recorded": 6,
+                    "invalid_actions_recorded": 5,
+                    "repeated_failed_turns_recorded": 4,
+                    "turns_the_decoder_refuses": 6,
+                    "turns_the_guard_refuses": 3,
+                    "guard_interventions": 0,
+                    "recorded_composite": 8.33,
+                    "rows": [
+                        {
+                            "step": 1,
+                            "keys": [
+                                "action",
+                                "args"
+                            ],
+                            "layout": "named",
+                            "recorded_failure": true,
+                            "decoder_permitted": false,
+                            "decoder_reason": "list_files needs the argument \"path\"",
+                            "guard_refusal": false,
+                            "turn": "{\"action\": \"list_files\", \"args\": {}}"
+                        },
+                        {
+                            "step": 2,
+                            "keys": [],
+                            "layout": "none",
+                            "recorded_failure": true,
+                            "decoder_permitted": false,
+                            "decoder_reason": "the turn is not a JSON object",
+                            "guard_refusal": false,
+                            "turn": "{\"action\": \"list_files\", \"args\": {\".\"}}"
+                        },
+                        {
+                            "step": 3,
+                            "keys": [],
+                            "layout": "none",
+                            "recorded_failure": true,
+                            "decoder_permitted": false,
+                            "decoder_reason": "the turn is not a JSON object",
+                            "guard_refusal": false,
+                            "turn": "{\"action\": \"list_files\", \"args\": {\".\"}}"
+                        },
+                        {
+                            "step": 4,
+                            "keys": [],
+                            "layout": "none",
+                            "recorded_failure": true,
+                            "decoder_permitted": false,
+                            "decoder_reason": "the turn is not a JSON object",
+                            "guard_refusal": true,
+                            "turn": "{\"action\": \"list_files\", \"args\": {\".\"}}"
+                        },
+                        {
+                            "step": 5,
+                            "keys": [],
+                            "layout": "none",
+                            "recorded_failure": true,
+                            "decoder_permitted": false,
+                            "decoder_reason": "the turn is not a JSON object",
+                            "guard_refusal": true,
+                            "turn": "{\"action\": \"list_files\", \"args\": {\".\"}}"
+                        },
+                        {
+                            "step": 6,
+                            "keys": [],
+                            "layout": "none",
+                            "recorded_failure": true,
+                            "decoder_permitted": false,
+                            "decoder_reason": "the turn is not a JSON object",
+                            "guard_refusal": true,
+                            "turn": "{\"action\": \"list_files\", \"args\": {\".\"}}"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,131 @@
+{
+    "schema_version": "1",
+    "document": "agent-comparison",
+    "run": {
+        "run_id": "path-fix-check",
+        "started_at": "2026-09-30T01:40:24+00:00",
+        "finished_at": "2026-09-30T01:40:36+00:00",
+        "duration_s": 11.39,
+        "tool_mode": "prompt",
+        "prompt_version": "1",
+        "prompt_sha256": "1e504afdcff681520d3aee058c80d2ff73216b8a0f17e6da5ca17b9e810b8bd4",
+        "step_budget_cap": 8,
+        "task_count": 1,
+        "controls": {
+            "loop_guard": true,
+            "guard_repeat_limit": 2,
+            "guard_rule": "an identical call is refused once it has already failed 2 time(s); repeat limit 2 refuses the third",
+            "strict_schema": true,
+            "sandbox_policy": "documented",
+            "allowed_binaries": [
+                "ls",
+                "cat",
+                "grep",
+                "wc",
+                "sort",
+                "find",
+                "head",
+                "tail",
+                "rm",
+                "mv",
+                "cp",
+                "mkdir"
+            ],
+            "command_arguments_inspected": true,
+            "decoder": {
+                "mode": "none",
+                "scope": "local",
+                "field": "",
+                "action_schema_sha256": "fb02911a9fb8b108185b4ab2be4aa7aa3104178d6159f3e6f8d3d4dbd921707d",
+                "note": "No engine-side constraint was sent. A malformed object reaches the harness and is refused there."
+            }
+        }
+    },
+    "models": [
+        "gemma-4-E2B-it-Q4_K_M"
+    ],
+    "aggregate": {
+        "gemma-4-E2B-it-Q4_K_M": {
+            "tasks": 1,
+            "tasks_passed": 1,
+            "composite": 97.5,
+            "dimensions": {
+                "task_success": 1,
+                "protocol_compliance": 1,
+                "tool_validity": 1,
+                "error_recovery": 1,
+                "efficiency": 0.75
+            },
+            "error_recovery_applicable_tasks": 0,
+            "counters": {
+                "tool_calls": 1,
+                "successful_tool_calls": 1,
+                "invalid_actions": 0,
+                "unstructured_tool_calls": 0,
+                "unknown_tools": 0,
+                "invalid_args": 0,
+                "tool_errors": 0,
+                "redundant_calls": 0,
+                "repeated_failed_turns": 0,
+                "guard_refusals": 0,
+                "guard_interventions": 0,
+                "schema_rejections": 0,
+                "had_error": 0,
+                "recovered": 0
+            },
+            "steps_used": 2,
+            "budget_exhausted": 0,
+            "latency_ms_mean": 11388.9,
+            "latency_ms_median": 11388.9,
+            "latency_ms_p95": 11388.9,
+            "prompt_tokens": 1002,
+            "completion_tokens": 52,
+            "per_capability": {
+                "instruction_following": {
+                    "tasks": 1,
+                    "composite": 97.5,
+                    "task_success": 1
+                }
+            }
+        }
+    },
+    "pairing": [
+        {
+            "task_id": "create_exact_file",
+            "capability": "instruction_following",
+            "goal": "Create a file named release.txt in the workspace root. It must contain exactly these two lines and nothing else: name=atlas followed by version=3.",
+            "models": {
+                "gemma-4-E2B-it-Q4_K_M": {
+                    "success": true,
+                    "composite": 97.5,
+                    "dimensions": {
+                        "task_success": 1,
+                        "protocol_compliance": 1,
+                        "tool_validity": 1,
+                        "error_recovery": 1,
+                        "efficiency": 0.75
+                    },
+                    "steps_used": 2,
+                    "checks": [
+                        {
+                            "name": "release.txt exists",
+                            "target": "check",
+                            "passed": true,
+                            "detail": ""
+                        },
+                        {
+                            "name": "the two lines match",
+                            "target": "check",
+                            "passed": true,
+                            "detail": "expected [\"name=atlas\",\"version=3\"], got [\"name=atlas\",\"version=3\"]"
+                        }
+                    ]
+                }
+            },
+            "agreement": null
+        }
+    ],
+    "summary": {
+        "note": "A single model was run, so there is nothing to pair."
+    }
+}

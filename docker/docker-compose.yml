@@ -1,0 +1,301 @@
+# Local agent runtime for the Gemma GGUF.
+#
+# The model runs in a container rather than directly on the host so that the
+# engine version, the flags, the memory ceiling and the restart policy are all
+# declared in one place. A crash or a host reboot brings the endpoint back
+# without a human, which is the reliability property a long agent run needs.
+#
+# Three services:
+#   gemma   the pinned llama.cpp server, health checked, restart on failure
+#   agent   the PHP harness, opt in with --profile agent
+#   ladder  the staged ladder end to end, opt in with --profile ladder
+#
+# The harness talks to the server over the compose network, so the port
+# published to the host is only for inspecting the endpoint by hand. It is
+# bound to 127.0.0.1 and defaults to 8081 so it cannot collide with a natively
+# started llama-server on 8080.
+#
+# The two services that run model written commands are walled off from their own
+# source. Each of them has a read only root filesystem, a read only mount for
+# the harness it is executing, a read only mount for the sibling project, no
+# Linux capabilities, no path to a setuid escalation, and a writable surface
+# that is exactly three declared places: the results directory, the workspace
+# volume and a small memory backed temporary directory. A command that escaped
+# the jail therefore cannot reach the harness source on the host, which was the
+# one residual property the first version of this study had to state plainly
+# rather than excuse. `lib/ContainerBoundary.php` measures those walls from
+# inside the container and the ladder runs it before it runs anything else, so
+# the claim in the paper is a reading rather than a promise.
+#
+# Stopping the whole thing is one script: ./stop-test-env.sh
+
+name: gemma-agent
+
+# The pinned engine, declared once. The build argument and the value the server
+# records about itself both read this anchor, so the digest a run reports and
+# the digest it ran cannot drift apart, which is the failure a second copy of a
+# digest in the same file always eventually causes. Pinned by digest rather than
+# by tag: a tag such as ":server" is mutable, so an unpinned build would
+# silently change the inference engine between two runs of the same study.
+x-engine-image: &engine_image ${LLAMA_IMAGE:-ghcr.io/ggml-org/llama.cpp:server@sha256:6257697a7f5d034b8fb499ddb07af3e250506352f94102054252a23f3b85e0af}
+
+services:
+  gemma:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+      args:
+        # Overridable, but the default is the digest the harness was validated
+        # against: change it and the engine recorded in the manifest changes.
+        LLAMA_IMAGE: *engine_image
+    image: gemma-agent/llama-server:pinned
+    container_name: gemma-agent-server
+    restart: unless-stopped
+    # A real init as PID 1. Without it the server is namespace init, which
+    # means the kernel refuses to deliver it any signal it does not handle, so
+    # a stuck server cannot be terminated short of a forced kill and a graceful
+    # stop always waits out the full grace period. It also reaps the zombie
+    # processes the agent's shell commands can leave behind.
+    init: true
+    stop_grace_period: 30s
+    # The server reads two files and answers over a socket. It needs no
+    # capability to do either, and no path to a setuid escalation.
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      MODEL_PATH: /models/model.gguf
+      MMPROJ_PATH: /models/mmproj.gguf
+      # The source file each mount came from. It is not the name the engine uses:
+      # inside the container the weights are always model.gguf, which is the name
+      # /props reports back and therefore the name the record must keep, so the
+      # record carries this beside it as `source`. Without it a run made from a
+      # directory of several weight files records only that it ran "model.gguf",
+      # which is true and useless.
+      MODEL_SOURCE: ${GEMMA_MODEL_FILE:-../models/gemma-4-E2B-it-Q4_K_M.gguf}
+      MMPROJ_SOURCE: ${GEMMA_MMPROJ_FILE:-../models/mmproj-F16.gguf}
+      MMPROJ_URL: ${MMPROJ_URL:-}
+      HOST: 0.0.0.0
+      PORT: "8080"
+      CTX_SIZE: ${GEMMA_CTX_SIZE:-4096}
+      THREADS: ${GEMMA_THREADS:-4}
+      GPU_LAYERS: ${GEMMA_GPU_LAYERS:-0}
+      PARALLEL: ${GEMMA_PARALLEL:-1}
+      API_KEY: ${GEMMA_API_KEY:-}
+      EXTRA_ARGS: ${GEMMA_EXTRA_ARGS:-}
+      # The vision setting. Off is the default for this runtime and it is a
+      # memory decision rather than a preference: the agent study sends text,
+      # the projector is 985,654,080 bytes, and a runtime that loads it is
+      # spending a quarter of the model pair's weight on a modality nothing is
+      # asking about. The vision study sets GEMMA_VISION=on and gets the
+      # projector back, unchanged.
+      VISION: ${GEMMA_VISION:-off}
+      # The load mode and the cache element types. Both were implicit before
+      # this revision, which meant the manifest of a run could not say whether
+      # the weights were a file backed mapping or what the key and value caches
+      # were made of. Both are read back from the running process rather than
+      # echoed from the flag. `mmap` is the default and `none` is the mode that
+      # does not map; the other values this engine accepts are auto, mlock,
+      # mmap+mlock and dio, and the entrypoint checks the value against the
+      # engine's own list before starting, because the older `--no-mmap` flag
+      # this setting first used is refused by the pinned build.
+      LOAD_MODE: ${GEMMA_LOAD_MODE:-mmap}
+      KV_TYPE_K: ${GEMMA_KV_TYPE_K:-f16}
+      KV_TYPE_V: ${GEMMA_KV_TYPE_V:-f16}
+      MODEL_HASH: ${GEMMA_MODEL_HASH:-off}
+      RECORD_DIR: /records
+      ENGINE_IMAGE: *engine_image
+    volumes:
+      # The weight file and the projector, mounted read only from the models
+      # directory. They live in a directory of their own rather than beside the
+      # harness so the same runtime can be pointed at a different file without
+      # the layout of the project changing, and both paths are overridable for
+      # exactly that reason. The container names are deliberately generic: the
+      # engine only ever sees /models/model.gguf, so which file is behind it is
+      # carried by MODEL_SOURCE above rather than by the mount target.
+      - type: bind
+        source: ${GEMMA_MODEL_FILE:-../models/gemma-4-E2B-it-Q4_K_M.gguf}
+        target: /models/model.gguf
+        read_only: true
+      - type: bind
+        source: ${GEMMA_MMPROJ_FILE:-../models/mmproj-F16.gguf}
+        target: /models/mmproj.gguf
+        read_only: true
+      # The one place the server writes: the engine record. It lands inside the
+      # repository's results directory, which the harness already mounts, so the
+      # harness reads the engine that is actually serving it rather than a copy
+      # of the flags someone typed at a terminal.
+      - type: bind
+        source: ../results/engine
+        target: /records
+        read_only: false
+    ports:
+      - "127.0.0.1:8081:8080"
+    # The VM has about 6 GB. With vision on, weights plus the projector are
+    # about 4.1 GB; with vision off, which is the default here, the weights
+    # alone are 2.9 GiB of the same file set and the ceiling has room for the
+    # key and value caches beside them. A hard ceiling keeps a runaway
+    # allocation from taking the whole VM down and turning a recoverable
+    # restart into a lost run.
+    mem_limit: ${GEMMA_MEM_LIMIT:-5g}
+    shm_size: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  agent:
+    image: php:8.3-cli-bookworm
+    profiles: ["agent"]
+    container_name: gemma-agent-harness
+    depends_on:
+      gemma:
+        condition: service_healthy
+    working_dir: /opt/harness
+    environment:
+      GEMMA_SERVER_URL: http://gemma:8080
+      DEEPSEEK_VISION_DIR: /opt/deepseek-vision
+      HARNESS_WORKSPACE: /work
+      HARNESS_RESULTS_DIR: /opt/harness/results
+      # The application-side controls are passed as environment here and read by
+      # config.php, so the same image runs the control condition and the guarded
+      # condition without a rebuild. Nothing about the container changes with
+      # them: the guard and the schema check are PHP in the bind mount below, and
+      # the decoder is a request field the server container reads.
+      HARNESS_AGENT_LOOP_GUARD: ${AGENT_GUARD:-0}
+      HARNESS_AGENT_GUARD_REPEAT_LIMIT: ${AGENT_GUARD_REPEAT_LIMIT:-2}
+      HARNESS_AGENT_STRICT_SCHEMA: ${AGENT_STRICT_SCHEMA:-0}
+      HARNESS_AGENT_DECODER: ${AGENT_DECODER:-none}
+      HARNESS_AGENT_DECODER_SCOPE: ${AGENT_DECODER_SCOPE:-local}
+      HARNESS_AGENT_DECODER_FIELD: ${AGENT_DECODER_FIELD:-grammar}
+      HARNESS_AGENT_SANDBOX_POLICY: ${AGENT_SANDBOX_POLICY:-documented}
+      # The harness fingerprint cache is a file the vision study writes. It is
+      # pointed at the temporary directory because the harness mount is now read
+      # only, and a cache of model fingerprints is exactly the kind of data that
+      # is correct to lose when the container goes away.
+      HARNESS_CACHE_DIR: /tmp/harness-cache
+      # The boundary checks are required here: a container that cannot prove its
+      # own walls is not allowed to produce a result, because a run taken
+      # without them is a run whose containment claim is unread.
+      HARNESS_BOUNDARY: ${AGENT_BOUNDARY:-require}
+    # Read only root filesystem. Nothing the model can name is writable except
+    # the three declared surfaces below, so a command that escaped the jail
+    # cannot leave a file behind on the host or inside the image.
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+      - /run:size=8m,mode=755
+    # No capabilities at all. The harness is a PHP process that runs ordinary
+    # text tools, none of which needs one.
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 256
+    volumes:
+      # The harness is bind mounted so a change to a task or a prompt is picked
+      # up without a rebuild, and it is mounted read only because a harness that
+      # can be rewritten by the thing it is running is not a harness. The
+      # sibling project is read only for the same reason and because the study
+      # reuses its JSON reader without altering it.
+      - type: bind
+        source: ..
+        target: /opt/harness
+        read_only: true
+      # The one part of the repository the run may write: its own results.
+      - type: bind
+        source: ../results
+        target: /opt/harness/results
+      - type: bind
+        source: ../../deepseek-vision
+        target: /opt/deepseek-vision
+        read_only: true
+      - type: volume
+        source: agent-work
+        target: /work
+    entrypoint: ["php", "/opt/harness/agent.php"]
+    command:
+      - --no-deepseek
+      - --out-dir
+      - /opt/harness/results/agent-container
+      - --guard=${AGENT_GUARD:-off}
+      - --strict-schema=${AGENT_STRICT_SCHEMA:-off}
+      - --decoder=${AGENT_DECODER:-none}
+      - --sandbox=${AGENT_SANDBOX_POLICY:-documented}
+
+  # The staged ladder, opt in with --profile ladder.
+  #
+  # Same image, same walls and the same bind mounts as the agent service. What
+  # differs is that it runs the whole ladder in one invocation: the self-check
+  # that proves the controls and the containment boundary, the decoder probe
+  # that asks the engine whether it honoured the constraint field, the same six
+  # tasks under the guarded condition, and the per capability comparison against
+  # the recorded baseline. Results land in the bind mounted repository, so the
+  # evidence is on the host and not inside a container that is about to exit.
+  #
+  # The condition is set here rather than typed at the command line, because the
+  # controls a result was produced under are part of the result.
+  ladder:
+    image: php:8.3-cli-bookworm
+    profiles: ["ladder"]
+    container_name: gemma-agent-ladder
+    depends_on:
+      gemma:
+        condition: service_healthy
+    working_dir: /opt/harness
+    environment:
+      GEMMA_SERVER_URL: http://gemma:8080
+      DEEPSEEK_VISION_DIR: /opt/deepseek-vision
+      HARNESS_WORKSPACE: /work
+      HARNESS_RESULTS_DIR: /opt/harness/results
+      LADDER_BASE: ${LADDER_BASE:-results/agent/baseline}
+      LADDER_OUT_DIR: ${LADDER_OUT_DIR:-results/agent}
+      LADDER_RUN_ID: ${LADDER_RUN_ID:-guarded}
+      AGENT_GUARD: ${AGENT_GUARD:-on}
+      AGENT_GUARD_REPEAT_LIMIT: ${AGENT_GUARD_REPEAT_LIMIT:-2}
+      AGENT_STRICT_SCHEMA: ${AGENT_STRICT_SCHEMA:-on}
+      # The engine side constraint is off in the default condition and that is a
+      # measurement rather than a preference: with the generated grammar in force
+      # the pinned engine returns a turn the harness cannot read, where the same
+      # turn without it is a declared object, and the six task run behind it
+      # scored 0 of 6 against 5 of 6. It is kept as a named experiment rather than
+      # deleted, so the refutation can be reproduced with
+      # `-e AGENT_DECODER=grammar -e LADDER_RUN_ID=guarded-grammar`.
+      AGENT_DECODER: ${AGENT_DECODER:-none}
+      AGENT_DECODER_SCOPE: ${AGENT_DECODER_SCOPE:-local}
+      AGENT_DECODER_FIELD: ${AGENT_DECODER_FIELD:-grammar}
+      AGENT_SANDBOX_POLICY: ${AGENT_SANDBOX_POLICY:-documented}
+      HARNESS_CACHE_DIR: /tmp/harness-cache
+      # Required rather than automatic, so a ladder that ran without the walls
+      # fails at rung one instead of reporting a containment claim it never
+      # measured. This is the same defect the decoder probe was fixed for.
+      HARNESS_BOUNDARY: ${AGENT_BOUNDARY:-require}
+    # The same walls as the agent service, and they are declared here rather
+    # than inherited because a reader of one service should not have to find the
+    # other to know what the container it names can reach.
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+      - /run:size=8m,mode=755
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 256
+    volumes:
+      - type: bind
+        source: ..
+        target: /opt/harness
+        read_only: true
+      - type: bind
+        source: ../results
+        target: /opt/harness/results
+      - type: bind
+        source: ../../deepseek-vision
+        target: /opt/deepseek-vision
+        read_only: true
+      - type: volume
+        source: agent-work
+        target: /work
+    entrypoint: ["/bin/sh", "/opt/harness/docker/entrypoint-harness.sh"]
+
+volumes:
+  agent-work:

@@ -1,0 +1,93 @@
+# Files that must never enter this repository: model weights, host sync
+# scratch, the Electron runtime, derived caches, and task scratch. Everything
+# here is either large, regenerable in one command, or both. The comment on
+# each group names the reason, because "why is this ignored" is the only
+# question a reader ever asks of this file.
+
+# ---------------------------------------------------------------------------
+# Model weights. This directory holds 9.0 GB across five GGUF files, mounted
+# read only into the engine container at runtime. The repository carries the
+# code that drives the weights and the records of what they scored, never the
+# weights themselves. Resolved on this machine with:
+#   models/gemma-4-E2B-it-Q4_K_M.gguf          3106738272
+#   models/mmproj-F16.gguf                      985654080
+#   models/Llama-3.2-3B-Instruct-Q4_K_M.gguf   2019377600
+#   models/Phi-3.5-mini-instruct-Q4_K_M.gguf   2393232672
+#   models/qwen2.5-coder-1.5b-instruct-q4_k_m.gguf 1117320768
+# The bare patterns below also catch a weight file dropped at the root and the
+# two stray empty directories named for weight files that a bad bind mount
+# once created.
+models/
+*.gguf
+*.ggml
+*.safetensors
+*.onnx
+*.pt
+*.pth
+*.bin
+*.h5
+*.ckpt
+
+# ---------------------------------------------------------------------------
+# Google Drive sync scratch. The single entry in .tmp.driveupload is a 2.9 GB
+# hardlink to the gemma weights, which means it is one inode with two names:
+# committing it would add a copy of a weight file, and deleting it would free
+# nothing. Both directions of that are a reason to keep it out.
+.tmp.drivedownload/
+.tmp.driveupload/
+
+# ---------------------------------------------------------------------------
+# Electron. The installed runtime is 321 MB, including a 100 MB plus framework
+# binary and symlinked app bundles that git would store as link data or a
+# second copy. The pinned versions live in package-lock.json and one
+# `npm install` inside desktop/ restores the whole tree.
+desktop/node_modules/
+desktop/dist/
+desktop/release/
+desktop/out/
+
+# Compiled artifacts. A static PHP binary is about 20 MB and is produced by
+# the build recipe, not committed beside it.
+*.phar
+
+# ---------------------------------------------------------------------------
+# Derived caches. Model fingerprints and cache entries are recomputed from
+# the weights and the source on demand, and a stale one is worse than none.
+cache/
+
+# Task scratch. workspace/ is bind mounted into the harness container as the
+# task root and is rewritten by every run.
+workspace/
+
+# ---------------------------------------------------------------------------
+# Heavy media and archives. The four dated photographs are vision fixtures
+# read from the host by absolute path; the JSON evidence records the path and
+# the model's reading of it, not the bytes. The Kaggle cover images are the
+# one exception, since they are small and are submission artifacts.
+images/*.jpg
+images/*.jpeg
+images/*.png
+images/*.heic
+images/*.tif
+images/*.mov
+images/*.mp4
+!images/jenny-jill-*.jpg
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+*.dmg
+*.iso
+
+# ---------------------------------------------------------------------------
+# macOS. A .DS_Store is written into every directory the Finder touches, and
+# this tree has picked up five of them.
+.DS_Store
+**/.DS_Store
+.AppleDouble
+.LSOverride
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.Trashes

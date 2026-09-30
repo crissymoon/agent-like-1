@@ -1,0 +1,97 @@
+{
+    "schema_version": "1",
+    "run_id": "baseline",
+    "generated_at": "2026-09-25T18:34:57+00:00",
+    "seconds": 142.9,
+    "host": "Darwin arm64",
+    "php_version": "8.5.8",
+    "prompt": {
+        "id": "ScanPrompts::scene",
+        "version": "3",
+        "sha256": "67258f67e56d045fd775ef9a57b97b505052b613d29669779183a63ab1551e10",
+        "chars": 2943,
+        "source": "deepseek-vision"
+    },
+    "conditions": {
+        "max_edge": 1400,
+        "jpeg_quality": 90,
+        "temperature": 0,
+        "max_tokens": 4096,
+        "thinking": false,
+        "detail": "high"
+    },
+    "models": {
+        "gemma-4-E2B-it-Q4_K_M": {
+            "engine": "llama.cpp llama-server",
+            "endpoint": "http://127.0.0.1:8080/v1/chat/completions",
+            "model_file": "gemma-4-E2B-it-Q4_K_M.gguf",
+            "model_sha256": "740185b21d22ceb83a11c3aa62ad5842ef32c70f6096d756bbee85a1e4ec34b8",
+            "model_bytes": 3106738272,
+            "projector_file": "mmproj-F16.gguf",
+            "projector_sha256": "140be8d7849741f88c50757d529b84373ee8e27052cc2236855b537f4a8215fa",
+            "projector_bytes": 985654080,
+            "temperature": 0,
+            "max_tokens": 4096,
+            "thinking": false
+        },
+        "deepseek-vision": {
+            "engine": "deepseek-vision project client",
+            "endpoint": "https://api.deepseek.com/chat/completions",
+            "model_id": "deepseek-v4-flash-vision-exp",
+            "detail": "high",
+            "temperature": 0,
+            "max_tokens": 4096,
+            "thinking": false
+        }
+    },
+    "images": [
+        {
+            "index": 0,
+            "path": "images/20260925_110438.jpg",
+            "bytes": 3622661,
+            "content_sha256": "20cd14004343639047d6c2bea92e5e678040750e4bf75dc9bb57096732f97668",
+            "dhash": "dc9cd8b0b1a8b811",
+            "prepared_sha256": "d693eb766680c02225fe088fabdac7c3fb4cd917c76aabacd55127bebb24670e",
+            "width": 1400,
+            "height": 1050,
+            "was_scaled": true,
+            "preparation_error": ""
+        },
+        {
+            "index": 1,
+            "path": "images/20260925_110458.jpg",
+            "bytes": 3734673,
+            "content_sha256": "39bf5642bf0cbdf5c4de304781043ab8642e32db548c04a08cf27efc106b8ca2",
+            "dhash": "7eec6eaaa8aabd3d",
+            "prepared_sha256": "59a90550aad8756a7b2ac9ee545e484909ff82912c9d65ac5c6acb76995e9d97",
+            "width": 1400,
+            "height": 1050,
+            "was_scaled": true,
+            "preparation_error": ""
+        },
+        {
+            "index": 2,
+            "path": "images/20260925_110515.jpg",
+            "bytes": 4849413,
+            "content_sha256": "98c7a3384c404d76bf597626a25fef34e36e98c75acc3a8a8066dd0fd7fe302f",
+            "dhash": "7cbcaca8aeb6a6b6",
+            "prepared_sha256": "ab016c970c1a40cb1711e6ba96801258858703dad8c111c54b786c51f75e1827",
+            "width": 1400,
+            "height": 1050,
+            "was_scaled": true,
+            "preparation_error": ""
+        },
+        {
+            "index": 3,
+            "path": "images/20260925_110536.jpg",
+            "bytes": 3860481,
+            "content_sha256": "dbd17a2452d6140d329398a61030a9c0f2a2574e0a000bd92a190b9b48da28c9",
+            "dhash": "7c9c1a18dceca6a8",
+            "prepared_sha256": "01c828c57f46d23cbce6f506de1a1279dbcceb37c6e5c95c4cf595430211a230",
+            "width": 1400,
+            "height": 1050,
+            "was_scaled": true,
+            "preparation_error": ""
+        }
+    ]
+}

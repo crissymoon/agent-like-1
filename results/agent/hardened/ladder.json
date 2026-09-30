@@ -1,0 +1,301 @@
+{
+    "document": "agent-ladder-comparison",
+    "base": {
+        "run_id": "baseline",
+        "dir": "/opt/harness/results/agent/baseline",
+        "tool_mode": "prompt",
+        "controls": []
+    },
+    "trial": {
+        "run_id": "hardened",
+        "dir": "/opt/harness/results/agent/hardened",
+        "tool_mode": "prompt",
+        "controls": {
+            "loop_guard": true,
+            "guard_repeat_limit": 2,
+            "guard_rule": "an identical call is refused once it has already failed 2 time(s); repeat limit 2 refuses the third",
+            "strict_schema": true,
+            "sandbox_policy": "documented",
+            "allowed_binaries": [
+                "ls",
+                "cat",
+                "grep",
+                "wc",
+                "sort",
+                "find",
+                "head",
+                "tail",
+                "rm",
+                "mv",
+                "cp",
+                "mkdir"
+            ],
+            "command_arguments_inspected": true,
+            "decoder": {
+                "mode": "none",
+                "scope": "local",
+                "field": "",
+                "action_schema_sha256": "fb02911a9fb8b108185b4ab2be4aa7aa3104178d6159f3e6f8d3d4dbd921707d",
+                "note": "No engine-side constraint was sent. A malformed object reaches the harness and is refused there."
+            }
+        }
+    },
+    "model": "gemma-4-E2B-it-Q4_K_M",
+    "suite": {
+        "unchanged": true,
+        "tasks": 6,
+        "prompt_sha256": "1e504afdcff681520d3aee058c80d2ff73216b8a0f17e6da5ca17b9e810b8bd4",
+        "tool_specs_sha256": "f814263b42bebb4941805e83acb8a87f53469d5004be08ff2c1c088ac3239dba",
+        "base_sandbox_policy": "",
+        "trial_sandbox_policy": "documented",
+        "findings": [
+            "the native tool specification hash moved: a4778df08293 -> f814263b42be. The prompted condition sends no native tool schema, and the rendered system prompt is identical, so this drift is confined to the native layout. A native run must not be compared across it."
+        ],
+        "material_findings": [],
+        "notices": [
+            "the native tool specification hash moved: a4778df08293 -> f814263b42be. The prompted condition sends no native tool schema, and the rendered system prompt is identical, so this drift is confined to the native layout. A native run must not be compared across it."
+        ]
+    },
+    "holdout": {
+        "tasks": 6,
+        "capabilities": 6,
+        "tasks_per_capability": {
+            "instruction_following": 1,
+            "tool_query": 1,
+            "multi_step_composition": 1,
+            "error_recovery": 1,
+            "structured_output": 1,
+            "conditional_action": 1
+        },
+        "max_tasks_per_capability": 1,
+        "training_examples": 0,
+        "rule": "at least one task per capability is held out",
+        "satisfied": true,
+        "basis": "No weight was trained, so every task in both runs is untouched by fitting. A capability carried by one task gives a direction, not a rate."
+    },
+    "capabilities": {
+        "conditional_action": {
+            "task_ids": [
+                "prune_by_extension"
+            ],
+            "base": {
+                "tasks": 1,
+                "tasks_passed": 0,
+                "composite": 8.33,
+                "guard_interventions": 0,
+                "schema_rejections": 0,
+                "repeated_failed_turns": 4,
+                "invalid_actions": 5,
+                "steps_used": 6
+            },
+            "trial": {
+                "tasks": 1,
+                "tasks_passed": 0,
+                "composite": 7.5,
+                "guard_interventions": 2,
+                "schema_rejections": 2,
+                "repeated_failed_turns": 4,
+                "invalid_actions": 6,
+                "recovered": 0,
+                "recovery_applicable": true,
+                "steps_used": 6
+            },
+            "delta": {
+                "composite": -0.83,
+                "tasks_passed": 0
+            }
+        },
+        "error_recovery": {
+            "task_ids": [
+                "recover_misnamed_file"
+            ],
+            "base": {
+                "tasks": 1,
+                "tasks_passed": 1,
+                "composite": 97.14,
+                "guard_interventions": 0,
+                "schema_rejections": 0,
+                "repeated_failed_turns": 0,
+                "invalid_actions": 0,
+                "steps_used": 4
+            },
+            "trial": {
+                "tasks": 1,
+                "tasks_passed": 1,
+                "composite": 97.14,
+                "guard_interventions": 0,
+                "schema_rejections": 0,
+                "repeated_failed_turns": 0,
+                "invalid_actions": 0,
+                "recovered": 0,
+                "recovery_applicable": false,
+                "steps_used": 4
+            },
+            "delta": {
+                "composite": 0,
+                "tasks_passed": 0
+            }
+        },
+        "instruction_following": {
+            "task_ids": [
+                "create_exact_file"
+            ],
+            "base": {
+                "tasks": 1,
+                "tasks_passed": 1,
+                "composite": 97.5,
+                "guard_interventions": 0,
+                "schema_rejections": 0,
+                "repeated_failed_turns": 0,
+                "invalid_actions": 0,
+                "steps_used": 2
+            },
+            "trial": {
+                "tasks": 1,
+                "tasks_passed": 1,
+                "composite": 97.5,
+                "guard_interventions": 0,
+                "schema_rejections": 0,
+                "repeated_failed_turns": 0,
+                "invalid_actions": 0,
+                "recovered": 0,
+                "recovery_applicable": false,
+                "steps_used": 2
+            },
+            "delta": {
+                "composite": 0,
+                "tasks_passed": 0
+            }
+        },
+        "multi_step_composition": {
+            "task_ids": [
+                "sum_two_files"
+            ],
+            "base": {
+                "tasks": 1,
+                "tasks_passed": 1,
+                "composite": 96.67,
+                "guard_interventions": 0,
+                "schema_rejections": 0,
+                "repeated_failed_turns": 0,
+                "invalid_actions": 0,
+                "steps_used": 4
+            },
+            "trial": {
+                "tasks": 1,
+                "tasks_passed": 1,
+                "composite": 96.67,
+                "guard_interventions": 0,
+                "schema_rejections": 0,
+                "repeated_failed_turns": 0,
+                "invalid_actions": 0,
+                "recovered": 0,
+                "recovery_applicable": false,
+                "steps_used": 4
+            },
+            "delta": {
+                "composite": 0,
+                "tasks_passed": 0
+            }
+        },
+        "structured_output": {
+            "task_ids": [
+                "extract_field_map"
+            ],
+            "base": {
+                "tasks": 1,
+                "tasks_passed": 1,
+                "composite": 97.86,
+                "guard_interventions": 0,
+                "schema_rejections": 0,
+                "repeated_failed_turns": 0,
+                "invalid_actions": 0,
+                "steps_used": 3
+            },
+            "trial": {
+                "tasks": 1,
+                "tasks_passed": 1,
+                "composite": 97.86,
+                "guard_interventions": 0,
+                "schema_rejections": 0,
+                "repeated_failed_turns": 0,
+                "invalid_actions": 0,
+                "recovered": 0,
+                "recovery_applicable": false,
+                "steps_used": 3
+            },
+            "delta": {
+                "composite": 0,
+                "tasks_passed": 0
+            }
+        },
+        "tool_query": {
+            "task_ids": [
+                "count_by_extension"
+            ],
+            "base": {
+                "tasks": 1,
+                "tasks_passed": 1,
+                "composite": 97,
+                "guard_interventions": 0,
+                "schema_rejections": 0,
+                "repeated_failed_turns": 0,
+                "invalid_actions": 0,
+                "steps_used": 3
+            },
+            "trial": {
+                "tasks": 1,
+                "tasks_passed": 1,
+                "composite": 97,
+                "guard_interventions": 0,
+                "schema_rejections": 0,
+                "repeated_failed_turns": 0,
+                "invalid_actions": 0,
+                "recovered": 0,
+                "recovery_applicable": false,
+                "steps_used": 3
+            },
+            "delta": {
+                "composite": 0,
+                "tasks_passed": 0
+            }
+        }
+    },
+    "totals": {
+        "base": {
+            "tasks": 6,
+            "tasks_passed": 5,
+            "composite": 82.42
+        },
+        "trial": {
+            "tasks": 6,
+            "tasks_passed": 5,
+            "composite": 82.28
+        },
+        "delta": {
+            "composite": -0.14,
+            "tasks_passed": 0
+        }
+    },
+    "recovery": {
+        "base": {
+            "guide": "the recorded run of 2026-09-25",
+            "tasks_that_met_an_error": 1,
+            "tasks_recovered": 0,
+            "by_task": {
+                "prune_by_extension": "not recovered"
+            }
+        },
+        "trial": {
+            "guide": "the trial run",
+            "tasks_that_met_an_error": 1,
+            "tasks_recovered": 0,
+            "by_task": {
+                "prune_by_extension": "not recovered"
+            }
+        },
+        "still_short": true,
+        "reading": "recovery is still short: 1 task(s) met an error and 0 recovered. This is the condition the third rung of the ladder names for a supervised pass."
+    },
+    "reading": "Each capability is reported beside its base row rather than only as a mean, because the first run put the whole gap in one capability. The counters say which control fired: guard_refusals and guard_interventions are the loop guard, schema_rejections is the application half of constrained decoding, and a turn the engine refused never arrives at all. A per capability figure here rests on one task, so it is a direction rather than a rate."
+}

@@ -1,0 +1,87 @@
+{
+    "schema_version": "1",
+    "document": "agent-manifest",
+    "run": {
+        "run_id": "native-smoke",
+        "started_at": "2026-09-25T19:09:39+00:00",
+        "finished_at": "2026-09-25T19:10:29+00:00",
+        "duration_s": 50.07,
+        "tool_mode": "native",
+        "prompt_version": "1",
+        "prompt_sha256": "91a71499407c3c25d6e0910e7a16ca9a8781f9fe97f6a9f6e6515c4d5920f58a",
+        "step_budget_cap": 8,
+        "task_count": 2
+    },
+    "conditions": {
+        "temperature": 0,
+        "top_p": 1,
+        "seed": 0,
+        "max_tokens_per_turn": 768,
+        "step_budget_cap": 8,
+        "max_observation_chars": 3000,
+        "command_timeout_s": 10,
+        "history_turns": 12,
+        "workspace_root": "<tmp>/gemma-agent-workspace"
+    },
+    "tool_specs_sha256": "a4778df08293b4338daa59c9cb87d00d813bac11ae71e3b125b20d886590110e",
+    "tools": [
+        "list_files",
+        "read_file",
+        "write_file",
+        "append_file",
+        "delete_file",
+        "make_directory",
+        "search_files",
+        "run_command",
+        "finish"
+    ],
+    "tasks": [
+        {
+            "id": "create_exact_file",
+            "capability": "instruction_following",
+            "goal": "Create a file named release.txt in the workspace root. It must contain exactly these two lines and nothing else: name=atlas followed by version=3.",
+            "budget": 4
+        },
+        {
+            "id": "count_by_extension",
+            "capability": "tool_query",
+            "goal": "In the data directory there are several files. Work out how many of them end with the .log extension, and write that number and nothing else into count.txt in the workspace root.",
+            "budget": 5
+        }
+    ],
+    "models": {
+        "gemma-4-E2B-it-Q4_K_M": {
+            "engine": "openai-compatible chat completions",
+            "endpoint": "http://127.0.0.1:8081/v1/chat/completions",
+            "model_id": "gemma-4-E2B-it-Q4_K_M",
+            "tool_mode": "native",
+            "temperature": 0,
+            "top_p": 1,
+            "max_tokens": 768,
+            "request_extensions": {
+                "chat_template_kwargs": {
+                    "enable_thinking": false
+                }
+            }
+        },
+        "deepseek-flash": {
+            "engine": "openai-compatible chat completions",
+            "endpoint": "https://api.deepseek.com/v1/chat/completions",
+            "model_id": "deepseek-flash",
+            "tool_mode": "native",
+            "temperature": 0,
+            "top_p": 1,
+            "max_tokens": 768,
+            "request_extensions": {
+                "thinking": {
+                    "type": "disabled"
+                }
+            }
+        }
+    },
+    "files": {
+        "gemma-4-E2B-it-Q4_K_M": "gemma-4-E2B-it-Q4_K_M.json",
+        "deepseek-flash": "deepseek-flash.json",
+        "post_train_gap": "post-train-gap.json"
+    }
+}

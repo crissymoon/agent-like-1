@@ -1,0 +1,216 @@
+{
+    "schema_version": "1",
+    "document": "agent-model-run",
+    "run": {
+        "run_id": "path-fix-check",
+        "started_at": "2026-09-30T01:40:24+00:00",
+        "finished_at": "2026-09-30T01:40:36+00:00",
+        "duration_s": 11.39,
+        "tool_mode": "prompt",
+        "prompt_version": "1",
+        "prompt_sha256": "1e504afdcff681520d3aee058c80d2ff73216b8a0f17e6da5ca17b9e810b8bd4",
+        "step_budget_cap": 8,
+        "task_count": 1,
+        "controls": {
+            "loop_guard": true,
+            "guard_repeat_limit": 2,
+            "guard_rule": "an identical call is refused once it has already failed 2 time(s); repeat limit 2 refuses the third",
+            "strict_schema": true,
+            "sandbox_policy": "documented",
+            "allowed_binaries": [
+                "ls",
+                "cat",
+                "grep",
+                "wc",
+                "sort",
+                "find",
+                "head",
+                "tail",
+                "rm",
+                "mv",
+                "cp",
+                "mkdir"
+            ],
+            "command_arguments_inspected": true,
+            "decoder": {
+                "mode": "none",
+                "scope": "local",
+                "field": "",
+                "action_schema_sha256": "fb02911a9fb8b108185b4ab2be4aa7aa3104178d6159f3e6f8d3d4dbd921707d",
+                "note": "No engine-side constraint was sent. A malformed object reaches the harness and is refused there."
+            }
+        }
+    },
+    "model": {
+        "label": "gemma-4-E2B-it-Q4_K_M",
+        "provenance": {
+            "engine": "openai-compatible chat completions",
+            "endpoint": "http://gemma:8080/v1/chat/completions",
+            "model_id": "gemma-4-E2B-it-Q4_K_M",
+            "tool_mode": "prompt",
+            "temperature": 0,
+            "top_p": 1,
+            "max_tokens": 768,
+            "request_extensions": {
+                "chat_template_kwargs": {
+                    "enable_thinking": false
+                }
+            }
+        }
+    },
+    "aggregate": {
+        "tasks": 1,
+        "tasks_passed": 1,
+        "composite": 97.5,
+        "dimensions": {
+            "task_success": 1,
+            "protocol_compliance": 1,
+            "tool_validity": 1,
+            "error_recovery": 1,
+            "efficiency": 0.75
+        },
+        "error_recovery_applicable_tasks": 0,
+        "counters": {
+            "tool_calls": 1,
+            "successful_tool_calls": 1,
+            "invalid_actions": 0,
+            "unstructured_tool_calls": 0,
+            "unknown_tools": 0,
+            "invalid_args": 0,
+            "tool_errors": 0,
+            "redundant_calls": 0,
+            "repeated_failed_turns": 0,
+            "guard_refusals": 0,
+            "guard_interventions": 0,
+            "schema_rejections": 0,
+            "had_error": 0,
+            "recovered": 0
+        },
+        "steps_used": 2,
+        "budget_exhausted": 0,
+        "latency_ms_mean": 11388.9,
+        "latency_ms_median": 11388.9,
+        "latency_ms_p95": 11388.9,
+        "prompt_tokens": 1002,
+        "completion_tokens": 52,
+        "per_capability": {
+            "instruction_following": {
+                "tasks": 1,
+                "composite": 97.5,
+                "task_success": 1
+            }
+        }
+    },
+    "tasks": {
+        "create_exact_file": {
+            "task_id": "create_exact_file",
+            "capability": "instruction_following",
+            "goal": "Create a file named release.txt in the workspace root. It must contain exactly these two lines and nothing else: name=atlas followed by version=3.",
+            "budget": 4,
+            "success": true,
+            "composite": 97.5,
+            "dimensions": {
+                "task_success": 1,
+                "protocol_compliance": 1,
+                "tool_validity": 1,
+                "error_recovery": 1,
+                "efficiency": 0.75
+            },
+            "recovery_applicable": false,
+            "checks_passed": 2,
+            "checks_total": 2,
+            "checks": [
+                {
+                    "name": "release.txt exists",
+                    "target": "check",
+                    "passed": true,
+                    "detail": ""
+                },
+                {
+                    "name": "the two lines match",
+                    "target": "check",
+                    "passed": true,
+                    "detail": "expected [\"name=atlas\",\"version=3\"], got [\"name=atlas\",\"version=3\"]"
+                }
+            ],
+            "steps_used": 2,
+            "budget_exhausted": false,
+            "finished": true,
+            "answer": "File release.txt created with the specified content.",
+            "counters": {
+                "tool_calls": 1,
+                "successful_tool_calls": 1,
+                "invalid_actions": 0,
+                "unstructured_tool_calls": 0,
+                "unknown_tools": 0,
+                "invalid_args": 0,
+                "tool_errors": 0,
+                "redundant_calls": 0,
+                "repeated_failed_turns": 0,
+                "guard_refusals": 0,
+                "guard_interventions": 0,
+                "schema_rejections": 0,
+                "had_error": 0,
+                "recovered": 0
+            },
+            "latency_ms_total": 11388.9,
+            "prompt_tokens": 1002,
+            "completion_tokens": 52,
+            "history_trimmed": false,
+            "final_inventory": [
+                {
+                    "path": "release.txt",
+                    "bytes": 20
+                }
+            ],
+            "turns": [
+                {
+                    "step": 1,
+                    "error": "",
+                    "latency_ms": 9414.4,
+                    "prompt_tokens": 476,
+                    "completion_tokens": 30,
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "raw_response": "{\"action\": \"write_file\", \"path\": \"release.txt\", \"content\": \"name=atlas\\nversion=3\"}",
+                    "actions": [
+                        {
+                            "kind": "tool",
+                            "tool": "write_file",
+                            "args": {
+                                "path": "release.txt",
+                                "content": "name=atlas\nversion=3"
+                            },
+                            "shape": "alias",
+                            "strategy": "direct",
+                            "error": ""
+                        }
+                    ],
+                    "observations": [
+                        {
+                            "tool": "write_file",
+                            "ok": true,
+                            "error_kind": "",
+                            "observation": "wrote 20 bytes to release.txt"
+                        }
+                    ],
+                    "kind": "tool"
+                },
+                {
+                    "step": 2,
+                    "error": "",
+                    "latency_ms": 1974.5,
+                    "prompt_tokens": 526,
+                    "completion_tokens": 22,
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "raw_response": "{\"action\": \"finish\", \"answer\": \"File release.txt created with the specified content.\"}",
+                    "actions": [],
+                    "observations": [],
+                    "kind": "finish",
+                    "finish_shape": "canonical"
+                }
+            ]
+        }
+    }
+}

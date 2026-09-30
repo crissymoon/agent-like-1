@@ -1,0 +1,66 @@
+Agent-Like load test
+
+samples: results/load/samples-20260929-180922.csv
+
+tier,family,peak,mean,samples
+t0-host,engine_anon,not measured,not measured,0
+t0-host,engine_cgroup,not measured,not measured,0
+t0-host,engine_daemon,0.0 MiB,0.0 MiB,3
+t0-host,engine_file_mapped,not measured,not measured,0
+t0-host,harness_cgroup,not measured,not measured,0
+t0-host,virtual_machine,20.9 MiB,20.2 MiB,3
+t0-host,window,0.0 MiB,0.0 MiB,3
+t1-engine-vision-off,engine_anon,1425.5 MiB,1425.5 MiB,8
+t1-engine-vision-off,engine_cgroup,4405.4 MiB,4405.3 MiB,8
+t1-engine-vision-off,engine_daemon,4404.2 MiB,4404.2 MiB,8
+t1-engine-vision-off,engine_file_mapped,2947.7 MiB,2947.7 MiB,8
+t1-engine-vision-off,harness_cgroup,not measured,not measured,0
+t1-engine-vision-off,virtual_machine,18.0 MiB,16.0 MiB,8
+t1-engine-vision-off,window,0.0 MiB,0.0 MiB,8
+t2-harness-run,engine_anon,1596.6 MiB,1557.3 MiB,8
+t2-harness-run,engine_cgroup,4577.0 MiB,4533.6 MiB,8
+t2-harness-run,engine_daemon,4576.3 MiB,4544.0 MiB,8
+t2-harness-run,engine_file_mapped,2947.7 MiB,2947.7 MiB,8
+t2-harness-run,harness_cgroup,8.0 MiB,8.0 MiB,5
+t2-harness-run,virtual_machine,24.4 MiB,16.4 MiB,8
+t2-harness-run,window,0.0 MiB,0.0 MiB,8
+t3-window-idle,engine_anon,1596.6 MiB,1596.6 MiB,6
+t3-window-idle,engine_cgroup,4576.8 MiB,4576.7 MiB,6
+t3-window-idle,engine_daemon,4576.3 MiB,4576.3 MiB,6
+t3-window-idle,engine_file_mapped,2947.7 MiB,2947.7 MiB,6
+t3-window-idle,harness_cgroup,not measured,not measured,0
+t3-window-idle,virtual_machine,16.8 MiB,16.6 MiB,6
+t3-window-idle,window,384.3 MiB,316.1 MiB,6
+t4-window-and-run,engine_anon,1560.8 MiB,1548.1 MiB,8
+t4-window-and-run,engine_cgroup,4540.8 MiB,4528.1 MiB,8
+t4-window-and-run,engine_daemon,4540.4 MiB,4530.4 MiB,8
+t4-window-and-run,engine_file_mapped,2947.7 MiB,2947.7 MiB,8
+t4-window-and-run,harness_cgroup,8.0 MiB,7.9 MiB,4
+t4-window-and-run,virtual_machine,18.1 MiB,16.5 MiB,8
+t4-window-and-run,window,391.8 MiB,381.5 MiB,8
+t5-engine-vision-on,engine_anon,2389.9 MiB,2389.9 MiB,8
+t5-engine-vision-on,engine_cgroup,5117.1 MiB,5117.0 MiB,8
+t5-engine-vision-on,engine_daemon,3905.5 MiB,3905.5 MiB,8
+t5-engine-vision-on,engine_file_mapped,2472.3 MiB,2472.3 MiB,8
+t5-engine-vision-on,harness_cgroup,not measured,not measured,0
+t5-engine-vision-on,virtual_machine,18.8 MiB,17.9 MiB,8
+t5-engine-vision-on,window,0.0 MiB,0.0 MiB,8
+t6-engine-ctx-8192,engine_anon,1449.6 MiB,1449.6 MiB,8
+t6-engine-ctx-8192,engine_cgroup,4429.5 MiB,4429.4 MiB,8
+t6-engine-ctx-8192,engine_daemon,4428.8 MiB,4428.8 MiB,8
+t6-engine-ctx-8192,engine_file_mapped,2947.7 MiB,2947.7 MiB,8
+t6-engine-ctx-8192,harness_cgroup,not measured,not measured,0
+t6-engine-ctx-8192,virtual_machine,17.0 MiB,16.4 MiB,8
+t6-engine-ctx-8192,window,0.0 MiB,0.0 MiB,8
+
+engine, vision off:      4405.4 MiB
+  of which anonymous:    1425.5 MiB
+  of which weights:      2947.7 MiB
+engine, vision on:       5117.1 MiB
+projector cost:          711.8 MiB
+cache, +4096 tokens:     24.1 MiB
+harness run:             8.0 MiB
+window:                  384.3 MiB
+device resident:         4797.7 MiB of 8 GiB, headroom 3394.3 MiB
+device with vision:      5509.5 MiB
+host processes only:     402.3 MiB

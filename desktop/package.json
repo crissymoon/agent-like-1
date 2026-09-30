@@ -1,0 +1,15 @@
+{
+  "name": "agent-like-desktop",
+  "productName": "Agent-Like",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The interface for the Agent-Like harness: one event stream, five screens, no page refresh.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "selftest": "node selftest.js"
+  },
+  "devDependencies": {
+    "electron": "44.5.0"
+  }
+}

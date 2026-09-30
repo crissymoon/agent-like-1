@@ -1,0 +1,607 @@
+{
+    "schema_version": "1",
+    "document": "agent-comparison",
+    "run": {
+        "run_id": "baseline",
+        "started_at": "2026-09-25T19:08:00+00:00",
+        "finished_at": "2026-09-25T19:09:39+00:00",
+        "duration_s": 99.24,
+        "tool_mode": "prompt",
+        "prompt_version": "1",
+        "prompt_sha256": "1e504afdcff681520d3aee058c80d2ff73216b8a0f17e6da5ca17b9e810b8bd4",
+        "step_budget_cap": 8,
+        "task_count": 6
+    },
+    "models": [
+        "gemma-4-E2B-it-Q4_K_M",
+        "deepseek-flash"
+    ],
+    "aggregate": {
+        "gemma-4-E2B-it-Q4_K_M": {
+            "tasks": 6,
+            "tasks_passed": 5,
+            "composite": 82.42,
+            "dimensions": {
+                "task_success": 0.83,
+                "protocol_compliance": 0.86,
+                "tool_validity": 0.83,
+                "error_recovery": 0,
+                "efficiency": 0.69
+            },
+            "error_recovery_applicable_tasks": 1,
+            "counters": {
+                "tool_calls": 12,
+                "successful_tool_calls": 11,
+                "invalid_actions": 5,
+                "unstructured_tool_calls": 0,
+                "unknown_tools": 0,
+                "invalid_args": 1,
+                "tool_errors": 1,
+                "redundant_calls": 0,
+                "repeated_failed_turns": 4,
+                "had_error": 1,
+                "recovered": 0
+            },
+            "steps_used": 3.67,
+            "budget_exhausted": 1,
+            "latency_ms_mean": 11047.6,
+            "latency_ms_median": 10957.35,
+            "latency_ms_p95": 15719.2,
+            "prompt_tokens": 12515,
+            "completion_tokens": 505,
+            "per_capability": {
+                "conditional_action": {
+                    "tasks": 1,
+                    "composite": 8.33,
+                    "task_success": 0
+                },
+                "error_recovery": {
+                    "tasks": 1,
+                    "composite": 97.14,
+                    "task_success": 1
+                },
+                "instruction_following": {
+                    "tasks": 1,
+                    "composite": 97.5,
+                    "task_success": 1
+                },
+                "multi_step_composition": {
+                    "tasks": 1,
+                    "composite": 96.67,
+                    "task_success": 1
+                },
+                "structured_output": {
+                    "tasks": 1,
+                    "composite": 97.86,
+                    "task_success": 1
+                },
+                "tool_query": {
+                    "tasks": 1,
+                    "composite": 97,
+                    "task_success": 1
+                }
+            }
+        },
+        "deepseek-flash": {
+            "tasks": 6,
+            "tasks_passed": 6,
+            "composite": 97,
+            "dimensions": {
+                "task_success": 1,
+                "protocol_compliance": 1,
+                "tool_validity": 1,
+                "error_recovery": 1,
+                "efficiency": 0.7
+            },
+            "error_recovery_applicable_tasks": 0,
+            "counters": {
+                "tool_calls": 15,
+                "successful_tool_calls": 15,
+                "invalid_actions": 0,
+                "unstructured_tool_calls": 0,
+                "unknown_tools": 0,
+                "invalid_args": 0,
+                "tool_errors": 0,
+                "redundant_calls": 0,
+                "repeated_failed_turns": 0,
+                "had_error": 0,
+                "recovered": 0
+            },
+            "steps_used": 3.5,
+            "budget_exhausted": 0,
+            "latency_ms_mean": 5457.33,
+            "latency_ms_median": 5301.35,
+            "latency_ms_p95": 10170.1,
+            "prompt_tokens": 10614,
+            "completion_tokens": 478,
+            "per_capability": {
+                "conditional_action": {
+                    "tasks": 1,
+                    "composite": 95.83,
+                    "task_success": 1
+                },
+                "error_recovery": {
+                    "tasks": 1,
+                    "composite": 97.14,
+                    "task_success": 1
+                },
+                "instruction_following": {
+                    "tasks": 1,
+                    "composite": 97.5,
+                    "task_success": 1
+                },
+                "multi_step_composition": {
+                    "tasks": 1,
+                    "composite": 96.67,
+                    "task_success": 1
+                },
+                "structured_output": {
+                    "tasks": 1,
+                    "composite": 97.86,
+                    "task_success": 1
+                },
+                "tool_query": {
+                    "tasks": 1,
+                    "composite": 97,
+                    "task_success": 1
+                }
+            }
+        }
+    },
+    "pairing": [
+        {
+            "task_id": "create_exact_file",
+            "capability": "instruction_following",
+            "goal": "Create a file named release.txt in the workspace root. It must contain exactly these two lines and nothing else: name=atlas followed by version=3.",
+            "models": {
+                "gemma-4-E2B-it-Q4_K_M": {
+                    "success": true,
+                    "composite": 97.5,
+                    "dimensions": {
+                        "task_success": 1,
+                        "protocol_compliance": 1,
+                        "tool_validity": 1,
+                        "error_recovery": 1,
+                        "efficiency": 0.75
+                    },
+                    "steps_used": 2,
+                    "checks": [
+                        {
+                            "name": "release.txt exists",
+                            "target": "check",
+                            "passed": true,
+                            "detail": ""
+                        },
+                        {
+                            "name": "the two lines match",
+                            "target": "check",
+                            "passed": true,
+                            "detail": "expected [\"name=atlas\",\"version=3\"], got [\"name=atlas\",\"version=3\"]"
+                        }
+                    ]
+                },
+                "deepseek-flash": {
+                    "success": true,
+                    "composite": 97.5,
+                    "dimensions": {
+                        "task_success": 1,
+                        "protocol_compliance": 1,
+                        "tool_validity": 1,
+                        "error_recovery": 1,
+                        "efficiency": 0.75
+                    },
+                    "steps_used": 2,
+                    "checks": [
+                        {
+                            "name": "release.txt exists",
+                            "target": "check",
+                            "passed": true,
+                            "detail": ""
+                        },
+                        {
+                            "name": "the two lines match",
+                            "target": "check",
+                            "passed": true,
+                            "detail": "expected [\"name=atlas\",\"version=3\"], got [\"name=atlas\",\"version=3\"]"
+                        }
+                    ]
+                }
+            },
+            "agreement": {
+                "both_passed": true,
+                "both_failed": false,
+                "composite_delta_last_minus_first": 0
+            }
+        },
+        {
+            "task_id": "count_by_extension",
+            "capability": "tool_query",
+            "goal": "In the data directory there are several files. Work out how many of them end with the .log extension, and write that number and nothing else into count.txt in the workspace root.",
+            "models": {
+                "gemma-4-E2B-it-Q4_K_M": {
+                    "success": true,
+                    "composite": 97,
+                    "dimensions": {
+                        "task_success": 1,
+                        "protocol_compliance": 1,
+                        "tool_validity": 1,
+                        "error_recovery": 1,
+                        "efficiency": 0.7
+                    },
+                    "steps_used": 3,
+                    "checks": [
+                        {
+                            "name": "count.txt exists",
+                            "target": "check",
+                            "passed": true,
+                            "detail": ""
+                        },
+                        {
+                            "name": "count is 4",
+                            "target": "check",
+                            "passed": true,
+                            "detail": "read \"4\""
+                        }
+                    ]
+                },
+                "deepseek-flash": {
+                    "success": true,
+                    "composite": 97,
+                    "dimensions": {
+                        "task_success": 1,
+                        "protocol_compliance": 1,
+                        "tool_validity": 1,
+                        "error_recovery": 1,
+                        "efficiency": 0.7
+                    },
+                    "steps_used": 3,
+                    "checks": [
+                        {
+                            "name": "count.txt exists",
+                            "target": "check",
+                            "passed": true,
+                            "detail": ""
+                        },
+                        {
+                            "name": "count is 4",
+                            "target": "check",
+                            "passed": true,
+                            "detail": "read \"4\""
+                        }
+                    ]
+                }
+            },
+            "agreement": {
+                "both_passed": true,
+                "both_failed": false,
+                "composite_delta_last_minus_first": 0
+            }
+        },
+        {
+            "task_id": "sum_two_files",
+            "capability": "multi_step_composition",
+            "goal": "The files a.txt and b.txt each hold a single whole number. Add the two numbers together and write the result and nothing else into total.txt in the workspace root.",
+            "models": {
+                "gemma-4-E2B-it-Q4_K_M": {
+                    "success": true,
+                    "composite": 96.67,
+                    "dimensions": {
+                        "task_success": 1,
+                        "protocol_compliance": 1,
+                        "tool_validity": 1,
+                        "error_recovery": 1,
+                        "efficiency": 0.6667
+                    },
+                    "steps_used": 4,
+                    "checks": [
+                        {
+                            "name": "total.txt exists",
+                            "target": "check",
+                            "passed": true,
+                            "detail": ""
+                        },
+                        {
+                            "name": "total is 42",
+                            "target": "check",
+                            "passed": true,
+                            "detail": "read \"42\""
+                        }
+                    ]
+                },
+                "deepseek-flash": {
+                    "success": true,
+                    "composite": 96.67,
+                    "dimensions": {
+                        "task_success": 1,
+                        "protocol_compliance": 1,
+                        "tool_validity": 1,
+                        "error_recovery": 1,
+                        "efficiency": 0.6667
+                    },
+                    "steps_used": 4,
+                    "checks": [
+                        {
+                            "name": "total.txt exists",
+                            "target": "check",
+                            "passed": true,
+                            "detail": ""
+                        },
+                        {
+                            "name": "total is 42",
+                            "target": "check",
+                            "passed": true,
+                            "detail": "read \"42\""
+                        }
+                    ]
+                }
+            },
+            "agreement": {
+                "both_passed": true,
+                "both_failed": false,
+                "composite_delta_last_minus_first": 0
+            }
+        },
+        {
+            "task_id": "recover_misnamed_file",
+            "capability": "error_recovery",
+            "goal": "The service settings are saved in a file in the workspace root under a name that ends in .yml or .yaml, but I may be remembering the extension wrongly. Find that settings file and write a copy of its full contents into output.txt in the workspace root.",
+            "models": {
+                "gemma-4-E2B-it-Q4_K_M": {
+                    "success": true,
+                    "composite": 97.14,
+                    "dimensions": {
+                        "task_success": 1,
+                        "protocol_compliance": 1,
+                        "tool_validity": 1,
+                        "error_recovery": 1,
+                        "efficiency": 0.7143
+                    },
+                    "steps_used": 4,
+                    "checks": [
+                        {
+                            "name": "output.txt exists",
+                            "target": "check",
+                            "passed": true,
+                            "detail": ""
+                        },
+                        {
+                            "name": "copy holds the settings",
+                            "target": "check",
+                            "passed": true,
+                            "detail": "read \"port: 9090\\nhost: localhost\""
+                        }
+                    ]
+                },
+                "deepseek-flash": {
+                    "success": true,
+                    "composite": 97.14,
+                    "dimensions": {
+                        "task_success": 1,
+                        "protocol_compliance": 1,
+                        "tool_validity": 1,
+                        "error_recovery": 1,
+                        "efficiency": 0.7143
+                    },
+                    "steps_used": 4,
+                    "checks": [
+                        {
+                            "name": "output.txt exists",
+                            "target": "check",
+                            "passed": true,
+                            "detail": ""
+                        },
+                        {
+                            "name": "copy holds the settings",
+                            "target": "check",
+                            "passed": true,
+                            "detail": "read \"port: 9090\\nhost: localhost\\n\""
+                        }
+                    ]
+                }
+            },
+            "agreement": {
+                "both_passed": true,
+                "both_failed": false,
+                "composite_delta_last_minus_first": 0
+            }
+        },
+        {
+            "task_id": "extract_field_map",
+            "capability": "structured_output",
+            "goal": "Read notes.txt in the workspace root. Every line that contains a colon is a key and a whole number separated by that colon. Lines starting with a hash, and blank lines, are comments. Write a single JSON object to parsed.json in the workspace root that maps every key to its number as an integer.",
+            "models": {
+                "gemma-4-E2B-it-Q4_K_M": {
+                    "success": true,
+                    "composite": 97.86,
+                    "dimensions": {
+                        "task_success": 1,
+                        "protocol_compliance": 1,
+                        "tool_validity": 1,
+                        "error_recovery": 1,
+                        "efficiency": 0.7857
+                    },
+                    "steps_used": 3,
+                    "checks": [
+                        {
+                            "name": "parsed.json exists",
+                            "target": "check",
+                            "passed": true,
+                            "detail": ""
+                        },
+                        {
+                            "name": "parsed.json is valid JSON",
+                            "target": "check",
+                            "passed": true,
+                            "detail": ""
+                        },
+                        {
+                            "name": "the map matches exactly",
+                            "target": "check",
+                            "passed": true,
+                            "detail": "read {\"alpha\":1,\"beta\":2,\"gamma\":3}"
+                        }
+                    ]
+                },
+                "deepseek-flash": {
+                    "success": true,
+                    "composite": 97.86,
+                    "dimensions": {
+                        "task_success": 1,
+                        "protocol_compliance": 1,
+                        "tool_validity": 1,
+                        "error_recovery": 1,
+                        "efficiency": 0.7857
+                    },
+                    "steps_used": 3,
+                    "checks": [
+                        {
+                            "name": "parsed.json exists",
+                            "target": "check",
+                            "passed": true,
+                            "detail": ""
+                        },
+                        {
+                            "name": "parsed.json is valid JSON",
+                            "target": "check",
+                            "passed": true,
+                            "detail": ""
+                        },
+                        {
+                            "name": "the map matches exactly",
+                            "target": "check",
+                            "passed": true,
+                            "detail": "read {\"alpha\":1,\"beta\":2,\"gamma\":3}"
+                        }
+                    ]
+                }
+            },
+            "agreement": {
+                "both_passed": true,
+                "both_failed": false,
+                "composite_delta_last_minus_first": 0
+            }
+        },
+        {
+            "task_id": "prune_by_extension",
+            "capability": "conditional_action",
+            "goal": "The workspace root holds a mix of files. Delete every file whose name ends with .tmp. Leave every other file exactly as it is.",
+            "models": {
+                "gemma-4-E2B-it-Q4_K_M": {
+                    "success": false,
+                    "composite": 8.33,
+                    "dimensions": {
+                        "task_success": 0,
+                        "protocol_compliance": 0.1667,
+                        "tool_validity": 0,
+                        "error_recovery": 0,
+                        "efficiency": 0.5
+                    },
+                    "steps_used": 6,
+                    "checks": [
+                        {
+                            "name": "no .tmp file remains",
+                            "target": "check",
+                            "passed": false,
+                            "detail": "still present: session_a.tmp, session_b.tmp, session_c.tmp"
+                        },
+                        {
+                            "name": "keep_one.txt survived",
+                            "target": "check",
+                            "passed": true,
+                            "detail": ""
+                        },
+                        {
+                            "name": "keep_two.txt survived",
+                            "target": "check",
+                            "passed": true,
+                            "detail": ""
+                        }
+                    ]
+                },
+                "deepseek-flash": {
+                    "success": true,
+                    "composite": 95.83,
+                    "dimensions": {
+                        "task_success": 1,
+                        "protocol_compliance": 1,
+                        "tool_validity": 1,
+                        "error_recovery": 1,
+                        "efficiency": 0.5833
+                    },
+                    "steps_used": 5,
+                    "checks": [
+                        {
+                            "name": "no .tmp file remains",
+                            "target": "check",
+                            "passed": true,
+                            "detail": "still present: "
+                        },
+                        {
+                            "name": "keep_one.txt survived",
+                            "target": "check",
+                            "passed": true,
+                            "detail": ""
+                        },
+                        {
+                            "name": "keep_two.txt survived",
+                            "target": "check",
+                            "passed": true,
+                            "detail": ""
+                        }
+                    ]
+                }
+            },
+            "agreement": {
+                "both_passed": false,
+                "both_failed": false,
+                "composite_delta_last_minus_first": 87.5
+            }
+        }
+    ],
+    "summary": {
+        "composite": {
+            "gemma-4-E2B-it-Q4_K_M": 82.42,
+            "deepseek-flash": 97,
+            "gap": 14.58
+        },
+        "dimensions": {
+            "task_success": {
+                "gemma-4-E2B-it-Q4_K_M": 0.83,
+                "deepseek-flash": 1,
+                "gap": 0.17
+            },
+            "protocol_compliance": {
+                "gemma-4-E2B-it-Q4_K_M": 0.86,
+                "deepseek-flash": 1,
+                "gap": 0.14
+            },
+            "tool_validity": {
+                "gemma-4-E2B-it-Q4_K_M": 0.83,
+                "deepseek-flash": 1,
+                "gap": 0.17
+            },
+            "error_recovery": {
+                "gemma-4-E2B-it-Q4_K_M": 0,
+                "deepseek-flash": 1,
+                "gap": 1
+            },
+            "efficiency": {
+                "gemma-4-E2B-it-Q4_K_M": 0.69,
+                "deepseek-flash": 0.7,
+                "gap": 0.01
+            }
+        },
+        "error_recovery_basis_tasks": {
+            "gemma-4-E2B-it-Q4_K_M": 1,
+            "deepseek-flash": 0
+        },
+        "tasks_passed": {
+            "gemma-4-E2B-it-Q4_K_M": "5/6",
+            "deepseek-flash": "6/6"
+        },
+        "latency_ms_mean": {
+            "gemma-4-E2B-it-Q4_K_M": 11047.6,
+            "deepseek-flash": 5457.33
+        }
+    }
+}

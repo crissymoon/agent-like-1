@@ -1,0 +1,7 @@
+run_id,model,tool_mode,task_id,capability,success,composite,task_success,protocol_compliance,tool_validity,error_recovery,efficiency,steps_used,budget,budget_exhausted,finished,tool_calls,successful_tool_calls,invalid_actions,unstructured_tool_calls,unknown_tools,invalid_args,tool_errors,redundant_calls,repeated_failed_turns,guard_refusals,guard_interventions,schema_rejections,recovered,checks_passed,checks_total,latency_ms,prompt_tokens,completion_tokens
+guarded-grammar,gemma-4-E2B-it-Q4_K_M,prompt,create_exact_file,instruction_following,0,5,0,0,0,0,0.5,4,4,0,1,0,0,3,0,0,0,0,0,0,0,0,0,0,0,2,15039.5,2436,104
+guarded-grammar,gemma-4-E2B-it-Q4_K_M,prompt,count_by_extension,tool_query,0,5,0,0,0,0,0.5,5,5,1,0,0,0,5,0,0,0,0,0,2,0,2,0,0,0,2,18735.7,3598,119
+guarded-grammar,gemma-4-E2B-it-Q4_K_M,prompt,sum_two_files,multi_step_composition,0,8.33,0,0,0,0,0.8333,2,6,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,2,4245.6,1051,59
+guarded-grammar,gemma-4-E2B-it-Q4_K_M,prompt,recover_misnamed_file,error_recovery,0,8.57,0,0,0,0,0.8571,2,7,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,2,11152.5,1079,48
+guarded-grammar,gemma-4-E2B-it-Q4_K_M,prompt,extract_field_map,structured_output,0,19.29,0,0,0,1,0.9286,1,7,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,2319.3,508,25
+guarded-grammar,gemma-4-E2B-it-Q4_K_M,prompt,prune_by_extension,conditional_action,0,8.33,0,0,0,0,0.8333,2,6,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,2,3,10787.2,1027,42

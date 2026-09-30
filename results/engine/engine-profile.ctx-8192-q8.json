@@ -1,0 +1,62 @@
+{
+  "document": "engine-profile",
+  "schema_version": "1",
+  "written_at": "2026-09-29T22:46:50Z",
+  "started": true,
+  "engine": {
+    "image_digest": "sha256:6257697a7f5d034b8fb499ddb07af3e250506352f94102054252a23f3b85e0af",
+    "version": "0.00.000.482 I srv  llama_server: initializing ...",
+    "build_info": "b11176-f805c57a2",
+    "host": "0.0.0.0",
+    "port": 8080,
+    "startup_seconds": 9,
+    "log_kept": true
+  },
+  "model": {
+    "path": "model.gguf",
+    "bytes": 3106738272,
+    "sha256": "",
+    "hashed": false
+  },
+  "vision": {
+    "enabled": false,
+    "projector_path": "mmproj.gguf",
+    "projector_bytes": 985654080,
+    "projector_mapped_bytes": 0,
+    "saved_bytes": 985654080,
+    "modalities_reported_by_engine": {
+      "vision": false,
+      "video": false,
+      "audio": false
+    }
+  },
+  "load": {
+    "mode_requested": "mmap",
+    "modes_accepted_by_engine": "auto none mmap mlock mmap+mlock dio ",
+    "weights_mapped": true,
+    "model_bytes": 3106738272,
+    "model_file_mapping_bytes": 3090923520,
+    "model_mapping_ranges": 1,
+    "mapped_share": 0.9949
+  },
+  "kv_cache": {
+    "type_k": "q8_0",
+    "type_v": "q8_0",
+    "type_k_bytes_element": 1.0625,
+    "type_v_bytes_element": 1.0625,
+    "ctx_size": 8192,
+    "parallel": 1,
+    "threads": 4,
+    "gpu_layers": 0,
+    "slots_reported_by_engine": 1,
+    "ctx_per_slot_reported_by_engine": 8192,
+    "kv_unified": "false",
+    "kv_buffer_reported_by_engine": ""
+  },
+  "memory": {
+    "rss_bytes": 4603543552,
+    "vm_size_bytes": 5340049408,
+    "swap_bytes": 0,
+    "shared_model_bytes": 3090923520
+  }
+}

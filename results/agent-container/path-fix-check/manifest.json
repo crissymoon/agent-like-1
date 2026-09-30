@@ -1,0 +1,237 @@
+{
+    "schema_version": "1",
+    "document": "agent-manifest",
+    "run": {
+        "run_id": "path-fix-check",
+        "started_at": "2026-09-30T01:40:24+00:00",
+        "finished_at": "2026-09-30T01:40:36+00:00",
+        "duration_s": 11.39,
+        "tool_mode": "prompt",
+        "prompt_version": "1",
+        "prompt_sha256": "1e504afdcff681520d3aee058c80d2ff73216b8a0f17e6da5ca17b9e810b8bd4",
+        "step_budget_cap": 8,
+        "task_count": 1,
+        "controls": {
+            "loop_guard": true,
+            "guard_repeat_limit": 2,
+            "guard_rule": "an identical call is refused once it has already failed 2 time(s); repeat limit 2 refuses the third",
+            "strict_schema": true,
+            "sandbox_policy": "documented",
+            "allowed_binaries": [
+                "ls",
+                "cat",
+                "grep",
+                "wc",
+                "sort",
+                "find",
+                "head",
+                "tail",
+                "rm",
+                "mv",
+                "cp",
+                "mkdir"
+            ],
+            "command_arguments_inspected": true,
+            "decoder": {
+                "mode": "none",
+                "scope": "local",
+                "field": "",
+                "action_schema_sha256": "fb02911a9fb8b108185b4ab2be4aa7aa3104178d6159f3e6f8d3d4dbd921707d",
+                "note": "No engine-side constraint was sent. A malformed object reaches the harness and is refused there."
+            }
+        }
+    },
+    "conditions": {
+        "temperature": 0,
+        "top_p": 1,
+        "seed": 0,
+        "max_tokens_per_turn": 768,
+        "step_budget_cap": 8,
+        "max_observation_chars": 3000,
+        "command_timeout_s": 10,
+        "history_turns": 12,
+        "workspace_root": "/work"
+    },
+    "controls": {
+        "loop_guard": true,
+        "guard_repeat_limit": 2,
+        "guard_rule": "an identical call is refused once it has already failed 2 time(s); repeat limit 2 refuses the third",
+        "strict_schema": true,
+        "sandbox_policy": "documented",
+        "allowed_binaries": [
+            "ls",
+            "cat",
+            "grep",
+            "wc",
+            "sort",
+            "find",
+            "head",
+            "tail",
+            "rm",
+            "mv",
+            "cp",
+            "mkdir"
+        ],
+        "command_arguments_inspected": true,
+        "decoder": {
+            "mode": "none",
+            "scope": "local",
+            "field": "",
+            "action_schema_sha256": "fb02911a9fb8b108185b4ab2be4aa7aa3104178d6159f3e6f8d3d4dbd921707d",
+            "note": "No engine-side constraint was sent. A malformed object reaches the harness and is refused there."
+        }
+    },
+    "containment": {
+        "measured": true,
+        "mode": "require",
+        "container": "048977bc75c1",
+        "checks": 17,
+        "failed": [],
+        "protected": [
+            "/opt/harness",
+            "/opt/harness/lib",
+            "/opt/harness/docker",
+            "/opt/harness/agent.php",
+            "/opt/harness/ladder.php",
+            "/opt/harness/config.php"
+        ],
+        "writable": [
+            "/opt/harness/results",
+            "/work",
+            "/tmp"
+        ],
+        "capabilities": "0000000000000000",
+        "no_new_privileges": "1"
+    },
+    "engine": {
+        "schema_version": "1",
+        "source": "/opt/harness/results/engine/engine-profile.json",
+        "measured": true,
+        "record_error": "",
+        "record_written_at": "2026-09-30T01:39:40Z",
+        "written_before_the_run_started": true,
+        "engine_started": true,
+        "reason": "",
+        "vision": {
+            "enabled": false,
+            "projector_path": "mmproj.gguf",
+            "projector_source": "mmproj-F16.gguf",
+            "projector_bytes": 985654080,
+            "projector_mapped_bytes": 0,
+            "saved_bytes": 985654080,
+            "modalities_reported_by_engine": {
+                "vision": false,
+                "video": false,
+                "audio": false
+            }
+        },
+        "load": {
+            "mode_requested": "mmap",
+            "modes_accepted_by_engine": "auto none mmap mlock mmap+mlock dio ",
+            "weights_mapped": true,
+            "model_bytes": 3106738272,
+            "model_file_mapping_bytes": 3090923520,
+            "model_mapping_ranges": 1,
+            "mapped_share": 0.9949
+        },
+        "kv_cache": {
+            "type_k": "f16",
+            "type_v": "f16",
+            "type_k_bytes_element": 2,
+            "type_v_bytes_element": 2,
+            "ctx_size": 4096,
+            "parallel": 1,
+            "threads": 4,
+            "gpu_layers": 0,
+            "slots_reported_by_engine": 1,
+            "ctx_per_slot_reported_by_engine": 4096,
+            "kv_unified": "false",
+            "kv_buffer_reported_by_engine": ""
+        },
+        "memory": {
+            "rss_bytes": 4600786944,
+            "vm_size_bytes": 5332938752,
+            "swap_bytes": 0,
+            "shared_model_bytes": 3090923520
+        },
+        "endpoint": {
+            "reachable": true,
+            "error": "",
+            "build_info": "b11176-f805c57a2",
+            "model_path": "/models/model.gguf",
+            "model_ftype": "Q4_K - Medium",
+            "total_slots": 1,
+            "n_ctx": 4096,
+            "modalities": {
+                "vision": false,
+                "video": false,
+                "audio": false,
+                "reported": true
+            },
+            "supports_tools": true
+        },
+        "disagreements": [],
+        "engine": {
+            "image_digest": "sha256:6257697a7f5d034b8fb499ddb07af3e250506352f94102054252a23f3b85e0af",
+            "version": "0.00.001.215 I srv  llama_server: initializing ...",
+            "build_info": "b11176-f805c57a2",
+            "host": "0.0.0.0",
+            "port": 8080,
+            "startup_seconds": 8,
+            "log_kept": true
+        },
+        "model": {
+            "path": "model.gguf",
+            "source": "gemma-4-E2B-it-Q4_K_M.gguf",
+            "bytes": 3106738272,
+            "sha256": "",
+            "hashed": false
+        },
+        "derived": {
+            "projector_share_of_model_pair": 0.2409,
+            "saved_share_of_the_weights": 0.3173,
+            "context_tokens_total": 4096,
+            "kv_cache_is_f16": true,
+            "mapped_share_of_rss": 0.6718
+        }
+    },
+    "tool_specs_sha256": "f814263b42bebb4941805e83acb8a87f53469d5004be08ff2c1c088ac3239dba",
+    "tools": [
+        "list_files",
+        "read_file",
+        "write_file",
+        "append_file",
+        "delete_file",
+        "make_directory",
+        "search_files",
+        "run_command",
+        "finish"
+    ],
+    "tasks": [
+        {
+            "id": "create_exact_file",
+            "capability": "instruction_following",
+            "goal": "Create a file named release.txt in the workspace root. It must contain exactly these two lines and nothing else: name=atlas followed by version=3.",
+            "budget": 4
+        }
+    ],
+    "models": {
+        "gemma-4-E2B-it-Q4_K_M": {
+            "engine": "openai-compatible chat completions",
+            "endpoint": "http://gemma:8080/v1/chat/completions",
+            "model_id": "gemma-4-E2B-it-Q4_K_M",
+            "tool_mode": "prompt",
+            "temperature": 0,
+            "top_p": 1,
+            "max_tokens": 768,
+            "request_extensions": {
+                "chat_template_kwargs": {
+                    "enable_thinking": false
+                }
+            }
+        }
+    },
+    "files": {
+        "gemma-4-E2B-it-Q4_K_M": "gemma-4-E2B-it-Q4_K_M.json"
+    }
+}

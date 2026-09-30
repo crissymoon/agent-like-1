@@ -1,0 +1,581 @@
+{
+    "schema_version": "1",
+    "run_id": "baseline",
+    "generated_at": "2026-09-25T18:34:57+00:00",
+    "model": {
+        "label": "gemma-4-E2B-it-Q4_K_M",
+        "provenance": {
+            "engine": "llama.cpp llama-server",
+            "endpoint": "http://127.0.0.1:8080/v1/chat/completions",
+            "model_file": "gemma-4-E2B-it-Q4_K_M.gguf",
+            "model_sha256": "740185b21d22ceb83a11c3aa62ad5842ef32c70f6096d756bbee85a1e4ec34b8",
+            "model_bytes": 3106738272,
+            "projector_file": "mmproj-F16.gguf",
+            "projector_sha256": "140be8d7849741f88c50757d529b84373ee8e27052cc2236855b537f4a8215fa",
+            "projector_bytes": 985654080,
+            "temperature": 0,
+            "max_tokens": 4096,
+            "thinking": false
+        }
+    },
+    "prompt": {
+        "id": "ScanPrompts::scene",
+        "version": "3",
+        "sha256": "67258f67e56d045fd775ef9a57b97b505052b613d29669779183a63ab1551e10",
+        "chars": 2943
+    },
+    "conditions": {
+        "max_edge": 1400,
+        "jpeg_quality": 90,
+        "temperature": 0,
+        "max_tokens": 4096,
+        "thinking": false,
+        "detail": "high"
+    },
+    "images": [
+        {
+            "index": 0,
+            "path": "images/20260925_110438.jpg",
+            "filename": "20260925_110438.jpg",
+            "bytes": 3622661,
+            "content_sha256": "20cd14004343639047d6c2bea92e5e678040750e4bf75dc9bb57096732f97668",
+            "dhash": "dc9cd8b0b1a8b811",
+            "signature": "38404e7c776b5c748ea6d2e9cca3876742546167696c6f7c92afcad8be9a7d61546e5f5252525682a3c6d5caa6746f3c4e7e6a8fa650838fb8bcc7c1ae7b6b3556589c89857b8e9eaaba9787667b2f1a634b9d925b97a7a4a7a979785c5b471e7c53a18e5d82b2b2ada87a837f3a632e866c9d956589b2a79db09142353a722b8063907c659b9fa7989182313a676c2079579587609da4ab847c864b6b81591e7b449f804f8e74627e8274735c6b4c1684447c64418d6788868c7c72686f3b279162939d496c8c5b897b4b69495d212a8d62999f4c39768585874f6e5c6375467254524650484a8594827c786f5e704f71674f4470786d8c5a536c555a5f543f",
+            "image": {
+                "filename": "20260925_110438.jpg",
+                "original_mime": "image/jpeg",
+                "width": 1400,
+                "height": 1050,
+                "prepared_bytes": 558336,
+                "was_scaled": true,
+                "original_sha256": "20cd14004343639047d6c2bea92e5e678040750e4bf75dc9bb57096732f97668",
+                "prepared_sha256": "d693eb766680c02225fe088fabdac7c3fb4cd917c76aabacd55127bebb24670e"
+            },
+            "preparation_error": "",
+            "status": "complete",
+            "error": "",
+            "finish_reason": "stop",
+            "truncated": false,
+            "from_cache": false,
+            "cache_key": "6d98068c2ff6d9e43a09319f5529b596a5971f68fb8d57f634edba29e1e6869e",
+            "latency_ms": 27193.6,
+            "prompt_tokens": 1467,
+            "completion_tokens": 726,
+            "usage": {
+                "completion_tokens": 726,
+                "prompt_tokens": 1467,
+                "total_tokens": 2193,
+                "prompt_tokens_details": {
+                    "cached_tokens": 1465
+                },
+                "timings": {
+                    "cache_n": 1465,
+                    "prompt_n": 2,
+                    "prompt_ms": 889.238,
+                    "prompt_per_token_ms": 444.619,
+                    "prompt_per_second": 2.249116659432008,
+                    "predicted_n": 726,
+                    "predicted_ms": 26205.093,
+                    "predicted_per_token_ms": 36.14495586206897,
+                    "predicted_per_second": 27.666377677041634
+                }
+            },
+            "api_model": "gemma-4-E2B-it-Q4_K_M.gguf",
+            "api_id": "chatcmpl-VmAY7MwYF3ecZiPfTtgjOxKXWwAe4aDq",
+            "parse_strategy": "direct",
+            "parse_error": "",
+            "field_coverage": 1,
+            "raw_response": "{\n  \"scene_summary\": \"A group of characters is depicted within a circular graphic with speech bubbles and an image of survivors.\",\n  \"panel_layout\": \"single illustration\",\n  \"characters_present\": [\n    {\n      \"label\": \"Woman with long red hair\",\n      \"role_in_frame\": \"foreground\",\n      \"pose\": \"looking directly at the viewer\",\n      \"action\": \"staring\",\n      \"gaze_target\": \"viewer/camera\"\n    },\n    {\n      \"label\": \"Large muscular man\",\n      \"role_in_frame\": \"midground\",\n      \"pose\": \"lying down, looking forward\",\n      \"action\": \"lying\",\n      \"gaze_target\": \"viewer/camera\"\n    },\n    {\n      \"label\": \"Two other figures (implied survivors)\",\n      \"role_in_frame\": \"midground\",\n      \"pose\": \"lying down\",\n      \"action\": \"lying\",\n      \"gaze_target\": \"viewer/camera\"\n    }\n  ],\n  \"dialogue\": [\n    {\n      \"speaker_label\": \"Speech bubble pointing to the woman\",\n      \"line\": \"THERE'S NO ONE ELSE ALIVE!\"\n    },\n    {\n      \"speaker_label\": \"Speech bubble pointing to the group\",\n      \"line\": \"WE FOUR ARE THE ONLY SURVIVORS!\"\n    }\n  ],\n  \"on_image_text\": [\n    \"DOOMSDAY\",\n    \"all new\",\n    \"CHARLTON COMICS\",\n    \"NO. 5 MAR 76/CDC\",\n    \"0123456789\",\n    \"00121\"\n  ],\n  \"facial_features\": [\n    {\n      \"subject_label\": \"Woman with long red hair\",\n      \"face_shape\": \"oval\",\n      \"jawline\": \"defined\",\n      \"cheekbones\": \"prominent\",\n      \"brow_shape\": \"arched\",\n      \"brow_tension\": \"slight\",\n      \"eye_shape\": \"almond\",\n      \"eye_color\": \"dark\",\n      \"gaze_direction\": \"viewer/camera\",\n      \"eyelid_openness\": \"open\",\n      \"nose_shape\": \"straight\",\n      \"lip_shape\": \"closed\",\n      \"mouth_corners\": \"neutral\",\n      \"skin_tone\": \"fair\",\n      \"hair_color\": \"red\",\n      \"hair_style\": \"long, flowing\",\n      \"hair_length\": \"long\",\n      \"facial_hair\": \"\",\n      \"muscle_tension\": \"relaxed\",\n      \"expression_primary\": \"serious\",\n      \"expression_secondary\": \"\",\n      \"affect_valence\": -0.3,\n      \"affect_arousal\": 0.2,\n      \"confidence\": 0.8\n    }\n  ],\n  \"scene_affect\": {\n    \"valence\": -0.5,\n    \"arousal\": 0.3,\n    \"dominant_emotion\": \"fear\",\n    \"confidence\": 0.7\n  },\n  \"defects\": []\n}",
+            "payload": {
+                "scene_summary": "A group of characters is depicted within a circular graphic with speech bubbles and an image of survivors.",
+                "panel_layout": "single illustration",
+                "characters_present": [
+                    {
+                        "label": "Woman with long red hair",
+                        "role_in_frame": "foreground",
+                        "pose": "looking directly at the viewer",
+                        "action": "staring",
+                        "gaze_target": "viewer/camera"
+                    },
+                    {
+                        "label": "Large muscular man",
+                        "role_in_frame": "midground",
+                        "pose": "lying down, looking forward",
+                        "action": "lying",
+                        "gaze_target": "viewer/camera"
+                    },
+                    {
+                        "label": "Two other figures (implied survivors)",
+                        "role_in_frame": "midground",
+                        "pose": "lying down",
+                        "action": "lying",
+                        "gaze_target": "viewer/camera"
+                    }
+                ],
+                "dialogue": [
+                    {
+                        "speaker_label": "Speech bubble pointing to the woman",
+                        "line": "THERE'S NO ONE ELSE ALIVE!"
+                    },
+                    {
+                        "speaker_label": "Speech bubble pointing to the group",
+                        "line": "WE FOUR ARE THE ONLY SURVIVORS!"
+                    }
+                ],
+                "on_image_text": [
+                    "DOOMSDAY",
+                    "all new",
+                    "CHARLTON COMICS",
+                    "NO. 5 MAR 76/CDC",
+                    "0123456789",
+                    "00121"
+                ],
+                "facial_features": [
+                    {
+                        "subject_label": "Woman with long red hair",
+                        "face_shape": "oval",
+                        "jawline": "defined",
+                        "cheekbones": "prominent",
+                        "brow_shape": "arched",
+                        "brow_tension": "slight",
+                        "eye_shape": "almond",
+                        "eye_color": "dark",
+                        "gaze_direction": "viewer/camera",
+                        "eyelid_openness": "open",
+                        "nose_shape": "straight",
+                        "lip_shape": "closed",
+                        "mouth_corners": "neutral",
+                        "skin_tone": "fair",
+                        "hair_color": "red",
+                        "hair_style": "long, flowing",
+                        "hair_length": "long",
+                        "facial_hair": "",
+                        "muscle_tension": "relaxed",
+                        "expression_primary": "serious",
+                        "expression_secondary": "",
+                        "affect_valence": -0.3,
+                        "affect_arousal": 0.2,
+                        "confidence": 0.8
+                    }
+                ],
+                "scene_affect": {
+                    "valence": -0.5,
+                    "arousal": 0.3,
+                    "dominant_emotion": "fear",
+                    "confidence": 0.7
+                },
+                "defects": []
+            },
+            "measured_at": "2026-09-25T18:33:02+00:00"
+        },
+        {
+            "index": 1,
+            "path": "images/20260925_110458.jpg",
+            "filename": "20260925_110458.jpg",
+            "bytes": 3734673,
+            "content_sha256": "39bf5642bf0cbdf5c4de304781043ab8642e32db548c04a08cf27efc106b8ca2",
+            "dhash": "7eec6eaaa8aabd3d",
+            "signature": "442f2e35384b465a656b8fbdc0a86b5f4b282b33364b5153666c89b2b09f6b6c48878c6fb1adb68b709fcce7e0bdb79d65836a51b893b5ad74a5b5b5a1af9588627c6c51b594b5716b707675b1a28c844b7c7045a5849455659b6eb6a08e7d89407b8c449081a28582a2a5859ca79c724777963b7494b8b8babcbaad8a745f5c3c799b3a6283a95f5981625f685f6c4c3778913d618472525a9c68b1a2696c43407572458185b55460755058a89157405c737b50888b94a4849eaaaa5e7797574d925854628e5e8fb3b7b8b29a888d75498c5f5d5373595e74bbbb9d916b666c4b604537425d686d63909388897b796a453c36293a5349535539463a393f4d3f",
+            "image": {
+                "filename": "20260925_110458.jpg",
+                "original_mime": "image/jpeg",
+                "width": 1400,
+                "height": 1050,
+                "prepared_bytes": 534503,
+                "was_scaled": true,
+                "original_sha256": "39bf5642bf0cbdf5c4de304781043ab8642e32db548c04a08cf27efc106b8ca2",
+                "prepared_sha256": "59a90550aad8756a7b2ac9ee545e484909ff82912c9d65ac5c6acb76995e9d97"
+            },
+            "preparation_error": "",
+            "status": "complete",
+            "error": "",
+            "finish_reason": "stop",
+            "truncated": false,
+            "from_cache": false,
+            "cache_key": "0df2cc91b4f4970eba21f60c6ab18efa299e06d907291f80e0110518718d01ff",
+            "latency_ms": 32768.4,
+            "prompt_tokens": 1467,
+            "completion_tokens": 904,
+            "usage": {
+                "completion_tokens": 904,
+                "prompt_tokens": 1467,
+                "total_tokens": 2371,
+                "prompt_tokens_details": {
+                    "cached_tokens": 1462
+                },
+                "timings": {
+                    "cache_n": 1462,
+                    "prompt_n": 5,
+                    "prompt_ms": 461.412,
+                    "prompt_per_token_ms": 92.2824,
+                    "prompt_per_second": 10.836302480212911,
+                    "predicted_n": 904,
+                    "predicted_ms": 32202.979,
+                    "predicted_per_token_ms": 35.66221373200443,
+                    "predicted_per_second": 28.040884043678073
+                }
+            },
+            "api_model": "gemma-4-E2B-it-Q4_K_M.gguf",
+            "api_id": "chatcmpl-LtEl0MnVtqX9gQSLFBr2zHjyi72OCMfn",
+            "parse_strategy": "direct",
+            "parse_error": "",
+            "field_coverage": 1,
+            "raw_response": "{\n  \"scene_summary\": \"Three versions of Spider-Woman are depicted in dynamic poses against a yellow background.\",\n  \"panel_layout\": \"single illustration\",\n  \"characters_present\": [\n    {\n      \"label\": \"Spider-Woman (top)\",\n      \"role_in_frame\": \"midground\",\n      \"pose\": \"flying/leaping with arms outstretched\",\n      \"action\": \"flying\",\n      \"gaze_target\": \"off-frame\"\n    },\n    {\n      \"label\": \"Spider-Woman (bottom)\",\n      \"role_in_frame\": \"midground\",\n      \"pose\": \"crouching/lunging with a weapon\",\n      \"action\": \"holding a large pipe/weapon\",\n      \"gaze_target\": \"off-frame\"\n    },\n    {\n      \"label\": \"Spider-Woman (left)\",\n      \"role_in_frame\": \"midground\",\n      \"pose\": \"flying/leaping\",\n      \"action\": \"flying\",\n      \"gaze_target\": \"off-frame\"\n    }\n  ],\n  \"dialogue\": [\n    {\n      \"speaker_label\": \"Text in panel\",\n      \"line\": \"SPIDER-WOMAN\"\n    },\n    {\n      \"speaker_label\": \"Text in panel\",\n      \"line\": \"EENIE MEENIE MINEY MO...\"\n    },\n    {\n      \"speaker_label\": \"Text in panel\",\n      \"line\": \"ONE SPIDER-WOMAN WILL HAVE TO GO!\"\n    }\n  ],\n  \"on_image_text\": [\n    \"MARVEL COMICS GROUP\",\n    \"SPIDER-WOMAN\",\n    \"40°C\",\n    \"©1980 MARVEL COMICS GROUP\",\n    \"Spider-Woman\"\n  ],\n  \"facial_features\": [\n    {\n      \"subject_label\": \"Spider-Woman (top)\",\n      \"face_shape\": \"\", \"jawline\": \"\", \"cheekbones\": \"\", \"brow_shape\": \"\", \"brow_tension\": \"\",\n      \"eye_shape\": \"\", \"eye_color\": \"\", \"gaze_direction\": \"\", \"eyelid_openness\": \"\",\n      \"nose_shape\": \"\", \"lip_shape\": \"\", \"mouth_corners\": \"\", \"skin_tone\": \"red\",\n      \"hair_color\": \"dark blue/black\", \"hair_style\": \"flowing\", \"hair_length\": \"long\", \"facial_hair\": \"\",\n      \"muscle_tension\": \"neck and arm muscles engaged in flight\",\n      \"expression_primary\": \"intense\", \"expression_secondary\": \"\",\n      \"affect_valence\": 0.5, \"affect_arousal\": 0.7,\n      \"confidence\": 0.8\n    },\n    {\n      \"subject_label\": \"Spider-Woman (bottom)\",\n      \"face_shape\": \"\", \"jawline\": \"\", \"cheekbones\": \"\", \"brow_shape\": \"\", \"brow_tension\": \"\",\n      \"eye_shape\": \"\", \"eye_color\": \"\", \"gaze_direction\": \"\", \"eyelid_openness\": \"\",\n      \"nose_shape\": \"\", \"lip_shape\": \"\", \"mouth_corners\": \"\", \"skin_tone\": \"red\",\n      \"hair_color\": \"dark blue/black\", \"hair_style\": \"flowing\", \"hair_length\": \"long\", \"facial_hair\": \"\",\n      \"muscle_tension\": \"mouth and jaw tense from exertion\",\n      \"expression_primary\": \"determined\", \"expression_secondary\": \"\",\n      \"affect_valence\": 0.3, \"affect_arousal\": 0.5,\n      \"confidence\": 0.7\n    }\n  ],\n  \"scene_affect\": {\n    \"valence\": 0.4,\n    \"arousal\": 0.6,\n    \"dominant_emotion\": \"action\",\n    \"confidence\": 0.8\n  },\n  \"defects\": []\n}",
+            "payload": {
+                "scene_summary": "Three versions of Spider-Woman are depicted in dynamic poses against a yellow background.",
+                "panel_layout": "single illustration",
+                "characters_present": [
+                    {
+                        "label": "Spider-Woman (top)",
+                        "role_in_frame": "midground",
+                        "pose": "flying/leaping with arms outstretched",
+                        "action": "flying",
+                        "gaze_target": "off-frame"
+                    },
+                    {
+                        "label": "Spider-Woman (bottom)",
+                        "role_in_frame": "midground",
+                        "pose": "crouching/lunging with a weapon",
+                        "action": "holding a large pipe/weapon",
+                        "gaze_target": "off-frame"
+                    },
+                    {
+                        "label": "Spider-Woman (left)",
+                        "role_in_frame": "midground",
+                        "pose": "flying/leaping",
+                        "action": "flying",
+                        "gaze_target": "off-frame"
+                    }
+                ],
+                "dialogue": [
+                    {
+                        "speaker_label": "Text in panel",
+                        "line": "SPIDER-WOMAN"
+                    },
+                    {
+                        "speaker_label": "Text in panel",
+                        "line": "EENIE MEENIE MINEY MO..."
+                    },
+                    {
+                        "speaker_label": "Text in panel",
+                        "line": "ONE SPIDER-WOMAN WILL HAVE TO GO!"
+                    }
+                ],
+                "on_image_text": [
+                    "MARVEL COMICS GROUP",
+                    "SPIDER-WOMAN",
+                    "40°C",
+                    "©1980 MARVEL COMICS GROUP",
+                    "Spider-Woman"
+                ],
+                "facial_features": [
+                    {
+                        "subject_label": "Spider-Woman (top)",
+                        "face_shape": "",
+                        "jawline": "",
+                        "cheekbones": "",
+                        "brow_shape": "",
+                        "brow_tension": "",
+                        "eye_shape": "",
+                        "eye_color": "",
+                        "gaze_direction": "",
+                        "eyelid_openness": "",
+                        "nose_shape": "",
+                        "lip_shape": "",
+                        "mouth_corners": "",
+                        "skin_tone": "red",
+                        "hair_color": "dark blue/black",
+                        "hair_style": "flowing",
+                        "hair_length": "long",
+                        "facial_hair": "",
+                        "muscle_tension": "neck and arm muscles engaged in flight",
+                        "expression_primary": "intense",
+                        "expression_secondary": "",
+                        "affect_valence": 0.5,
+                        "affect_arousal": 0.7,
+                        "confidence": 0.8
+                    },
+                    {
+                        "subject_label": "Spider-Woman (bottom)",
+                        "face_shape": "",
+                        "jawline": "",
+                        "cheekbones": "",
+                        "brow_shape": "",
+                        "brow_tension": "",
+                        "eye_shape": "",
+                        "eye_color": "",
+                        "gaze_direction": "",
+                        "eyelid_openness": "",
+                        "nose_shape": "",
+                        "lip_shape": "",
+                        "mouth_corners": "",
+                        "skin_tone": "red",
+                        "hair_color": "dark blue/black",
+                        "hair_style": "flowing",
+                        "hair_length": "long",
+                        "facial_hair": "",
+                        "muscle_tension": "mouth and jaw tense from exertion",
+                        "expression_primary": "determined",
+                        "expression_secondary": "",
+                        "affect_valence": 0.3,
+                        "affect_arousal": 0.5,
+                        "confidence": 0.7
+                    }
+                ],
+                "scene_affect": {
+                    "valence": 0.4,
+                    "arousal": 0.6,
+                    "dominant_emotion": "action",
+                    "confidence": 0.8
+                },
+                "defects": []
+            },
+            "measured_at": "2026-09-25T18:33:44+00:00"
+        },
+        {
+            "index": 2,
+            "path": "images/20260925_110515.jpg",
+            "filename": "20260925_110515.jpg",
+            "bytes": 4849413,
+            "content_sha256": "98c7a3384c404d76bf597626a25fef34e36e98c75acc3a8a8066dd0fd7fe302f",
+            "dhash": "7cbcaca8aeb6a6b6",
+            "signature": "4b432f3e425552616f83b1d3c3a86a664b3f323d3e555f617182a8c1b09d6566517f866b778d79998aa9b3bcbea2a291677d71655d7f868a7a9bb1b6d28d8489647e7162578b7e747b7e8f9aac807d7d5d746364568265699b8d889e847f7179546b7881538e7b6b688f8a8c987470795a6e626c5480715d6577877e906f717954657073558366605c8e649293816d734f67696a53716577637b9b7b98768975586b6c61587d788e8a705f6474825c6d60766a64587f8483704d487d9065626c548395836c7e83817a697861767674644d7f98826e9286807b676e4e89927c5e59656d5b5f727d7e8d79798c7f7f8067564d3d31364860466d455d633e56564d",
+            "image": {
+                "filename": "20260925_110515.jpg",
+                "original_mime": "image/jpeg",
+                "width": 1400,
+                "height": 1050,
+                "prepared_bytes": 796294,
+                "was_scaled": true,
+                "original_sha256": "98c7a3384c404d76bf597626a25fef34e36e98c75acc3a8a8066dd0fd7fe302f",
+                "prepared_sha256": "ab016c970c1a40cb1711e6ba96801258858703dad8c111c54b786c51f75e1827"
+            },
+            "preparation_error": "",
+            "status": "complete",
+            "error": "",
+            "finish_reason": "stop",
+            "truncated": false,
+            "from_cache": false,
+            "cache_key": "2ac41559e5efa0a91d54e25acece6a01a50cea5e4842293da27fece7249719e1",
+            "latency_ms": 21777.7,
+            "prompt_tokens": 1467,
+            "completion_tokens": 609,
+            "usage": {
+                "completion_tokens": 609,
+                "prompt_tokens": 1467,
+                "total_tokens": 2076,
+                "prompt_tokens_details": {
+                    "cached_tokens": 1462
+                },
+                "timings": {
+                    "cache_n": 1462,
+                    "prompt_n": 5,
+                    "prompt_ms": 250.374,
+                    "prompt_per_token_ms": 50.074799999999996,
+                    "prompt_per_second": 19.970124693458587,
+                    "predicted_n": 609,
+                    "predicted_ms": 21406.165,
+                    "predicted_per_token_ms": 35.207508223684215,
+                    "predicted_per_second": 28.40303249087354
+                }
+            },
+            "api_model": "gemma-4-E2B-it-Q4_K_M.gguf",
+            "api_id": "chatcmpl-4VNDnORlWyiuxB8idMFKShuBVeMgIAWI",
+            "parse_strategy": "direct",
+            "parse_error": "",
+            "field_coverage": 0.8333,
+            "raw_response": "{\n  \"scene_summary\": \"A comic book cover featuring Spider-Man in a dynamic pose amidst various comic book elements and text.\",\n  \"panel_layout\": \"single illustration\",\n  \"characters_present\": [\n    {\n      \"label\": \"Spider-Man\",\n      \"role_in_frame\": \"midground\",\n      \"pose\": \"dynamic, crouching/leaping pose with limbs spread\",\n      \"action\": \"posing dramatically\",\n      \"gaze_target\": \"viewer/camera\"\n    }\n  ],\n  \"dialogue\": [],\n  \"on_image_text\": [\n    \"MARVEL COMICS GROUP\",\n    \"MARVEL TALES\",\n    \"SPIDER-MAN\",\n    \"BIG 100TH ISSUE!\",\n    \"MARYLE TALES\",\n    \"SPIDER-MAN\",\n    \"SPIDEY BATTLES\",\n    \"LUKES AGE POWERMAN\",\n    \"PLUS AN ALL-NEW HAWKSYE AND TWO-GUN KID ADVENTURE! AND MUCH MORE!\"\n  ],\n  \"facial_features\": [\n    {\n      \"subject_label\": \"Spider-Man\",\n      \"face_shape\": \"N/A\",\n      \"jawline\": \"N/A\",\n      \"cheekbones\": \"N/A\",\n      \"brow_shape\": \"N/A\",\n      \"brow_tension\": \"N/A\",\n      \"eye_shape\": \"N/A\",\n      \"eye_color\": \"N/A\",\n      \"gaze_direction\": \"viewer/camera\",\n      \"eyelid_openness\": \"N/A\",\n      \"nose_shape\": \"N/A\",\n      \"lip_shape\": \"N/A\",\n      \"mouth_corners\": \"N/A\",\n      \"skin_tone\": \"Red/Blue\",\n      \"hair_color\": \"Red/Blue\",\n      \"hair_style\": \"N/A\",\n      \"hair_length\": \"N/A\",\n      \"facial_hair\": \"N/A\",\n      \"muscle_tension\": \"Arms and body muscles appear tense from the pose\",\n      \"expression_primary\": \"Intense\",\n      \"expression_secondary\": \"Action-oriented\",\n      \"affect_valence\": 0.5,\n      \"affect_arousal\": 0.8,\n      \"confidence\": 0.9\n    }\n  ],\n  \"scene_affect\": {\n    \"valence\": 0.5,\n    \"arousal\": 0.8,\n    \"dominant_emotion\": \"Excitement\",\n    \"confidence\": 0.85\n  },\n  \"defects\": []\n}",
+            "payload": {
+                "scene_summary": "A comic book cover featuring Spider-Man in a dynamic pose amidst various comic book elements and text.",
+                "panel_layout": "single illustration",
+                "characters_present": [
+                    {
+                        "label": "Spider-Man",
+                        "role_in_frame": "midground",
+                        "pose": "dynamic, crouching/leaping pose with limbs spread",
+                        "action": "posing dramatically",
+                        "gaze_target": "viewer/camera"
+                    }
+                ],
+                "dialogue": [],
+                "on_image_text": [
+                    "MARVEL COMICS GROUP",
+                    "MARVEL TALES",
+                    "SPIDER-MAN",
+                    "BIG 100TH ISSUE!",
+                    "MARYLE TALES",
+                    "SPIDER-MAN",
+                    "SPIDEY BATTLES",
+                    "LUKES AGE POWERMAN",
+                    "PLUS AN ALL-NEW HAWKSYE AND TWO-GUN KID ADVENTURE! AND MUCH MORE!"
+                ],
+                "facial_features": [
+                    {
+                        "subject_label": "Spider-Man",
+                        "face_shape": "N/A",
+                        "jawline": "N/A",
+                        "cheekbones": "N/A",
+                        "brow_shape": "N/A",
+                        "brow_tension": "N/A",
+                        "eye_shape": "N/A",
+                        "eye_color": "N/A",
+                        "gaze_direction": "viewer/camera",
+                        "eyelid_openness": "N/A",
+                        "nose_shape": "N/A",
+                        "lip_shape": "N/A",
+                        "mouth_corners": "N/A",
+                        "skin_tone": "Red/Blue",
+                        "hair_color": "Red/Blue",
+                        "hair_style": "N/A",
+                        "hair_length": "N/A",
+                        "facial_hair": "N/A",
+                        "muscle_tension": "Arms and body muscles appear tense from the pose",
+                        "expression_primary": "Intense",
+                        "expression_secondary": "Action-oriented",
+                        "affect_valence": 0.5,
+                        "affect_arousal": 0.8,
+                        "confidence": 0.9
+                    }
+                ],
+                "scene_affect": {
+                    "valence": 0.5,
+                    "arousal": 0.8,
+                    "dominant_emotion": "Excitement",
+                    "confidence": 0.85
+                },
+                "defects": []
+            },
+            "measured_at": "2026-09-25T18:34:14+00:00"
+        },
+        {
+            "index": 3,
+            "path": "images/20260925_110536.jpg",
+            "filename": "20260925_110536.jpg",
+            "bytes": 3860481,
+            "content_sha256": "dbd17a2452d6140d329398a61030a9c0f2a2574e0a000bd92a190b9b48da28c9",
+            "dhash": "7c9c1a18dceca6a8",
+            "signature": "59344e555e635d6e8394c2e4cf9e852c49323f45586c65777d97c5dcca95803d54a6afb48f65637e9ad0d7dfc5c6a04a6dba9a7b72675977c3cabdb5ae81723577c1755e959d4f80cfb88a8090a5633971bd716abc7d50bfc8d39b68926b473c60b76f67886d4c73bd8f786d7067464a55b56c757f564c547441835b5b53515253b67073845a51516672c9a94872564f4bb6716f98674267666c719f7f5f3a464ebc6e63b59c6d5e997b5a70544c2a4264aa7275bfc5bb4b6c5a73694047474975b3a3b0b1b9c6777d415149436851494aa199435975b7547571777e7179573b63857557617aa07c97ac9f86766a58445b553b344e6758765856644d5e6b5c56",
+            "image": {
+                "filename": "20260925_110536.jpg",
+                "original_mime": "image/jpeg",
+                "width": 1400,
+                "height": 1050,
+                "prepared_bytes": 573368,
+                "was_scaled": true,
+                "original_sha256": "dbd17a2452d6140d329398a61030a9c0f2a2574e0a000bd92a190b9b48da28c9",
+                "prepared_sha256": "01c828c57f46d23cbce6f506de1a1279dbcceb37c6e5c95c4cf595430211a230"
+            },
+            "preparation_error": "",
+            "status": "complete",
+            "error": "",
+            "finish_reason": "stop",
+            "truncated": false,
+            "from_cache": false,
+            "cache_key": "8895426c2808019cf7e1b1ed6797e7ef7af920689b94ebb8861e67f65b448116",
+            "latency_ms": 15270.8,
+            "prompt_tokens": 1467,
+            "completion_tokens": 409,
+            "usage": {
+                "completion_tokens": 409,
+                "prompt_tokens": 1467,
+                "total_tokens": 1876,
+                "prompt_tokens_details": {
+                    "cached_tokens": 1462
+                },
+                "timings": {
+                    "cache_n": 1462,
+                    "prompt_n": 5,
+                    "prompt_ms": 446.118,
+                    "prompt_per_token_ms": 89.2236,
+                    "prompt_per_second": 11.207797040244959,
+                    "predicted_n": 409,
+                    "predicted_ms": 14724.626,
+                    "predicted_per_token_ms": 36.08976960784314,
+                    "predicted_per_second": 27.708683398817737
+                }
+            },
+            "api_model": "gemma-4-E2B-it-Q4_K_M.gguf",
+            "api_id": "chatcmpl-P5dYTt1vmUPAfLsYywwkG9eLB0GTtqmn",
+            "parse_strategy": "direct",
+            "parse_error": "",
+            "field_coverage": 0.8333,
+            "raw_response": "{\n  \"scene_summary\": \"A comic book cover featuring a dynamic, colorful, and chaotic depiction of a superhero in a cosmic setting.\",\n  \"panel_layout\": \"single illustration\",\n  \"characters_present\": [\n    {\n      \"label\": \"Strange/Doctor Strange\",\n      \"role_in_frame\": \"foreground\",\n      \"pose\": \"flying/leaping dynamically\",\n      \"action\": \"soaring through space\",\n      \"gaze_target\": \"off-frame\"\n    }\n  ],\n  \"dialogue\": [\n    {\n      \"speaker_label\": \"Text on cover\",\n      \"line\": \"DR. STRANGE\"\n    },\n    {\n      \"speaker_label\": \"Text on cover\",\n      \"line\": \"12¢ MAY\"\n    },\n    {\n      \"speaker_label\": \"Text on cover\",\n      \"line\": \"MARVEL COMICS GROUP\"\n    },\n    {\n      \"speaker_label\": \"Text on cover\",\n      \"line\": \"ETERNITY, ETERNITY!\"\n    }\n  ],\n  \"on_image_text\": [\n    \"STRANGE\",\n    \"DR. STRANGE\",\n    \"12¢ MAY\",\n    \"IND.\",\n    \"MARVEL\",\n    \"COMICS GROUP\",\n    \"DOCTOR STRANGE\",\n    \"12¢\",\n    \"MAY\",\n    \"ETERNITY, ETERNITY!\"\n  ],\n  \"facial_features\": [],\n  \"scene_affect\": {\n    \"valence\": 0.5,\n    \"arousal\": 0.8,\n    \"dominant_emotion\": \"excitement\",\n    \"confidence\": 0.9\n  },\n  \"defects\": [\n    \"text\"\n  ]\n}",
+            "payload": {
+                "scene_summary": "A comic book cover featuring a dynamic, colorful, and chaotic depiction of a superhero in a cosmic setting.",
+                "panel_layout": "single illustration",
+                "characters_present": [
+                    {
+                        "label": "Strange/Doctor Strange",
+                        "role_in_frame": "foreground",
+                        "pose": "flying/leaping dynamically",
+                        "action": "soaring through space",
+                        "gaze_target": "off-frame"
+                    }
+                ],
+                "dialogue": [
+                    {
+                        "speaker_label": "Text on cover",
+                        "line": "DR. STRANGE"
+                    },
+                    {
+                        "speaker_label": "Text on cover",
+                        "line": "12¢ MAY"
+                    },
+                    {
+                        "speaker_label": "Text on cover",
+                        "line": "MARVEL COMICS GROUP"
+                    },
+                    {
+                        "speaker_label": "Text on cover",
+                        "line": "ETERNITY, ETERNITY!"
+                    }
+                ],
+                "on_image_text": [
+                    "STRANGE",
+                    "DR. STRANGE",
+                    "12¢ MAY",
+                    "IND.",
+                    "MARVEL",
+                    "COMICS GROUP",
+                    "DOCTOR STRANGE",
+                    "12¢",
+                    "MAY",
+                    "ETERNITY, ETERNITY!"
+                ],
+                "facial_features": [],
+                "scene_affect": {
+                    "valence": 0.5,
+                    "arousal": 0.8,
+                    "dominant_emotion": "excitement",
+                    "confidence": 0.9
+                },
+                "defects": [
+                    "text"
+                ]
+            },
+            "measured_at": "2026-09-25T18:34:48+00:00"
+        }
+    ],
+    "statistics": {
+        "images": 4,
+        "status_counts": {
+            "complete": 4
+        },
+        "finish_reason_counts": {
+            "stop": 4
+        },
+        "parse_strategy_counts": {
+            "direct": 4
+        },
+        "truncated": 0,
+        "parse_success_rate": 1,
+        "latency_ms": {
+            "mean": 24252.63,
+            "median": 24485.65,
+            "p95": 32768.4
+        },
+        "prompt_tokens_mean": 1467,
+        "completion_tokens_mean": 662,
+        "field_coverage_mean": 0.92
+    }
+}

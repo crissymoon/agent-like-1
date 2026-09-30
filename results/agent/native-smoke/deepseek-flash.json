@@ -1,0 +1,414 @@
+{
+    "schema_version": "1",
+    "document": "agent-model-run",
+    "run": {
+        "run_id": "native-smoke",
+        "started_at": "2026-09-25T19:09:39+00:00",
+        "finished_at": "2026-09-25T19:10:29+00:00",
+        "duration_s": 50.07,
+        "tool_mode": "native",
+        "prompt_version": "1",
+        "prompt_sha256": "91a71499407c3c25d6e0910e7a16ca9a8781f9fe97f6a9f6e6515c4d5920f58a",
+        "step_budget_cap": 8,
+        "task_count": 2
+    },
+    "model": {
+        "label": "deepseek-flash",
+        "provenance": {
+            "engine": "openai-compatible chat completions",
+            "endpoint": "https://api.deepseek.com/v1/chat/completions",
+            "model_id": "deepseek-flash",
+            "tool_mode": "native",
+            "temperature": 0,
+            "top_p": 1,
+            "max_tokens": 768,
+            "request_extensions": {
+                "thinking": {
+                    "type": "disabled"
+                }
+            }
+        }
+    },
+    "aggregate": {
+        "tasks": 2,
+        "tasks_passed": 2,
+        "composite": 96,
+        "dimensions": {
+            "task_success": 1,
+            "protocol_compliance": 1,
+            "tool_validity": 1,
+            "error_recovery": 1,
+            "efficiency": 0.6
+        },
+        "error_recovery_applicable_tasks": 0,
+        "counters": {
+            "tool_calls": 5,
+            "successful_tool_calls": 5,
+            "invalid_actions": 0,
+            "unstructured_tool_calls": 0,
+            "unknown_tools": 0,
+            "invalid_args": 0,
+            "tool_errors": 0,
+            "redundant_calls": 0,
+            "repeated_failed_turns": 0,
+            "had_error": 0,
+            "recovered": 0
+        },
+        "steps_used": 3.5,
+        "budget_exhausted": 0,
+        "latency_ms_mean": 5265.25,
+        "latency_ms_median": 5265.25,
+        "latency_ms_p95": 6436.4,
+        "prompt_tokens": 8779,
+        "completion_tokens": 413,
+        "per_capability": {
+            "instruction_following": {
+                "tasks": 1,
+                "composite": 95,
+                "task_success": 1
+            },
+            "tool_query": {
+                "tasks": 1,
+                "composite": 97,
+                "task_success": 1
+            }
+        }
+    },
+    "tasks": {
+        "create_exact_file": {
+            "task_id": "create_exact_file",
+            "capability": "instruction_following",
+            "goal": "Create a file named release.txt in the workspace root. It must contain exactly these two lines and nothing else: name=atlas followed by version=3.",
+            "budget": 4,
+            "success": true,
+            "composite": 95,
+            "dimensions": {
+                "task_success": 1,
+                "protocol_compliance": 1,
+                "tool_validity": 1,
+                "error_recovery": 1,
+                "efficiency": 0.5
+            },
+            "recovery_applicable": false,
+            "checks_passed": 2,
+            "checks_total": 2,
+            "checks": [
+                {
+                    "name": "release.txt exists",
+                    "target": "check",
+                    "passed": true,
+                    "detail": ""
+                },
+                {
+                    "name": "the two lines match",
+                    "target": "check",
+                    "passed": true,
+                    "detail": "expected [\"name=atlas\",\"version=3\"], got [\"name=atlas\",\"version=3\"]"
+                }
+            ],
+            "steps_used": 4,
+            "budget_exhausted": false,
+            "finished": true,
+            "answer": "Created release.txt in the workspace root containing exactly two lines: \"name=atlas\" and \"version=3\".",
+            "counters": {
+                "tool_calls": 3,
+                "successful_tool_calls": 3,
+                "invalid_actions": 0,
+                "unstructured_tool_calls": 0,
+                "unknown_tools": 0,
+                "invalid_args": 0,
+                "tool_errors": 0,
+                "redundant_calls": 0,
+                "repeated_failed_turns": 0,
+                "had_error": 0,
+                "recovered": 0
+            },
+            "latency_ms_total": 6436.4,
+            "prompt_tokens": 5066,
+            "completion_tokens": 271,
+            "history_trimmed": false,
+            "final_inventory": [
+                {
+                    "path": "release.txt",
+                    "bytes": 21
+                }
+            ],
+            "turns": [
+                {
+                    "step": 1,
+                    "error": "",
+                    "latency_ms": 1744.1,
+                    "prompt_tokens": 1128,
+                    "completion_tokens": 72,
+                    "finish_reason": "tool_calls",
+                    "truncated": false,
+                    "raw_response": "I'll create the file with the exact content requested.",
+                    "actions": [
+                        {
+                            "kind": "tool",
+                            "tool": "write_file",
+                            "args": {
+                                "path": "release.txt",
+                                "content": "name=atlas\nversion=3\n"
+                            },
+                            "shape": "native",
+                            "strategy": "native",
+                            "error": ""
+                        }
+                    ],
+                    "observations": [
+                        {
+                            "tool": "write_file",
+                            "ok": true,
+                            "error_kind": "",
+                            "observation": "wrote 21 bytes to release.txt"
+                        }
+                    ],
+                    "kind": "tool"
+                },
+                {
+                    "step": 2,
+                    "error": "",
+                    "latency_ms": 1634,
+                    "prompt_tokens": 1220,
+                    "completion_tokens": 51,
+                    "finish_reason": "tool_calls",
+                    "truncated": false,
+                    "raw_response": "Let me verify the file contents are exactly as required.",
+                    "actions": [
+                        {
+                            "kind": "tool",
+                            "tool": "run_command",
+                            "args": {
+                                "command": "cat -A release.txt"
+                            },
+                            "shape": "native",
+                            "strategy": "native",
+                            "error": ""
+                        }
+                    ],
+                    "observations": [
+                        {
+                            "tool": "run_command",
+                            "ok": true,
+                            "error_kind": "",
+                            "observation": "exit code 1\nstderr:\ncat: illegal option -- A\nusage: cat [-belnstuv] [file ...]"
+                        }
+                    ],
+                    "kind": "tool"
+                },
+                {
+                    "step": 3,
+                    "error": "",
+                    "latency_ms": 1506.9,
+                    "prompt_tokens": 1311,
+                    "completion_tokens": 63,
+                    "finish_reason": "tool_calls",
+                    "truncated": false,
+                    "raw_response": "The `-A` flag isn't supported here; I'll verify with a different approach.",
+                    "actions": [
+                        {
+                            "kind": "tool",
+                            "tool": "run_command",
+                            "args": {
+                                "command": "wc -l release.txt && cat release.txt"
+                            },
+                            "shape": "native",
+                            "strategy": "native",
+                            "error": ""
+                        }
+                    ],
+                    "observations": [
+                        {
+                            "tool": "run_command",
+                            "ok": true,
+                            "error_kind": "",
+                            "observation": "exit code 0\nstdout:\n       2 release.txt\nname=atlas\nversion=3"
+                        }
+                    ],
+                    "kind": "tool"
+                },
+                {
+                    "step": 4,
+                    "error": "",
+                    "latency_ms": 1551.4,
+                    "prompt_tokens": 1407,
+                    "completion_tokens": 85,
+                    "finish_reason": "tool_calls",
+                    "truncated": false,
+                    "raw_response": "The file is verified: exactly 2 lines, `name=atlas` and `version=3`, with nothing else.",
+                    "actions": [],
+                    "observations": [],
+                    "kind": "finish",
+                    "finish_shape": "native"
+                }
+            ]
+        },
+        "count_by_extension": {
+            "task_id": "count_by_extension",
+            "capability": "tool_query",
+            "goal": "In the data directory there are several files. Work out how many of them end with the .log extension, and write that number and nothing else into count.txt in the workspace root.",
+            "budget": 5,
+            "success": true,
+            "composite": 97,
+            "dimensions": {
+                "task_success": 1,
+                "protocol_compliance": 1,
+                "tool_validity": 1,
+                "error_recovery": 1,
+                "efficiency": 0.7
+            },
+            "recovery_applicable": false,
+            "checks_passed": 2,
+            "checks_total": 2,
+            "checks": [
+                {
+                    "name": "count.txt exists",
+                    "target": "check",
+                    "passed": true,
+                    "detail": ""
+                },
+                {
+                    "name": "count is 4",
+                    "target": "check",
+                    "passed": true,
+                    "detail": "read \"4\""
+                }
+            ],
+            "steps_used": 3,
+            "budget_exhausted": false,
+            "finished": true,
+            "answer": "4",
+            "counters": {
+                "tool_calls": 2,
+                "successful_tool_calls": 2,
+                "invalid_actions": 0,
+                "unstructured_tool_calls": 0,
+                "unknown_tools": 0,
+                "invalid_args": 0,
+                "tool_errors": 0,
+                "redundant_calls": 0,
+                "repeated_failed_turns": 0,
+                "had_error": 0,
+                "recovered": 0
+            },
+            "latency_ms_total": 4094.1,
+            "prompt_tokens": 3713,
+            "completion_tokens": 142,
+            "history_trimmed": false,
+            "final_inventory": [
+                {
+                    "path": "count.txt",
+                    "bytes": 1
+                },
+                {
+                    "path": "data/app.log",
+                    "bytes": 11
+                },
+                {
+                    "path": "data/config.json",
+                    "bytes": 3
+                },
+                {
+                    "path": "data/db.log",
+                    "bytes": 6
+                },
+                {
+                    "path": "data/notes.txt",
+                    "bytes": 10
+                },
+                {
+                    "path": "data/readme.txt",
+                    "bytes": 14
+                },
+                {
+                    "path": "data/worker-a.log",
+                    "bytes": 5
+                },
+                {
+                    "path": "data/worker-b.log",
+                    "bytes": 5
+                }
+            ],
+            "turns": [
+                {
+                    "step": 1,
+                    "error": "",
+                    "latency_ms": 1338.5,
+                    "prompt_tokens": 1133,
+                    "completion_tokens": 45,
+                    "finish_reason": "tool_calls",
+                    "truncated": false,
+                    "raw_response": "I'll look at the data directory first.",
+                    "actions": [
+                        {
+                            "kind": "tool",
+                            "tool": "list_files",
+                            "args": {
+                                "path": "data"
+                            },
+                            "shape": "native",
+                            "strategy": "native",
+                            "error": ""
+                        }
+                    ],
+                    "observations": [
+                        {
+                            "tool": "list_files",
+                            "ok": true,
+                            "error_kind": "",
+                            "observation": "7 file(s):\ndata/app.log (11 bytes)\ndata/config.json (3 bytes)\ndata/db.log (6 bytes)\ndata/notes.txt (10 bytes)\ndata/readme.txt (14 bytes)\ndata/worker-a.log (5 bytes)\ndata/worker-b.log (5 bytes)"
+                        }
+                    ],
+                    "kind": "tool"
+                },
+                {
+                    "step": 2,
+                    "error": "",
+                    "latency_ms": 1432.5,
+                    "prompt_tokens": 1250,
+                    "completion_tokens": 60,
+                    "finish_reason": "tool_calls",
+                    "truncated": false,
+                    "raw_response": "Four files end with `.log`.",
+                    "actions": [
+                        {
+                            "kind": "tool",
+                            "tool": "write_file",
+                            "args": {
+                                "path": "count.txt",
+                                "content": "4"
+                            },
+                            "shape": "native",
+                            "strategy": "native",
+                            "error": ""
+                        }
+                    ],
+                    "observations": [
+                        {
+                            "tool": "write_file",
+                            "ok": true,
+                            "error_kind": "",
+                            "observation": "wrote 1 bytes to count.txt"
+                        }
+                    ],
+                    "kind": "tool"
+                },
+                {
+                    "step": 3,
+                    "error": "",
+                    "latency_ms": 1323.1,
+                    "prompt_tokens": 1330,
+                    "completion_tokens": 37,
+                    "finish_reason": "tool_calls",
+                    "truncated": false,
+                    "raw_response": "",
+                    "actions": [],
+                    "observations": [],
+                    "kind": "finish",
+                    "finish_shape": "native"
+                }
+            ]
+        }
+    }
+}

@@ -1,0 +1,7 @@
+# Only the image definition and its two scripts are needed to build the server
+# image. Keeping the build context to these three files means the 4 GB of model
+# weights that sit beside this directory are never sent to the daemon.
+**
+!Dockerfile.server
+!entrypoint-server.sh
+!engine-record.sh

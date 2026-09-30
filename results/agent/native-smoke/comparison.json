@@ -1,0 +1,287 @@
+{
+    "schema_version": "1",
+    "document": "agent-comparison",
+    "run": {
+        "run_id": "native-smoke",
+        "started_at": "2026-09-25T19:09:39+00:00",
+        "finished_at": "2026-09-25T19:10:29+00:00",
+        "duration_s": 50.07,
+        "tool_mode": "native",
+        "prompt_version": "1",
+        "prompt_sha256": "91a71499407c3c25d6e0910e7a16ca9a8781f9fe97f6a9f6e6515c4d5920f58a",
+        "step_budget_cap": 8,
+        "task_count": 2
+    },
+    "models": [
+        "gemma-4-E2B-it-Q4_K_M",
+        "deepseek-flash"
+    ],
+    "aggregate": {
+        "gemma-4-E2B-it-Q4_K_M": {
+            "tasks": 2,
+            "tasks_passed": 1,
+            "composite": 51,
+            "dimensions": {
+                "task_success": 0.5,
+                "protocol_compliance": 0.5,
+                "tool_validity": 0.5,
+                "error_recovery": 0,
+                "efficiency": 0.6
+            },
+            "error_recovery_applicable_tasks": 1,
+            "counters": {
+                "tool_calls": 2,
+                "successful_tool_calls": 2,
+                "invalid_actions": 4,
+                "unstructured_tool_calls": 4,
+                "unknown_tools": 0,
+                "invalid_args": 0,
+                "tool_errors": 0,
+                "redundant_calls": 0,
+                "repeated_failed_turns": 2,
+                "had_error": 1,
+                "recovered": 0
+            },
+            "steps_used": 3.5,
+            "budget_exhausted": 1,
+            "latency_ms_mean": 19692.6,
+            "latency_ms_median": 19692.6,
+            "latency_ms_p95": 21176.5,
+            "prompt_tokens": 6573,
+            "completion_tokens": 188,
+            "per_capability": {
+                "instruction_following": {
+                    "tasks": 1,
+                    "composite": 5,
+                    "task_success": 0
+                },
+                "tool_query": {
+                    "tasks": 1,
+                    "composite": 97,
+                    "task_success": 1
+                }
+            }
+        },
+        "deepseek-flash": {
+            "tasks": 2,
+            "tasks_passed": 2,
+            "composite": 96,
+            "dimensions": {
+                "task_success": 1,
+                "protocol_compliance": 1,
+                "tool_validity": 1,
+                "error_recovery": 1,
+                "efficiency": 0.6
+            },
+            "error_recovery_applicable_tasks": 0,
+            "counters": {
+                "tool_calls": 5,
+                "successful_tool_calls": 5,
+                "invalid_actions": 0,
+                "unstructured_tool_calls": 0,
+                "unknown_tools": 0,
+                "invalid_args": 0,
+                "tool_errors": 0,
+                "redundant_calls": 0,
+                "repeated_failed_turns": 0,
+                "had_error": 0,
+                "recovered": 0
+            },
+            "steps_used": 3.5,
+            "budget_exhausted": 0,
+            "latency_ms_mean": 5265.25,
+            "latency_ms_median": 5265.25,
+            "latency_ms_p95": 6436.4,
+            "prompt_tokens": 8779,
+            "completion_tokens": 413,
+            "per_capability": {
+                "instruction_following": {
+                    "tasks": 1,
+                    "composite": 95,
+                    "task_success": 1
+                },
+                "tool_query": {
+                    "tasks": 1,
+                    "composite": 97,
+                    "task_success": 1
+                }
+            }
+        }
+    },
+    "pairing": [
+        {
+            "task_id": "create_exact_file",
+            "capability": "instruction_following",
+            "goal": "Create a file named release.txt in the workspace root. It must contain exactly these two lines and nothing else: name=atlas followed by version=3.",
+            "models": {
+                "gemma-4-E2B-it-Q4_K_M": {
+                    "success": false,
+                    "composite": 5,
+                    "dimensions": {
+                        "task_success": 0,
+                        "protocol_compliance": 0,
+                        "tool_validity": 0,
+                        "error_recovery": 0,
+                        "efficiency": 0.5
+                    },
+                    "steps_used": 4,
+                    "checks": [
+                        {
+                            "name": "release.txt exists",
+                            "target": "check",
+                            "passed": false,
+                            "detail": ""
+                        },
+                        {
+                            "name": "the two lines match",
+                            "target": "check",
+                            "passed": false,
+                            "detail": "expected [\"name=atlas\",\"version=3\"], got [\"\"]"
+                        }
+                    ]
+                },
+                "deepseek-flash": {
+                    "success": true,
+                    "composite": 95,
+                    "dimensions": {
+                        "task_success": 1,
+                        "protocol_compliance": 1,
+                        "tool_validity": 1,
+                        "error_recovery": 1,
+                        "efficiency": 0.5
+                    },
+                    "steps_used": 4,
+                    "checks": [
+                        {
+                            "name": "release.txt exists",
+                            "target": "check",
+                            "passed": true,
+                            "detail": ""
+                        },
+                        {
+                            "name": "the two lines match",
+                            "target": "check",
+                            "passed": true,
+                            "detail": "expected [\"name=atlas\",\"version=3\"], got [\"name=atlas\",\"version=3\"]"
+                        }
+                    ]
+                }
+            },
+            "agreement": {
+                "both_passed": false,
+                "both_failed": false,
+                "composite_delta_last_minus_first": 90
+            }
+        },
+        {
+            "task_id": "count_by_extension",
+            "capability": "tool_query",
+            "goal": "In the data directory there are several files. Work out how many of them end with the .log extension, and write that number and nothing else into count.txt in the workspace root.",
+            "models": {
+                "gemma-4-E2B-it-Q4_K_M": {
+                    "success": true,
+                    "composite": 97,
+                    "dimensions": {
+                        "task_success": 1,
+                        "protocol_compliance": 1,
+                        "tool_validity": 1,
+                        "error_recovery": 1,
+                        "efficiency": 0.7
+                    },
+                    "steps_used": 3,
+                    "checks": [
+                        {
+                            "name": "count.txt exists",
+                            "target": "check",
+                            "passed": true,
+                            "detail": ""
+                        },
+                        {
+                            "name": "count is 4",
+                            "target": "check",
+                            "passed": true,
+                            "detail": "read \"4\""
+                        }
+                    ]
+                },
+                "deepseek-flash": {
+                    "success": true,
+                    "composite": 97,
+                    "dimensions": {
+                        "task_success": 1,
+                        "protocol_compliance": 1,
+                        "tool_validity": 1,
+                        "error_recovery": 1,
+                        "efficiency": 0.7
+                    },
+                    "steps_used": 3,
+                    "checks": [
+                        {
+                            "name": "count.txt exists",
+                            "target": "check",
+                            "passed": true,
+                            "detail": ""
+                        },
+                        {
+                            "name": "count is 4",
+                            "target": "check",
+                            "passed": true,
+                            "detail": "read \"4\""
+                        }
+                    ]
+                }
+            },
+            "agreement": {
+                "both_passed": true,
+                "both_failed": false,
+                "composite_delta_last_minus_first": 0
+            }
+        }
+    ],
+    "summary": {
+        "composite": {
+            "gemma-4-E2B-it-Q4_K_M": 51,
+            "deepseek-flash": 96,
+            "gap": 45
+        },
+        "dimensions": {
+            "task_success": {
+                "gemma-4-E2B-it-Q4_K_M": 0.5,
+                "deepseek-flash": 1,
+                "gap": 0.5
+            },
+            "protocol_compliance": {
+                "gemma-4-E2B-it-Q4_K_M": 0.5,
+                "deepseek-flash": 1,
+                "gap": 0.5
+            },
+            "tool_validity": {
+                "gemma-4-E2B-it-Q4_K_M": 0.5,
+                "deepseek-flash": 1,
+                "gap": 0.5
+            },
+            "error_recovery": {
+                "gemma-4-E2B-it-Q4_K_M": 0,
+                "deepseek-flash": 1,
+                "gap": 1
+            },
+            "efficiency": {
+                "gemma-4-E2B-it-Q4_K_M": 0.6,
+                "deepseek-flash": 0.6,
+                "gap": 0
+            }
+        },
+        "error_recovery_basis_tasks": {
+            "gemma-4-E2B-it-Q4_K_M": 1,
+            "deepseek-flash": 0
+        },
+        "tasks_passed": {
+            "gemma-4-E2B-it-Q4_K_M": "1/2",
+            "deepseek-flash": "2/2"
+        },
+        "latency_ms_mean": {
+            "gemma-4-E2B-it-Q4_K_M": 19692.6,
+            "deepseek-flash": 5265.25
+        }
+    }
+}

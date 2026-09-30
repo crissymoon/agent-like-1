@@ -1,0 +1,153 @@
+{
+    "schema_version": "1",
+    "document": "agent-manifest",
+    "run": {
+        "run_id": "guarded",
+        "started_at": "2026-09-29T22:05:29+00:00",
+        "finished_at": "2026-09-29T22:06:45+00:00",
+        "duration_s": 75.8,
+        "tool_mode": "prompt",
+        "prompt_version": "1",
+        "prompt_sha256": "1e504afdcff681520d3aee058c80d2ff73216b8a0f17e6da5ca17b9e810b8bd4",
+        "step_budget_cap": 8,
+        "task_count": 6,
+        "controls": {
+            "loop_guard": true,
+            "guard_repeat_limit": 2,
+            "guard_rule": "an identical call is refused once it has already failed 2 time(s); repeat limit 2 refuses the third",
+            "strict_schema": true,
+            "sandbox_policy": "documented",
+            "allowed_binaries": [
+                "ls",
+                "cat",
+                "grep",
+                "wc",
+                "sort",
+                "find",
+                "head",
+                "tail",
+                "rm",
+                "mv",
+                "cp",
+                "mkdir"
+            ],
+            "command_arguments_inspected": true,
+            "decoder": {
+                "mode": "none",
+                "scope": "local",
+                "field": "",
+                "action_schema_sha256": "fb02911a9fb8b108185b4ab2be4aa7aa3104178d6159f3e6f8d3d4dbd921707d",
+                "note": "No engine-side constraint was sent. A malformed object reaches the harness and is refused there."
+            }
+        }
+    },
+    "conditions": {
+        "temperature": 0,
+        "top_p": 1,
+        "seed": 0,
+        "max_tokens_per_turn": 768,
+        "step_budget_cap": 8,
+        "max_observation_chars": 3000,
+        "command_timeout_s": 10,
+        "history_turns": 12,
+        "workspace_root": "/work"
+    },
+    "controls": {
+        "loop_guard": true,
+        "guard_repeat_limit": 2,
+        "guard_rule": "an identical call is refused once it has already failed 2 time(s); repeat limit 2 refuses the third",
+        "strict_schema": true,
+        "sandbox_policy": "documented",
+        "allowed_binaries": [
+            "ls",
+            "cat",
+            "grep",
+            "wc",
+            "sort",
+            "find",
+            "head",
+            "tail",
+            "rm",
+            "mv",
+            "cp",
+            "mkdir"
+        ],
+        "command_arguments_inspected": true,
+        "decoder": {
+            "mode": "none",
+            "scope": "local",
+            "field": "",
+            "action_schema_sha256": "fb02911a9fb8b108185b4ab2be4aa7aa3104178d6159f3e6f8d3d4dbd921707d",
+            "note": "No engine-side constraint was sent. A malformed object reaches the harness and is refused there."
+        }
+    },
+    "tool_specs_sha256": "f814263b42bebb4941805e83acb8a87f53469d5004be08ff2c1c088ac3239dba",
+    "tools": [
+        "list_files",
+        "read_file",
+        "write_file",
+        "append_file",
+        "delete_file",
+        "make_directory",
+        "search_files",
+        "run_command",
+        "finish"
+    ],
+    "tasks": [
+        {
+            "id": "create_exact_file",
+            "capability": "instruction_following",
+            "goal": "Create a file named release.txt in the workspace root. It must contain exactly these two lines and nothing else: name=atlas followed by version=3.",
+            "budget": 4
+        },
+        {
+            "id": "count_by_extension",
+            "capability": "tool_query",
+            "goal": "In the data directory there are several files. Work out how many of them end with the .log extension, and write that number and nothing else into count.txt in the workspace root.",
+            "budget": 5
+        },
+        {
+            "id": "sum_two_files",
+            "capability": "multi_step_composition",
+            "goal": "The files a.txt and b.txt each hold a single whole number. Add the two numbers together and write the result and nothing else into total.txt in the workspace root.",
+            "budget": 6
+        },
+        {
+            "id": "recover_misnamed_file",
+            "capability": "error_recovery",
+            "goal": "The service settings are saved in a file in the workspace root under a name that ends in .yml or .yaml, but I may be remembering the extension wrongly. Find that settings file and write a copy of its full contents into output.txt in the workspace root.",
+            "budget": 7
+        },
+        {
+            "id": "extract_field_map",
+            "capability": "structured_output",
+            "goal": "Read notes.txt in the workspace root. Every line that contains a colon is a key and a whole number separated by that colon. Lines starting with a hash, and blank lines, are comments. Write a single JSON object to parsed.json in the workspace root that maps every key to its number as an integer.",
+            "budget": 7
+        },
+        {
+            "id": "prune_by_extension",
+            "capability": "conditional_action",
+            "goal": "The workspace root holds a mix of files. Delete every file whose name ends with .tmp. Leave every other file exactly as it is.",
+            "budget": 6
+        }
+    ],
+    "models": {
+        "gemma-4-E2B-it-Q4_K_M": {
+            "engine": "openai-compatible chat completions",
+            "endpoint": "http://gemma:8080/v1/chat/completions",
+            "model_id": "gemma-4-E2B-it-Q4_K_M",
+            "tool_mode": "prompt",
+            "temperature": 0,
+            "top_p": 1,
+            "max_tokens": 768,
+            "request_extensions": {
+                "chat_template_kwargs": {
+                    "enable_thinking": false
+                }
+            }
+        }
+    },
+    "files": {
+        "gemma-4-E2B-it-Q4_K_M": "gemma-4-E2B-it-Q4_K_M.json"
+    }
+}

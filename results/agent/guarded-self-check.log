@@ -1,0 +1,125 @@
+ok   schema has one branch per layout per tool plus the finish form
+ok   schema carries the canonical layout of list_files
+ok   schema carries the named layout of list_files
+ok   schema carries the flattened layout of list_files
+ok   schema carries the canonical layout of read_file
+ok   schema carries the named layout of read_file
+ok   schema carries the flattened layout of read_file
+ok   schema carries the canonical layout of write_file
+ok   schema carries the named layout of write_file
+ok   schema carries the flattened layout of write_file
+ok   schema carries the canonical layout of append_file
+ok   schema carries the named layout of append_file
+ok   schema carries the flattened layout of append_file
+ok   schema carries the canonical layout of delete_file
+ok   schema carries the named layout of delete_file
+ok   schema carries the flattened layout of delete_file
+ok   schema carries the canonical layout of make_directory
+ok   schema carries the named layout of make_directory
+ok   schema carries the flattened layout of make_directory
+ok   schema carries the canonical layout of search_files
+ok   schema carries the named layout of search_files
+ok   schema carries the flattened layout of search_files
+ok   schema carries the canonical layout of run_command
+ok   schema carries the named layout of run_command
+ok   schema carries the flattened layout of run_command
+ok   schema carries the finish form
+ok   grammar names list_files
+ok   grammar names read_file
+ok   grammar names write_file
+ok   grammar names append_file
+ok   grammar names delete_file
+ok   grammar names make_directory
+ok   grammar names search_files
+ok   grammar names run_command
+ok   grammar carries the finish rule
+ok   grammar permits the flattened layout
+ok   grammar hash is stable
+ok   example names the required argument
+ok   example uses the tool form
+ok   validator accepts the canonical layout
+ok   validator accepts the named layout
+ok   validator accepts the flattened layout
+ok   validator accepts a tool whose arguments are all optional
+ok   validator accepts a tool named in both action and tool
+ok   validator accepts the finish form
+ok   validator accepts a native call
+ok   validator refuses an unknown tool
+ok   validator refuses a missing required argument
+ok   validator refuses an argument the tool does not take
+ok   validator refuses a non-string argument
+ok   validator refuses a turn that is not an object
+ok   validator refuses a turn that names no action
+ok   validator refuses arguments named twice
+ok   validator refuses two different tools in one turn
+ok   guard tries an unseen call
+ok   guard tries the second identical call
+ok   guard tries the third identical call
+ok   guard refuses the fourth identical call
+ok   guard counts the failures it saw
+ok   guard refusal counts an intervention
+ok   guard refusal names the tool
+ok   guard refusal states the accepted shape
+ok   guard refusal states the finish form
+ok   guard refusal states the turns left
+ok   guard refusal tells the model to change approach
+ok   guard refusal carries the example
+ok   guard counts the first failed turn
+ok   guard counts the second failed turn
+ok   guard counts the third failed turn
+ok   guard does not interrupt before the limit
+ok   guard interrupts after the limit
+ok   guard counts a different turn separately
+ok   guard interruption states the repeat
+ok   documented policy runs: ls .
+ok   documented policy runs: cat data/app.log
+ok   documented policy runs: grep -c error app.log
+ok   documented policy runs: wc -l data/app.log
+ok   documented policy runs: sort -o out.txt in.txt
+ok   documented policy runs: find . -name "*.tmp"
+ok   documented policy runs: rm -rf data
+ok   documented policy runs: A=1 wc -l data/app.log
+ok   documented policy runs: grep error app.log | wc -l
+ok   documented policy runs: wc -l data/app.log > counted.txt
+ok   documented policy runs: find data -name "*.log" | wc -l > count.txt
+ok   documented policy runs: cat notes.txt>>notes.txt
+ok   documented policy refuses: awk 'BEGIN{system("id")}'
+ok   documented policy refuses: sed -e 'e id' data/app.log
+ok   documented policy refuses: find . -exec rm {} ;
+ok   documented policy refuses: sort --compress-program=sh in.txt
+ok   documented policy refuses: sort -T . in.txt
+ok   documented policy refuses: echo hi > /tmp/escape
+ok   documented policy refuses: cat /etc/passwd
+ok   documented policy refuses: wc -l ../../etc/passwd
+ok   documented policy refuses: wc -l $(cat app.log)
+ok   documented policy refuses: sh -c id
+ok   documented policy refuses: python3 -c pass
+ok   documented policy refuses: perl -e print
+ok   documented policy refuses: npm install
+ok   documented policy refuses: wc -l a.txt>../escape.txt
+ok   documented policy refuses: wc -l a.txt>>../../escape.txt
+ok   documented policy refuses: cat a.txt>/dev/null
+ok   documented policy refuses: cat</etc/passwd
+ok   documented policy refuses: grep -c error app.log 2>&1
+ok   documented policy refuses: cat $HOME/.netrc
+ok   documented policy refuses: ls ~/
+ok   documented policy refuses: cat ${HOME}/.netrc
+ok   documented policy refuses: wc -l `cat app.log`
+ok   documented policy refuses: wc -l <<EOF
+lines
+EOF
+ok   documented policy refuses find -exec but keeps find -delete
+ok   no command reaches a path outside the workspace root
+ok   a redirection inside the workspace still runs
+ok   legacy policy runs awk
+ok   legacy policy runs sed
+ok   both policies refuse a network client
+ok   the CSV carries guard_refusals
+ok   the CSV carries guard_interventions
+ok   the CSV carries schema_rejections
+ok   controls describe the guard
+ok   controls describe the decoder
+ok   a grammar constraint carries the grammar
+ok   the decoder applies to the local engine only by default
+ok   the schema dialect carries a response format
+PASS: 122 check(s), 0 failed

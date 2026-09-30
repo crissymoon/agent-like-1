@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'" />
+    <title>Agent-Like</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="rail" id="rail">
+        <div class="rail-brand">
+          <span class="mark mark-transform"></span>
+          <div>
+            <h1>Agent-Like</h1>
+            <p class="muted" id="brand-runtime">runtime</p>
+          </div>
+        </div>
+        <nav class="nav" id="nav" aria-label="Screens"></nav>
+        <div class="rail-foot">
+          <div class="status" id="engine-status">
+            <span class="dot dot-wait"></span>
+            <span id="engine-label">engine unknown</span>
+          </div>
+          <button class="button button-quiet" id="self-check">Run harness check</button>
+          <pre class="log" id="harness-log" aria-live="polite"></pre>
+        </div>
+      </aside>
+
+      <main class="stage" id="stage">
+        <header class="topbar">
+          <div>
+            <p class="crumb" id="crumb">workspace</p>
+            <h2 id="title">Workspace</h2>
+          </div>
+          <div class="topbar-actions" id="actions"></div>
+        </header>
+
+        <section class="stage-body" id="screen"></section>
+
+        <footer class="counterstrip" id="counterstrip" aria-label="Counters"></footer>
+      </main>
+    </div>
+
+    <script src="dom.js"></script>
+    <script src="format.js"></script>
+    <script src="store.js"></script>
+    <script src="views/workspace.js"></script>
+    <script src="views/run.js"></script>
+    <script src="views/result.js"></script>
+    <script src="views/settings.js"></script>
+    <script src="views/history.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
