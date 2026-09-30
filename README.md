@@ -16,6 +16,8 @@ A harness for measuring what a small local language model can actually finish. I
 | desktop/ | The Electron view over a run directory; it drives the same harness, never a copy. |
 | tools/ | Portable tooling: the benchmark that runs on both sides, the kernel builder, this builder. |
 | results/ | What each run left behind. Evidence, committed, so a claim has a file behind it. |
+| local-benchmarking.md | The ladder: what a rung is, what decides it, and what a result does not claim. |
+| LICENSE | The terms the work is offered under, and the holder it belongs to. |
 
 ## How a run works
 
@@ -155,6 +157,48 @@ python3 tools/build_readme.py --check
 The harness never reaches the network on its own. A run that needs the hosted reference model reads its credential from the environment, which is the only place a credential is expected to be, and the scanner refuses a commit that puts one in a file instead.
 
 The same check refuses two more things. It refuses a directory that exists only for local work, and it refuses a machine path, because a recorded run that carries the checkout location also carries the account name and whatever sits beside it. A path is written into a record in the form a reader elsewhere can use: relative to this repository, or under a home or temporary marker. `lib/PathRecord.php` is that rule for the writers, `tools/normalize_paths.py` applies the same rule to records written before it existed, and the check keeps it from coming back.
+
+## Distribution
+
+Everything else in this repository is source. `Agent-Like` is the one artefact that leaves as a binary, and a binary handed to somebody else is refused by their machine unless it was signed and notarized. Both are declared in `desktop/package.json` beside the application they belong to, so the version, the identifier and the way it is signed move in one commit.
+
+| field | value |
+|---|---|
+| identifier | com.crissymoon.agent-like |
+| product | Agent-Like 0.1.0 |
+| hardened runtime | on |
+| minimum system version | 11.0 |
+| entitlements | `build/entitlements.mac.plist` (4 entries), `build/entitlements.mac.inherit.plist` (4 entries) |
+| notarization hook | `build/notarize.js` |
+| output | `desktop/dist/`, held out of version control |
+
+The hardened runtime is what makes the entitlements apply at all: without it a signed bundle runs with the permissions of a debug build. The entries are the runtime's own requirements rather than a list grown until a build stopped complaining, and there are two files because a helper process does not inherit the entitlements of the application that started it. A helper without them is killed at load time on every machine except the one that built it, which is the failure that reaches a user and not a build log.
+
+The hook holds no credential. Every value it uses is read from the environment, from `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID`, `APPLE_API_KEY`, `APPLE_API_KEY_ID`, `APPLE_API_ISSUER`, so this checkout can be read by anybody and the secret stays in a keychain or in the shell that started the build. Setting `AGENT_LIKE_RELEASE` to `1` turns a missing credential from a line in the build log into a stopped build, which is what separates a local build from a release.
+
+```bash
+cd desktop && npm install          # restore the pinned build tooling
+npm run dist:mac                   # sign, then notarize and staple through the hook
+npm run verify                     # read the signature back out of the bundle
+AGENT_LIKE_RELEASE=1 npm run release   # the same, and a missing credential stops it
+```
+
+The configuration states what a build was asked to do, so it is not evidence that a build did it. `desktop/verify-signature.js` reads four properties back from the finished bundle: whether the signature verifies, whether it was made under the hardened runtime with a Developer ID certificate rather than an ad hoc one, whether Gatekeeper accepts the bundle, and whether the notarization ticket is stapled to it. A bundle can pass the first three and fail the last, and that bundle opens on the machine that built it and nowhere else, which is why they are four findings and not one.
+
+## License
+
+The work is offered under Apache-2.0, and the file that carries the terms is `LICENSE`. The desktop application declares the same identifier in its own manifest, so a consumer of the source and a consumer of the binary are told the same thing by the file they are reading.
+
+| field | value |
+|---|---|
+| identifier | Apache-2.0 |
+| holder | Crissy Deutsch (Crissy Moon) |
+| license file | `LICENSE`, 201 lines |
+| author in the desktop manifest | Crissy Deutsch (Crissy Moon) |
+
+The copyright line the license file carries names Crissy Deutsch (Crissy Moon), which is the same holder the desktop manifest records as the author. `lib/DistributionCheck.php` reads both and fails the self-check when they stop agreeing, because a license naming one party while the package declares another is a license a consumer cannot act on.
+
+The identifier above is read from the manifest rather than kept in a list in this builder, so the license this project is under is stated once, in the file that ships with the application.
 
 ## What is not in this repository
 

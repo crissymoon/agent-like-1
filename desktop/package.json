@@ -4,12 +4,80 @@
   "version": "0.1.0",
   "private": true,
   "description": "The interface for the Agent-Like harness: one event stream, five screens, no page refresh.",
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Crissy Deutsch (Crissy Moon)"
+  },
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "selftest": "node selftest.js"
+    "selftest": "node selftest.js",
+    "dist": "electron-builder --publish never",
+    "dist:mac": "electron-builder --mac --publish never",
+    "verify": "node verify-signature.js",
+    "release": "npm run dist:mac && npm run verify"
   },
   "devDependencies": {
-    "electron": "44.5.0"
+    "@electron/notarize": "^2.5.0",
+    "electron": "44.5.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.crissymoon.agent-like",
+    "productName": "Agent-Like",
+    "copyright": "Copyright 2026 Crissy Deutsch (Crissy Moon)",
+    "asar": true,
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "lib/**/*",
+      "renderer/**/*",
+      "package.json"
+    ],
+    "afterSign": "build/notarize.js",
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "notarize": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.inherit.plist",
+      "minimumSystemVersion": "11.0",
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "dmg": {
+      "sign": true
+    },
+    "linux": {
+      "category": "Development",
+      "target": [
+        "AppImage"
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    }
   }
 }

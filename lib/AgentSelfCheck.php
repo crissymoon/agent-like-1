@@ -29,7 +29,14 @@ declare(strict_types=1);
  *   - when it is run inside the harness container, the container boundary holds
  *     as well: the source it is executing is not writable, the results directory
  *     is, the root filesystem is read only, no socket or weight file is reachable
- *     and the effective capability set is empty.
+ *     and the effective capability set is empty;
+ *   - the release claims are files rather than promises: the license file is
+ *     present, it is the license the desktop manifest declares, it names the
+ *     holder the manifest names, the signing configuration declares a hardened
+ *     runtime and two entitlements files that exist and carry every entry the
+ *     pinned runtime needs, the notarization hook holds no literal credential,
+ *     and the ignore file keeps signing material out of the tree. None of that
+ *     needs a certificate to check, which is why it is checked on every run.
  *
  * It runs inside the harness container against nothing but its own files, which
  * is what makes it usable as the last step before a run: `php agent.php
@@ -61,6 +68,7 @@ final class AgentSelfCheck
         $this->benchmarkChecks($out);
         $this->streamChecks($out);
         $this->pathChecks($out);
+        $this->distributionChecks($out);
 
         $out(sprintf(
             '%s: %d check(s), %d failed',
@@ -927,6 +935,23 @@ final class AgentSelfCheck
             && $tree['artifacts']['transcript'] === '<tmp>/gemma-agent-workspace/events.ndjson'
             && $tree['count'] === 3
         );
+    }
+
+    /**
+     * What this repository claims about what it hands out.
+     *
+     * The license, the signing configuration and the signing material are three
+     * separate statements, and each of them is a file that can be read without a
+     * certificate, a keychain or a build. The reading lives in
+     * `lib/DistributionCheck.php`; this runs it, on the host and inside the
+     * container, because both run the same bind mounted tree and a defect in any
+     * of the three should stop the self-check either way.
+     */
+    private function distributionChecks(callable $out): void
+    {
+        foreach (DistributionCheck::checks() as $check) {
+            $this->expect($out, 'release: ' . $check['name'], $check['ok'], $check['detail']);
+        }
     }
 
     private static function scratch(string $name): string

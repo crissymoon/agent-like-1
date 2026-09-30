@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Entitlements inherited by the helper processes the application starts.
+
+  Electron runs each renderer, each GPU process and each utility process as a
+  separate executable inside the same bundle. A child does not receive the
+  parent's entitlements: it receives the ones named here, and it is signed with
+  this file rather than the one above. A child that lacks allow-jit cannot run
+  the engine, and a child that lacks disable-library-validation is killed at
+  load time, which is why this file carries the same four entries as
+  `entitlements.mac.plist`.
+
+  The file is a copy on purpose rather than a reference. It is the list a
+  signature was made from, and the check in `lib/DistributionCheck.php` reads
+  both files and refuses a build where the two have drifted apart.
+-->
+<plist version="1.0">
+<dict>
+	<key>com.apple.security.cs.allow-jit</key>
+	<true/>
+	<key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+	<true/>
+	<key>com.apple.security.cs.allow-dyld-environment-variables</key>
+	<true/>
+	<key>com.apple.security.cs.disable-library-validation</key>
+	<true/>
+</dict>
+</plist>

@@ -63,6 +63,26 @@ desktop/dist/
 desktop/release/
 desktop/out/
 
+# ---------------------------------------------------------------------------
+# Signing material. A Developer ID certificate is a private key with a public
+# half: it is what makes a download openable on somebody else's machine, and it
+# is also what lets whoever holds it publish an update under this identity. It
+# belongs in a keychain and in an environment variable, never in a checkout.
+# The extensions are refused as well as the directory, because a key is often
+# unpacked somewhere nobody planned for.
+#
+# `desktop/build/` itself is committed rather than held out: the entitlement
+# files and the notarization hook live there, and `lib/DistributionCheck.php`
+# refuses the build when the ignore file grows a rule that would drop them.
+desktop/build/certs/
+*.p12
+*.pfx
+*.p8
+*.cer
+*.der
+*.mobileprovision
+*.provisionprofile
+
 # Compiled artifacts. A static PHP binary is about 20 MB and is produced by
 # the build recipe, not committed beside it.
 *.phar

@@ -1,58 +1,158 @@
-# The Functional Engine Blocks (Levels 1–4)
+# The capability ladder
 
-These levels test whether your **3,057-byte tool schema registry** and sandbox constraints can hold a baseline trajectory together.
+This document describes how the harness measures a model and what it is entitled
+to claim afterwards. It states the method and not the figures. The tasks are
+declared in `lib/AgentTask.php` and mirrored in `tools/kaggle/gembench/suite.py`,
+the scoring weights in `lib/AgentScoring.php` and in
+`tools/kaggle/gembench/scoring.py`, and `README.md` is generated from those
+artefacts. The task table, the weight table and the recorded results are therefore
+read from the files that own them rather than repeated here, where they would
+quietly stop being true.
 
-> * **Level 1 & 2 (Backend/Frontend Challenges):** These represent your baseline control. A task passes only when the codebase compiles, your **SQLite state records** update correctly, and your local linters pass cleanly. This tests basic code generation within a tight token context window.  
-> * **Level 3 (Tool vs. Model Usage):** This is a brilliant metric for a small model. It measures *efficiency optimization*. Does the model waste its context window trying to manually step through or reason about an algorithm, or does it efficiently offload that work by calling your **9 typed tools**? You can score this deterministically by calculating the ratio of model token footprints to direct tool calls.  
-> * **Level 4 (Cybersecurity Flag & Fix):** This is a fantastic test of multi-turn directory discovery. The agent must parse an unfamiliar directory tree, find a vulnerability (e.g., an open path traversal or unvalidated argument block), rewrite it, and prove the fix works by running local test assertions.
+## What a rung is
 
-## ---
+A rung is one task, declared as a goal, a workspace and a step budget. A rung
+enters the ladder only if a program can decide whether it was finished. The
+verifier reads the end state of the workspace: which files exist, what they
+contain, and what is left behind that should not be. A solver's account of its
+own work is never the evidence, because the failure this ladder is built to
+catch is a run that describes success while the workspace says otherwise.
 
-**The Robustness & Context Filters (Levels 5–6)**
+One rung reads the closing answer instead of the workspace, and it is the
+exception that shows why the rule is stated the way it is. Its named input does
+not exist, so there is no correct output file to produce and the pass condition
+is that the solver stopped and said what was missing. A rung whose correct
+behaviour is a refusal has to read the refusal, which is why the loop hands that
+verifier the closing answer and whether the run ended by stopping or by spending
+its budget.
 
-These tiers measure how well your **application-side loop guards and constraint layers** catch loose, ambiguous input boundaries before they degrade into a repetitive turn cycle.
+## The two bands
 
-> * **Level 5 (Misspellings & Odd Directions):** Small 2B models easily lose formatting precision when user prompts contain typo noise or chaotic phrasing. By mapping out a condition to measure this, you directly test whether your **application-side schema parser** can gracefully shield the model's output formatting from corrupted input conditioning.  
-> * **Level 6 (Messy Project Directory Organization):** This evaluates file system management. The agent is dropped into a disorganized, polluted workspace and tasked with identifying core assets, moving dead code to archives, and restructuring files without breaking the repository build path.
+The tasks are grouped into two named suites, and the split is not cosmetic.
 
-## ---
+The first band is the set that every recorded run measured. It is fixed on
+purpose: a suite that grows silently makes an earlier result unreadable, because
+a score computed over ten tasks and a score computed over six are not the same
+measurement wearing a different number. Work added later therefore does not
+enter the band that was already measured, and every comparison refuses to join
+two runs whose task sets differ. A run against a moved target is reported rather
+than read as a change in the model.
 
-**The Architectural Blueprint Tiers (Levels 7–9)**
+The second band tests what the first band does not. It covers an instruction
+delivered in the noisy form a person actually types, a workspace that has to be
+reorganised without disturbing the parts of it the request did not mention, and
+a request whose honest answer is a refusal. The last of the three matters most,
+because the failure it catches, inventing the contents of an input that is not
+there, is indistinguishable from success when only the output is looked at.
 
-This is where your benchmark adds massive novelty to the paper track submission. These levels move past simple code generation and grade the model as a systems architect.
+## What a rung costs
 
-> * **Level 7 (Will it work if we build it?):** This tests the model's predictive verification. Before running a tool turn, can the agent correctly forecast whether a configuration file patch or package addition will create a compilation conflict?  
-> * **Level 8 (Growth & Versioning):** This measures clean release discipline. The agent must successfully create an incremental software change, manage version numbers, and isolate dependencies without creating architectural breaking changes or dependency bloat.  
-> * **Level 9 (Coding Principles & Stopping Criteria):** This is the crown jewel of your benchmark design. You can score this completely via automated metrics by feeding the agent’s generated source files directly to your linter fleet to check for hard violations:  
-  * *God functions:* Flagged via cyclomatic complexity metrics.  
-  * *Magic numbers:* Flagged via static analysis regex patterns.  
-  * *Knowing when to stop and ask:* This is a critical safety trait. If a task is mathematically impossible or missing configuration files, a low-capability model will loop until its step budget runs out. Passing Level 9 means the agent generates an explicit **refusal token sequence**, outputting a message specifying exactly what data it is missing.
+A rung's step budget is part of its definition rather than a setting on the loop.
+The efficiency dimension compares the steps a solver took with the budget its own
+task declared, so a task given more room is not scored as though it had been
+given less, and a budget changed for one task does not silently reprice every
+other one. A budget is a claim about how much work the task should take, which is
+why it is written beside the task and not in a configuration file.
 
-## ---
+## How a run is scored
 
-**Level 10: The "Premium Offset" Score**
+A result is a weighted blend rather than a pass or a fail, because for a model
+this size the useful fact is usually how it failed. Task success carries the most
+weight and is the only pass-or-fail term. The remaining dimensions are computed
+from counters the loop recorded, so every figure in a result can be recomputed
+from the run's own CSV, and a disagreement between a summary and its rows is
+visible rather than hidden.
 
-NOTE: ONLY IF THE AGENT DOES REALLY GOOD UP TILL LEVEL 9 FIRST.
+Recovery is averaged only over the tasks that actually met an error. A solver that
+never erred is neither rewarded nor punished for a problem it never had, which is
+the difference between measuring resilience and measuring the absence of
+provocation.
 
-Your framing for Level 10 shows true empirical maturity. Acknowledging a hardware-enforced resource offset makes your paper significantly more bulletproof against aggressive peer review.
+## The controls a result carries
 
-To turn this concept into a hard mathematical score for your ablation tables:
+A score is not readable on its own. Every run records the conditions it was
+produced under: the tool protocol in force, whether the loop guard was on,
+whether tool calls were checked against the schema before they ran, which sandbox
+policy was applied, and which decoder, if any, constrained the engine. Those
+values are written into the run's manifest, and a comparison refuses to join two
+runs whose recorded controls differ.
 
-> 1. Run the exact same 10 levels through your **hosted reference model (deepseek-v4-flash)** to record a maximum baseline trajectory ceiling.  
-> 2. Calculate your **Proximity-to-Premium Score** as a direct percentage ratio of the local model's pass rate against the hosted target.  
-> 3. If your text-only Gemma 2B model achieves a high proximity score on a specific level (e.g., 90% proximity on Level 6, but 40% proximity on Level 9), you prove exactly where resource restrictions block reasoning capabilities versus where smart application framework design completely nullifies the hardware gap.
+The principle behind that is simple and worth stating. A number that travels
+without its conditions is not evidence, it is an assertion.
 
-## ---
+## Reproducing a rung on both sides
 
-**What a run leaves behind**
-
-A run no longer ends at a table on a screen. The same portable benchmark runs on a machine and on a host, and the closing steps read every written run into four things:
-
-* `figures/*.svg` - the per-task composite, the five dimensions, the per-capability reading, the run in one line, and the pass matrix across sides. Written as SVG by the benchmark itself, so there is no plotting dependency and a figure opens in a browser or a pull request. Every rectangle is drawn with a zero corner radius, which is a constant in the source and not a style sheet.
-* `dataset/dataset.csv` and `dataset/dataset.jsonl` - one row per side, solver and task with the loop's own counters kept as columns, and the same rows as records for a training script.
-* `dataset/signals.json` and `dataset/learning.json` - the ten signals each failed row is read against, each naming the part of the harness it points at, and the work ordered by the composite it accounts for.
-* `benchmark-bundle.zip` beside `bundle.json` - all of the above in one file, with a size and a digest per member.
+The same task definitions run in two environments. The portable package runs on a
+machine and on a hosted notebook, both from one source, and running it in both is
+what separates a difference in the model from a difference in the environment.
 
 ```bash
-python3 tools/kaggle/gembench/report.py --side local=results/benchmark/local --side kaggle=results/benchmark/kaggle --out results/benchmark
+# the suite on this machine, without an engine
+python3 tools/kaggle/gembench/runner.py --profile reference --suite all \
+    --out results/benchmark/local
+
+# the same suite behind the local engine, one weight file at a time, then one table
+./benchmark-models.sh --suite all
+php benchmark.php --compare --dir results/benchmark
+
+# one recorded run against a recorded baseline, reported per capability
+php ladder.php --base results/agent/baseline --trial results/agent/guarded
+
+# and the joined reading of both sides, as tables and figures
+python3 tools/kaggle/gembench/compare.py \
+    --side local=results/benchmark/local --side kaggle=results/benchmark/kaggle \
+    --out results/benchmark
 ```
+
+Each of these exits non-zero when the inputs did not measure the same task set. A
+comparison across different suites measures the suites, and reporting it as a
+result about a model is the specific error the exit status exists to prevent.
+
+## What a run leaves behind
+
+A run does not end at a table on a screen. Every finished run writes the
+following, and the closing steps of the portable benchmark read all of it into
+one archive:
+
+* `figures/*.svg`, the per-task composite, the five dimensions, the per-capability
+  reading, the run in one line and the pass matrix across sides. They are written
+  as SVG by the benchmark itself, so there is no plotting dependency and a figure
+  opens in a browser or in a pull request. Every rectangle is drawn with a zero
+  corner radius, which is a constant in the source rather than a style sheet.
+* `dataset/dataset.csv` and `dataset/dataset.jsonl`, one row per side, solver and
+  task, with the loop's own counters kept as columns and the same rows as records
+  for a training script.
+* `dataset/signals.json` and `dataset/learning.json`, the signals a failed row is
+  read against, each naming the part of the harness it points at, and the work
+  ordered by the composite it accounts for.
+* `benchmark-bundle.zip` beside `bundle.json`, all of the above in one file with a
+  size and a digest per member.
+
+```bash
+python3 tools/kaggle/gembench/report.py \
+    --side local=results/benchmark/local --side kaggle=results/benchmark/kaggle \
+    --out results/benchmark
+```
+
+## What the ladder does not claim
+
+The boundaries are part of the method, and stating them is what keeps a result
+from being read as more than it is.
+
+* A rung does not separate the model from the harness. A pass means the pair
+  finished the task, and the loop, the tool schema, the jail and the prompt are
+  all part of that pair. Nothing here attributes a result to a weight file alone.
+* The portable runs measure fixture solvers, not a language model. A correct
+  solver and a careless one are both deterministic, so the pair calibrates the
+  arithmetic and the task definitions and says nothing about a model's ability.
+  A live model is another entry in the same shape and is measured by the same
+  code, which is the point of keeping the fixtures in the suite.
+* A rung decides an end state, not a route. Two solvers can arrive at the same
+  workspace differently and both pass, so a rung is evidence that a task was
+  finished and not evidence about how well it was reasoned about.
+* One condition is measured at a time. A recorded run carries the engine build,
+  the sampling settings, the seed and the controls it ran under, and it supports
+  a claim about that combination rather than about the model in general.
+* A composite is comparable within one suite across runs that measured the same
+  task set. It is not a general capability score and it does not transfer to a
+  different ladder.

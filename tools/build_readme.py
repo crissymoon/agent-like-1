@@ -70,6 +70,8 @@ LAYOUT: tuple[tuple[str, str], ...] = (
     ("desktop/", "The Electron view over a run directory; it drives the same harness, never a copy."),
     ("tools/", "Portable tooling: the benchmark that runs on both sides, the kernel builder, this builder."),
     ("results/", "What each run left behind. Evidence, committed, so a claim has a file behind it."),
+    ("local-benchmarking.md", "The ladder: what a rung is, what decides it, and what a result does not claim."),
+    ("LICENSE", "The terms the work is offered under, and the holder it belongs to."),
 )
 
 
@@ -567,6 +569,144 @@ def run_section() -> list[str]:
     return lines
 
 
+def licence_section(root: Path) -> list[str]:
+    lines = ["## License", ""]
+    record = source.licence(root)
+    if not record["present"]:
+        lines.append(
+            "No license file was found in this checkout, so the terms the work is offered "
+            "under could not be read."
+        )
+        lines.append("")
+        return lines
+
+    identifier = record["spdx"] or "an identifier the manifest does not declare"
+    lines.append(
+        f"The work is offered under {identifier}, and the file that carries the terms is "
+        f"`{record['file']}`. The desktop application declares the same identifier in its own "
+        "manifest, so a consumer of the source and a consumer of the binary are told the same "
+        "thing by the file they are reading."
+    )
+    lines.append("")
+    lines.extend(
+        table(
+            ["field", "value"],
+            [
+                ["identifier", identifier],
+                ["holder", record["holder"]],
+                ["license file", f"`{record['file']}`, {record['lines']} lines"],
+                ["author in the desktop manifest", record["author"]],
+            ],
+        )
+    )
+    lines.append("")
+    if record["agrees"]:
+        lines.append(
+            f"The copyright line the license file carries names {record['holder']}, which is "
+            "the same holder the desktop manifest records as the author. "
+            "`lib/DistributionCheck.php` reads both and fails the self-check when they stop "
+            "agreeing, because a license naming one party while the package declares another "
+            "is a license a consumer cannot act on."
+        )
+    else:
+        lines.append(
+            "The license file and the desktop manifest do not name the same holder, and the "
+            "self-check reports that rather than choosing between them."
+        )
+    lines.append("")
+    lines.append(
+        "The identifier above is read from the manifest rather than kept in a list in this "
+        "builder, so the license this project is under is stated once, in the file that ships "
+        "with the application."
+    )
+    lines.append("")
+    return lines
+
+
+def distribution_section(root: Path) -> list[str]:
+    lines = ["## Distribution", ""]
+    record = source.distribution(root)
+    if not record["app_id"]:
+        lines.append(
+            "The desktop manifest declares no build configuration, so there is nothing to "
+            "report about how the application is packaged."
+        )
+        lines.append("")
+        return lines
+
+    lines.append(
+        f"Everything else in this repository is source. `{record['product']}` is the one "
+        "artefact that leaves as a binary, and a binary handed to somebody else is refused by "
+        "their machine unless it was signed and notarized. Both are declared in "
+        "`desktop/package.json` beside the application they belong to, so the version, the "
+        "identifier and the way it is signed move in one commit."
+    )
+    lines.append("")
+    entries = ", ".join(
+        f"`{name}` ({record['entitlements_counts'].get(name, 0)} entries)"
+        for name in record["entitlements"]
+    )
+    lines.extend(
+        table(
+            ["field", "value"],
+            [
+                ["identifier", record["app_id"]],
+                ["product", f"{record['product']} {record['version']}"],
+                ["hardened runtime", "on" if record["hardened"] else "off"],
+                ["minimum system version", record["minimum_system"]],
+                ["entitlements", entries],
+                ["notarization hook", f"`{record['hook']}`" if record["hook"] else "none declared"],
+                ["output", f"`desktop/{record['output']}/`, held out of version control"],
+            ],
+        )
+    )
+    lines.append("")
+    lines.append(
+        "The hardened runtime is what makes the entitlements apply at all: without it a signed "
+        "bundle runs with the permissions of a debug build. The entries are the runtime's own "
+        "requirements rather than a list grown until a build stopped complaining, and there "
+        "are two files because a helper process does not inherit the entitlements of the "
+        "application that started it. A helper without them is killed at load time on every "
+        "machine except the one that built it, which is the failure that reaches a user and "
+        "not a build log."
+    )
+    lines.append("")
+    if record["hook_names"]:
+        names = ", ".join(f"`{name}`" for name in record["hook_names"])
+        switch = f"`{record['hook_switch']}`" if record["hook_switch"] else "the release switch"
+        lines.append(
+            f"The hook holds no credential. Every value it uses is read from the environment, "
+            f"from {names}, so this checkout can be read by anybody and the secret stays in a "
+            f"keychain or in the shell that started the build. Setting {switch} to `1` turns a "
+            "missing credential from a line in the build log into a stopped build, which is "
+            "what separates a local build from a release."
+        )
+        lines.append("")
+    lines.extend(
+        [
+            "```bash",
+            "cd desktop && npm install          # restore the pinned build tooling",
+            "npm run dist:mac                   # sign, then notarize and staple through the hook",
+            "npm run verify                     # read the signature back out of the bundle",
+            "AGENT_LIKE_RELEASE=1 npm run release   # the same, and a missing credential stops it",
+            "```",
+        ]
+    )
+    lines.append("")
+    verify = record["verify_script"].split()[-1] if record["verify_script"].split() else ""
+    lines.append(
+        f"The configuration states what a build was asked to do, so it is not evidence that a "
+        f"build did it. `desktop/{verify}` reads four properties back from the finished bundle: "
+        "whether the signature verifies, whether it was made under the hardened runtime with a "
+        "Developer ID certificate rather than an ad hoc one, whether Gatekeeper accepts the "
+        "bundle, and whether the notarization ticket is stapled to it. A bundle can pass the "
+        "first three and fail the last, and that bundle opens on the machine that built it and "
+        "nowhere else, which is why they are four findings and not one."
+    )
+    lines.append("")
+    return lines
+
+
 def exclusions_section() -> list[str]:
     return [
         "## What is not in this repository",
@@ -630,6 +770,8 @@ def build(root: Path, record: bool = True) -> str:
         agent_section(root),
         sides_section(root),
         run_section(),
+        distribution_section(root),
+        licence_section(root),
         exclusions_section(),
         footer(),
     ]

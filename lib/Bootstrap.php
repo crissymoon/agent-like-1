@@ -32,7 +32,8 @@ final class Bootstrap
             'AgentTask', 'AgentPrompt', 'AgentAction', 'DecodingConstraint', 'LoopGuard',
             'AgentControls', 'AgentClient', 'OpenAICompatAgentClient', 'ScriptedAgentClient',
             'StreamingSse', 'PathRecord', 'AgentLoop', 'AgentStream', 'AgentScoring',
-            'EventStream', 'ContainerBoundary', 'EngineProfile', 'AgentSelfCheck', 'AgentReport',
+            'EventStream', 'ContainerBoundary', 'EngineProfile', 'DistributionCheck',
+            'AgentSelfCheck', 'AgentReport',
             'PostTrainGap', 'TrajectoryReplay', 'LadderCompare', 'StreamSelfCheck',
             'ModelCatalog', 'ModelBenchmark',
         ];

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Entitlements for the application bundle.
+
+  A hardened runtime refuses these four things unless a bundle asks for them,
+  and Electron is built on a JavaScript engine that needs three of them. Each
+  entry is here because a component of the runtime cannot work without it, not
+  because a build failed once and the entry was added until it passed:
+
+    allow-jit
+      V8 compiles JavaScript to machine code while the process runs. Without
+      this the renderer falls back to an interpreter or dies at startup.
+
+    allow-unsigned-executable-memory
+      The same engine maps memory as executable after writing it. An older
+      Electron needed this beside allow-jit; the pinned runtime is built for a
+      macOS version that still requires it, so it is kept and named rather than
+      removed and discovered.
+
+    allow-dyld-environment-variables
+      The runtime resolves a few libraries at load time.
+
+    disable-library-validation
+      The application ships its own libraries and loads nothing from a
+      third party. The entry is kept because it is the one entitlement that has
+      to be present for the runtime to load a library it did not sign itself,
+      and a build that lacks it fails in a way that looks like a corrupted
+      download rather than a signing mistake.
+
+  Two entitlements are deliberately absent. There is no
+  `com.apple.security.network.client`, because that is an App Store sandbox
+  entitlement and this application is distributed outside the App Store: it
+  talks to a loopback endpoint, which a hardened runtime does not restrict.
+  There is no `com.apple.security.get-task-allow`, because that is the
+  debugger attachment entitlement and granting it would remove the protection
+  the hardened runtime exists to provide. A debug build asks for it with
+  `--config.mac.entitlements`; a release never does.
+-->
+<plist version="1.0">
+<dict>
+	<key>com.apple.security.cs.allow-jit</key>
+	<true/>
+	<key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+	<true/>
+	<key>com.apple.security.cs.allow-dyld-environment-variables</key>
+	<true/>
+	<key>com.apple.security.cs.disable-library-validation</key>
+	<true/>
+</dict>
+</plist>

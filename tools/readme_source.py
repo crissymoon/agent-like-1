@@ -45,6 +45,18 @@ SNAPSHOT_PATH = Path("results/models/headers.json")
 SIDES_PATH = Path("results/benchmark/sides.json")
 SIDES_CSV_PATH = Path("results/benchmark/sides.csv")
 
+LICENCE_PATH = Path("LICENSE")
+DESKTOP_MANIFEST = Path("desktop/package.json")
+IGNORE_PATH = Path(".gitignore")
+
+#: An environment name, which is what a release reads a credential from. The
+#: uppercase names a signing script uses are read out of the script rather than
+#: listed here, so a name that changes in the script changes in the document.
+ENVIRONMENT_NAME = re.compile(r"['\"]([A-Z][A-Z0-9_]{2,})['\"]")
+
+#: The variable that turns a reported problem into a stopped build.
+RELEASE_SWITCH = re.compile(r"const\s+REQUIRE\s*=\s*'([A-Z0-9_]+)'")
+
 
 def read_text(path: Path) -> str:
     """A file's text, or the empty string when it cannot be read."""
@@ -315,3 +327,116 @@ def agreement(root: Path) -> tuple[int, int]:
                 agreed += 1
 
     return agreed, total
+
+
+# ---------------------------------------------------------------------------
+# The license and the distribution.
+# ---------------------------------------------------------------------------
+
+
+def _desktop_manifest(root: Path) -> dict:
+    """The desktop application's manifest, or an empty mapping."""
+    return read_json(root / DESKTOP_MANIFEST) or {}
+
+
+def author_name(manifest: dict) -> str:
+    """The name a manifest records as the author, whether it is a string or a mapping."""
+    author = manifest.get("author", "")
+    if isinstance(author, dict):
+        return str(author.get("name", "")).strip()
+    return str(author).strip()
+
+
+def licence_holder(text: str) -> str:
+    """The holder the last copyright line in a license file names.
+
+    The last one wins because a license file ends with the appendix that was
+    filled in for this work, while any copyright line above it belongs to the
+    license text itself.
+    """
+    found = re.findall(r"^\s*Copyright(?:\s+\(c\))?\s+\d{4}\s+(.+?)\s*$", text, re.MULTILINE)
+    return found[-1].strip() if found else ""
+
+
+def licence(root: Path) -> dict:
+    """What the repository says about the terms it is offered under.
+
+    Two files make the claim and neither is trusted over the other: the manifest
+    declares an identifier and an author, and the file carries the text and a
+    copyright line. This reads both and reports whether they agree, which is the
+    only thing a document can honestly say about a license without a lawyer.
+    """
+    text = read_text(root / LICENCE_PATH)
+    manifest = _desktop_manifest(root)
+    holder = licence_holder(text)
+    author = author_name(manifest)
+
+    return {
+        "file": str(LICENCE_PATH),
+        "present": bool(text),
+        "lines": len(text.splitlines()),
+        "spdx": str(manifest.get("license", "")),
+        "holder": holder,
+        "author": author,
+        "agrees": holder != "" and holder == author,
+    }
+
+
+def _env_names(text: str) -> list[str]:
+    """The uppercase names a script reads, in the order it names them."""
+    seen: list[str] = []
+    for match in ENVIRONMENT_NAME.finditer(text):
+        name = match.group(1)
+        if name not in seen:
+            seen.append(name)
+    return seen
+
+
+def distribution(root: Path) -> dict:
+    """How the desktop application is signed, as the configuration declares it.
+
+    Nothing here signs anything. The configuration states what a build was asked
+    to do, the files it names are checked for being on disk, and the names a
+    release reads a credential from are read out of the hook rather than listed
+    here. `lib/DistributionCheck.php` asks the same files the stricter question,
+    of whether the entitlements carry what the runtime needs; this answers only
+    what a document should say.
+    """
+    manifest = _desktop_manifest(root)
+    build = manifest.get("build", {}) if isinstance(manifest.get("build"), dict) else {}
+    mac = build.get("mac", {}) if isinstance(build.get("mac"), dict) else {}
+    directories = build.get("directories", {}) if isinstance(build.get("directories"), dict) else {}
+    scripts = manifest.get("scripts", {}) if isinstance(manifest.get("scripts"), dict) else {}
+
+    hook = str(build.get("afterSign", ""))
+    verify = str(scripts.get("verify", ""))
+    entitlements = [str(mac.get(key, "")) for key in ("entitlements", "entitlementsInherit")]
+    entitlements = [name for name in entitlements if name]
+
+    hook_text = read_text(root / "desktop" / hook) if hook else ""
+    switch = RELEASE_SWITCH.search(hook_text)
+    switch_name = switch.group(1) if switch else ""
+    names = [name for name in _env_names(hook_text) if name != switch_name]
+
+    return {
+        "app_id": str(build.get("appId", "")),
+        "product": str(manifest.get("productName", "")),
+        "version": str(manifest.get("version", "")),
+        "hardened": mac.get("hardenedRuntime") is True,
+        "gatekeeper_assess": mac.get("gatekeeperAssess") is True,
+        "minimum_system": str(mac.get("minimumSystemVersion", "")),
+        "entitlements": entitlements,
+        "entitlements_counts": {
+            name: read_text(root / "desktop" / name).count("<key>") for name in entitlements
+        },
+        "entitlements_missing": [
+            name for name in entitlements if not (root / "desktop" / name).is_file()
+        ],
+        "hook": hook,
+        "hook_present": bool(hook) and (root / "desktop" / hook).is_file(),
+        "hook_names": names,
+        "hook_switch": switch_name,
+        "verify_script": verify,
+        "output": str(directories.get("output", "")),
+        "scripts": sorted(scripts),
+    }

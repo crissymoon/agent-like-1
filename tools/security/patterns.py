@@ -15,6 +15,13 @@ than no report. And nothing here is allowed to be widened into a guess: every
 pattern below is either a documented token prefix or a name that states what it
 holds.
 
+Two exclusions run the other way, because a report that is wrong is a report
+that stops being read. A value carrying the shape of a regular expression is a
+rule rather than a secret, which is what lets a file state the check a scanner
+enforces without being reported by the scanner it describes. And a path is
+allowed to be a written placeholder, which is what lets a document name the
+shape it refuses without the explanation being refused itself.
+
 The second list below is a different question with the same answer. A machine
 path is not a credential, and it is still not repository content: an absolute
 home path in a recorded run names the account, the checkout location and
@@ -200,6 +207,28 @@ STRUCTURAL_HINTS: tuple[str, ...] = (
     "process.env",
     "os.getenv",
 )
+
+#: Shapes that make a value a rule rather than a secret.
+#:
+#: A file that states the rule a scanner enforces has to write that rule down,
+#: and the rule is a string: a name that says it holds a credential, followed by
+#: a regular expression, is the definition of the check rather than a breach of
+#: it. A value carrying a backslash escape, a character class or a non-capturing
+#: group is describing what a credential looks like, and none of the provider
+#: shapes contain any of those.
+PATTERN_SHAPE: re.Pattern[str] = re.compile(r"\\[bwsdWSD]|\[[^\]]{0,40}\]|\(\?[:!<]")
+
+
+def is_pattern_value(value: str) -> bool:
+    """Whether a matched value is a regular expression rather than a credential.
+
+    This is applied to the generic assignment rule alone. A provider prefix is
+    evidence on its own, and a value standing behind one is a credential however
+    it happens to be punctuated, so widening this into that rule would trade a
+    real finding for a tidy report.
+    """
+    return PATTERN_SHAPE.search(value) is not None
+
 
 #: Whole values that mean nobody meant to commit a secret.
 PLACEHOLDER_VALUES: frozenset[str] = frozenset(

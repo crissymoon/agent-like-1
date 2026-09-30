@@ -56,6 +56,7 @@ try:  # the package
         GENERIC_ASSIGNMENT,
         PROVIDER_PATTERNS,
         SecretPattern,
+        is_pattern_value,
         is_placeholder,
         is_written_placeholder,
     )
@@ -65,6 +66,7 @@ except ImportError:  # run as a script, beside its own module
         GENERIC_ASSIGNMENT,
         PROVIDER_PATTERNS,
         SecretPattern,
+        is_pattern_value,
         is_placeholder,
         is_written_placeholder,
     )
@@ -118,6 +120,13 @@ FORBIDDEN_PATHS: tuple[ForbiddenPath, ...] = (
         prefix="models/",
         note="Model weights. Nine gigabytes, read-only input, never repository content.",
     ),
+    ForbiddenPath(
+        prefix="desktop/build/certs/",
+        note=(
+            "Signing material. A Developer ID certificate and its private key belong in a "
+            "keychain; a checkout that holds one is a checkout that can publish an update."
+        ),
+    ),
 )
 
 
@@ -144,6 +153,13 @@ def scan_text(text: str, path: str) -> list[Finding]:
         for match in pattern.regex.finditer(text):
             value = match.group(pattern.group)
             if not value or is_placeholder(value):
+                continue
+            # A file that states the rule this scanner enforces writes that rule
+            # down, and a rule following a name that says it holds a credential
+            # is the definition of the check rather than a breach of it. Applied
+            # to the generic rule alone: a provider prefix is evidence by itself,
+            # and a value behind one is a credential however it is punctuated.
+            if pattern is GENERIC_ASSIGNMENT and is_pattern_value(value):
                 continue
             findings.append(
                 Finding(
