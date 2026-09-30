@@ -1,0 +1,61 @@
+{
+  "schema_version": "1",
+  "document": "image-model-index",
+  "note": "The tensor table of each image weight file as read on the machine that holds them. A diffusion GGUF describes almost none of its own shape in its metadata, and one of these describes none at all, so the count of blocks, the number of weights and the bytes they occupy as stored all come from the tensors rather than from the header. The weights are a local input and are not in this repository.",
+  "directory": "models",
+  "models": [
+    {
+      "file": "qwen-image-2.1-Q4_K_M.gguf",
+      "key": "qwen-image-2.1",
+      "label": "Qwen-Image 2.1",
+      "repository": "Qwen/Qwen-Image-2.1",
+      "pipeline": "QwenImage21Pipeline",
+      "weights": "qwen-image-2.1-Q4_K_M.gguf",
+      "bytes": 4199565024,
+      "architecture": "",
+      "quantisation": "",
+      "tensors": 265,
+      "quantised_tensors": 196,
+      "type_histogram": {
+        "Q4_K": 163,
+        "F32": 65,
+        "Q5_K": 28,
+        "BF16": 4,
+        "Q8_0": 4,
+        "Q6_K": 1
+      },
+      "blocks": {
+        "model.diffusion_model.transformer_blocks": 32
+      },
+      "parameters": 7115124736,
+      "packed_bytes": 4199538688,
+      "exact_bytes": 14230249472
+    },
+    {
+      "file": "flux-2-klein-4b-Q4_K_M.gguf",
+      "key": "flux-2-klein-4b",
+      "label": "FLUX.2 klein 4B",
+      "repository": "black-forest-labs/FLUX.2-klein-4B",
+      "pipeline": "Flux2KleinPipeline",
+      "weights": "flux-2-klein-4b-Q4_K_M.gguf",
+      "bytes": 2604311104,
+      "architecture": "flux",
+      "quantisation": "Q4_K_M",
+      "tensors": 149,
+      "quantised_tensors": 80,
+      "type_histogram": {
+        "F32": 60,
+        "Q4_K": 50,
+        "Q5_K": 30,
+        "BF16": 9
+      },
+      "blocks": {
+        "double_blocks": 5,
+        "single_blocks": 20
+      },
+      "parameters": 3875544576,
+      "packed_bytes": 2604300288,
+      "exact_bytes": 7751089152
+    }
+  ]
+}

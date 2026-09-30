@@ -184,9 +184,148 @@ def quant_word(*candidates: str) -> str:
                 return word
     return ""
 
-#: Hard stop for the metadata walk, so a corrupt count cannot make the reader
+#: The per-tensor type identifier, which is a *different* enumeration from
+#: `general.file_type` above: that one labels the file as a whole, this one
+#: labels one tensor, and the same number means different things in each. The
+#: names come from the `gguf` package when it is installed, because it owns the
+#: enumeration; the table below is the fallback for a checkout without it and
+#: covers the types an ordinary quantised model is written with. An identifier
+#: neither source knows is reported as its number rather than guessed at.
+_FALLBACK_TENSOR_TYPE_NAMES: dict[int, str] = {
+    0: "F32",
+    1: "F16",
+    2: "Q4_0",
+    3: "Q4_1",
+    6: "Q5_0",
+    7: "Q5_1",
+    8: "Q8_0",
+    9: "Q8_1",
+    10: "Q2_K",
+    11: "Q3_K",
+    12: "Q4_K",
+    13: "Q5_K",
+    14: "Q6_K",
+    15: "Q8_K",
+    16: "IQ2_XXS",
+    17: "IQ2_XS",
+    18: "IQ3_XXS",
+    19: "IQ1_S",
+    20: "IQ4_NL",
+    21: "IQ3_S",
+    22: "IQ2_S",
+    23: "IQ4_XS",
+    24: "I8",
+    25: "I16",
+    26: "I32",
+    27: "I64",
+    28: "F64",
+    29: "IQ1_M",
+    30: "BF16",
+    34: "TQ1_0",
+    35: "TQ2_0",
+    39: "MXFP4",
+    40: "NVFP4",
+    41: "Q1_0",
+}
+
+#: A quantised type's `(block_size, type_size)`: how many numbers a block holds
+#: and how many bytes that block occupies. The numbers are the format's, and the
+#: `gguf` package is preferred as the source; this is the fallback so that the
+#: arithmetic still runs on a machine that has not installed it. A type with no
+#: entry here has no size, and a caller reports that rather than guessing.
+_FALLBACK_TENSOR_TYPE_SIZES: dict[int, tuple[int, int]] = {
+    0: (1, 4),
+    1: (1, 2),
+    2: (32, 18),
+    3: (32, 20),
+    6: (32, 22),
+    7: (32, 24),
+    8: (32, 34),
+    9: (32, 40),
+    10: (256, 84),
+    11: (256, 110),
+    12: (256, 144),
+    13: (256, 176),
+    14: (256, 210),
+    15: (256, 292),
+    16: (256, 66),
+    17: (256, 74),
+    18: (256, 98),
+    19: (256, 50),
+    20: (32, 18),
+    21: (256, 110),
+    22: (256, 82),
+    23: (256, 136),
+    24: (1, 1),
+    25: (1, 2),
+    26: (1, 4),
+    27: (1, 8),
+    28: (1, 8),
+    29: (256, 56),
+    30: (1, 2),
+    34: (256, 54),
+    35: (256, 66),
+    39: (32, 17),
+    40: (64, 36),
+    41: (128, 18),
+}
+
+#: Type identifiers whose blocks are single elements, so a tensor stored as one
+#: of these holds exactly what it says and loading it expands nothing.
+_PLAIN_TYPE_IDS = frozenset({0, 1, 24, 25, 26, 27, 28, 30})
+
+_tensor_tables: tuple[dict[int, str], dict[int, tuple[int, int]]] | None = None
+
+
+def _tensor_tables_cached() -> tuple[dict[int, str], dict[int, tuple[int, int]]]:
+    """The per-tensor type names and block sizes, from `gguf` where present."""
+    global _tensor_tables
+    if _tensor_tables is not None:
+        return _tensor_tables
+
+    names: dict[int, str] = dict(_FALLBACK_TENSOR_TYPE_NAMES)
+    sizes: dict[int, tuple[int, int]] = dict(_FALLBACK_TENSOR_TYPE_SIZES)
+    try:
+        import gguf
+
+        for member in gguf.GGMLQuantizationType:
+            names[int(member)] = member.name
+        for key, value in gguf.GGML_QUANT_SIZES.items():
+            sizes[int(key)] = (int(value[0]), int(value[1]))
+    except Exception:
+        # Without the package the fallback tables above carry the answer, and a
+        # type absent from both is reported as unknown rather than assumed.
+        pass
+
+    _tensor_tables = (names, sizes)
+    return _tensor_tables
+
+
+def tensor_type_name(value: int) -> str:
+    """The name of a per-tensor GGML type, or its number when unlisted."""
+    names, _ = _tensor_tables_cached()
+    return names.get(int(value), f"type-{int(value)}")
+
+
+def tensor_type_size(value: int) -> tuple[int, int] | None:
+    """A tensor type's `(block_size, type_size)` in bytes, or None if unknown."""
+    _, sizes = _tensor_tables_cached()
+    return sizes.get(int(value))
+
+
+def tensor_type_is_quantised(value: int) -> bool:
+    """Whether a tensor type stores blocks rather than plain elements."""
+    return int(value) not in _PLAIN_TYPE_IDS
+
+
+#: Hard stop for the header walk, so a corrupt count cannot make the reader
 #: read a whole weight file looking for pairs that are not there.
 MAX_METADATA_BYTES = 64 * 1024 * 1024
+
+#: Hard stop for the tensor table, which is a row of a few hundred bytes per
+#: tensor. A real model reaches a few hundred kilobytes; this is the "something
+#: is wrong with the count" guard.
+MAX_TENSOR_BYTES = 256 * 1024 * 1024
 
 
 class GgufError(RuntimeError):
@@ -200,10 +339,11 @@ class _Reader:
     handle: object
     path: str
     consumed: int = 0
+    limit: int = MAX_METADATA_BYTES
 
     def read(self, count: int) -> bytes:
-        if self.consumed + count > MAX_METADATA_BYTES:
-            raise GgufError(f"{self.path}: metadata block exceeds the read limit")
+        if self.consumed + count > self.limit:
+            raise GgufError(f"{self.path}: header exceeds the read limit")
         data = self.handle.read(count)  # type: ignore[attr-defined]
         if len(data) != count:
             raise GgufError(f"{self.path}: header ends after {self.consumed} bytes")
@@ -213,8 +353,8 @@ class _Reader:
     def skip(self, count: int) -> None:
         if count <= 0:
             return
-        if self.consumed + count > MAX_METADATA_BYTES:
-            raise GgufError(f"{self.path}: metadata block exceeds the read limit")
+        if self.consumed + count > self.limit:
+            raise GgufError(f"{self.path}: header exceeds the read limit")
         self.handle.seek(count, 1)  # type: ignore[attr-defined]
         self.consumed += count
 
@@ -357,37 +497,203 @@ class Header:
         }
 
 
-def read_header(path: str | Path) -> Header:
-    """Open a GGUF file, read its metadata block, and close it."""
+@dataclass(frozen=True)
+class TensorInfo:
+    """One row of the tensor table: what a weight is called, shaped, and stored as.
+
+    The dimensions are in the file's own order, which is the reverse of a torch
+    shape: a GGUF `(in, out)` pair is a torch weight of shape `(out, in)`.
+    """
+
+    name: str
+    dims: tuple[int, ...]
+    type_id: int
+    offset: int
+
+    @property
+    def type_name(self) -> str:
+        return tensor_type_name(self.type_id)
+
+    @property
+    def quantised(self) -> bool:
+        return tensor_type_is_quantised(self.type_id)
+
+    def elements(self) -> int:
+        """How many numbers the tensor holds, before any packing."""
+        total = 1
+        for size in self.dims:
+            total *= size
+        return total
+
+    def packed_bytes(self) -> int | None:
+        """How many bytes the tensor occupies, or None for an unknown type."""
+        sizes = tensor_type_size(self.type_id)
+        if sizes is None:
+            return None
+        block, width = sizes
+        elements = self.elements()
+        return -(-elements // block) * width
+
+
+@dataclass
+class TensorIndex:
+    """The tensor table of a GGUF file, and a little arithmetic over it.
+
+    This is what lets a caller hold a weight file against what a profile says
+    the file must contain, before gigabytes of anything are downloaded.
+    """
+
+    path: str
+    version: int
+    tensors: list[TensorInfo]
+    metadata: dict = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        self._by_name = {tensor.name: tensor for tensor in self.tensors}
+
+    def names(self) -> frozenset[str]:
+        return frozenset(self._by_name)
+
+    def find(self, name: str) -> TensorInfo | None:
+        return self._by_name.get(name)
+
+    def dims(self, name: str) -> tuple[int, ...] | None:
+        tensor = self._by_name.get(name)
+        return tensor.dims if tensor is not None else None
+
+    def block_indices(self, prefix: str) -> tuple[int, ...]:
+        """The distinct numeric indices under a name prefix, sorted.
+
+        A prefix of `double_blocks` over `double_blocks.7.attn.qkv.weight`
+        yields 7, so the count of returned numbers is the block count, and a
+        gap in them is visible rather than hidden by a count.
+        """
+        stem = prefix.rstrip(".") + "."
+        found: set[int] = set()
+        for name in self._by_name:
+            if not name.startswith(stem):
+                continue
+            remainder = name[len(stem) :]
+            head = remainder.split(".", 1)[0]
+            if head.isdigit():
+                found.add(int(head))
+        return tuple(sorted(found))
+
+    def type_histogram(self) -> dict[str, int]:
+        """How many tensors are stored as each type, most common first."""
+        counts: dict[str, int] = {}
+        for tensor in self.tensors:
+            counts[tensor.type_name] = counts.get(tensor.type_name, 0) + 1
+        return dict(sorted(counts.items(), key=lambda item: (-item[1], item[0])))
+
+    def elements(self) -> int:
+        return sum(tensor.elements() for tensor in self.tensors)
+
+    def packed_bytes(self) -> int | None:
+        """Bytes the weights occupy as stored, or None if a type is unknown."""
+        total = 0
+        for tensor in self.tensors:
+            size = tensor.packed_bytes()
+            if size is None:
+                return None
+            total += size
+        return total
+
+    def exact_bytes(self) -> int:
+        """Bytes the weights would occupy if every one were held in BF16."""
+        return self.elements() * 2
+
+    def quantised_count(self) -> int:
+        return sum(1 for tensor in self.tensors if tensor.quantised)
+
+    def unknown_types(self) -> tuple[int, ...]:
+        """Type identifiers this machine has no size for, so a check can refuse."""
+        unknown = {
+            tensor.type_id
+            for tensor in self.tensors
+            if tensor_type_size(tensor.type_id) is None
+        }
+        return tuple(sorted(unknown))
+
+
+@dataclass
+class _Content:
+    """One pass over the front of a file: the metadata, and optionally the table."""
+
+    path: str
+    version: int
+    tensor_count: int
+    metadata_count: int
+    metadata: dict
+    tensors: list[TensorInfo]
+
+
+def _walk(path: str | Path, with_tensors: bool) -> _Content:
+    """Read the opening block of a GGUF file, stopping before the weights."""
     source = Path(path)
     if not source.is_file():
         raise GgufError(f"{source}: no such file")
 
+    limit = MAX_TENSOR_BYTES if with_tensors else MAX_METADATA_BYTES
     try:
         with source.open("rb") as handle:
-            reader = _Reader(handle=handle, path=str(source))
+            reader = _Reader(handle=handle, path=str(source), limit=limit)
             if reader.read(4) != MAGIC:
                 raise GgufError(f"{source}: not a GGUF file")
             version = reader.uint32()
             if version < 2:
                 raise GgufError(f"{source}: GGUF version {version} is older than this reader")
-            tensor_count = reader.uint64()
-            metadata_count = reader.uint64()
+            tensor_count = int(reader.uint64())
+            metadata_count = int(reader.uint64())
 
             metadata: dict = {}
-            for _ in range(int(metadata_count)):
+            for _ in range(metadata_count):
                 key = reader.string()
                 value_type = reader.uint32()
                 metadata[key] = _read_value(reader, value_type)
+
+            tensors: list[TensorInfo] = []
+            if with_tensors:
+                for _ in range(tensor_count):
+                    name = reader.string()
+                    rank = reader.uint32()
+                    dims = tuple(int(reader.uint64()) for _ in range(rank))
+                    type_id = reader.uint32()
+                    offset = int(reader.uint64())
+                    tensors.append(TensorInfo(name=name, dims=dims, type_id=type_id, offset=offset))
     except OSError as error:
         raise GgufError(f"{source}: {error}") from error
 
-    return Header(
+    return _Content(
         path=str(source),
         version=version,
-        tensor_count=int(tensor_count),
-        metadata_count=int(metadata_count),
+        tensor_count=tensor_count,
+        metadata_count=metadata_count,
         metadata=metadata,
+        tensors=tensors,
+    )
+
+
+def read_header(path: str | Path) -> Header:
+    """Open a GGUF file, read its metadata block, and close it."""
+    content = _walk(path, with_tensors=False)
+    return Header(
+        path=content.path,
+        version=content.version,
+        tensor_count=content.tensor_count,
+        metadata_count=content.metadata_count,
+        metadata=content.metadata,
+    )
+
+
+def read_index(path: str | Path) -> TensorIndex:
+    """Open a GGUF file, read its metadata and tensor table, and close it."""
+    content = _walk(path, with_tensors=True)
+    return TensorIndex(
+        path=content.path,
+        version=content.version,
+        tensors=content.tensors,
+        metadata=content.metadata,
     )
 
 
@@ -418,6 +724,12 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("directory", nargs="?", default="models")
     parser.add_argument("--json", action="store_true", help="emit the full metadata block")
+    parser.add_argument(
+        "--tensors",
+        nargs="*",
+        metavar="NAME",
+        help="print the tensor table, or just the named tensors",
+    )
     args = parser.parse_args(argv)
 
     headers = read_headers(args.directory)
@@ -432,8 +744,36 @@ def main(argv: list[str] | None = None) -> int:
             continue
         for key, value in header.summary().items():
             print(f"  {key}: {value}")
+        if args.tensors is not None:
+            _print_tensors(header.path, args.tensors)
 
     return 0
+
+
+def _print_tensors(path: str, wanted: list[str]) -> None:
+    index = read_index(path)
+    if wanted:
+        for name in wanted:
+            tensor = index.find(name)
+            if tensor is None:
+                print(f"  {name}: absent")
+                continue
+            print(f"  {name}: {tensor.dims} {tensor.type_name} {tensor.packed_bytes()} bytes")
+        return
+
+    packed = index.packed_bytes()
+    print(f"  tensors: {len(index.tensors)} ({index.quantised_count()} quantised)")
+    print(f"  type histogram: {index.type_histogram()}")
+    print(f"  elements: {index.elements()}")
+    print(f"  packed: {packed if packed is not None else 'unknown'}")
+    print(f"  if held exactly: {index.exact_bytes()}")
+    unknown = index.unknown_types()
+    if unknown:
+        print(f"  types with no known size: {unknown}")
+    for prefix in sorted({name.split(".", 1)[0] for name in index.names()}):
+        indices = index.block_indices(prefix)
+        if indices:
+            print(f"  {prefix}: {len(indices)} blocks")
 
 
 if __name__ == "__main__":

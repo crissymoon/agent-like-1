@@ -160,6 +160,19 @@ images/*.mp4
 .Trashes
 
 # ---------------------------------------------------------------------------
+# Python environments. A virtual environment is 1.1 GB of other people's
+# installed packages, rebuilt from a manifest in one command, and it describes
+# the machine that made it rather than this project. The one here also happens
+# to carry a `.gitignore` holding `*`, which keeps its contents out of a status
+# listing as an accident of how it was created rather than as a rule this
+# repository states; the rule is stated here so it holds for any environment.
+# The pre-push check refuses the same directory, because a rule that lives in
+# one file is a rule that can be walked past by one command.
+/venv_q_mdl_tester/
+/.venv/
+/venv/
+
+# ---------------------------------------------------------------------------
 # Python bytecode. tools/kaggle/ is the portable benchmark and the kernel
 # builder, and importing either leaves a __pycache__ per package. The .pyc is
 # a build product of the .py beside it, and a committed one is a second copy of

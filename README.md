@@ -42,6 +42,23 @@ The other files in the directory are the breadth of the study rather than a pref
 
 The projector is listed apart because it is not a chat model. `mmproj-F16.gguf` (clip, F16, 940.0 MB) maps image embeddings into the language model beside it, and the engine loads it only when a vision task is asked for. A benchmark that treated it as a candidate would spend a run proving that an embedding file cannot answer a question, so the model set excludes it and a run's manifest records whether it was loaded.
 
+### Image models
+
+The directory also holds diffusion models, which generate an image rather than answer a question. They are listed apart because they are not candidates for the benchmark and not comparable with the rows above. This table was built from the weight files on this machine. A diffusion GGUF describes very little of itself in its metadata block and one of these describes nothing at all, so every cell comes from the tensor table, which is what the loader reads: the block counts are the architecture, and the byte counts are the quantisation.
+
+| file | model | architecture | quantisation | blocks | weights | as stored | if held exactly |
+|---|---|---|---|---|---|---|---|
+| qwen-image-2.1-Q4_K_M.gguf | Qwen-Image 2.1 | - | - | 32 | 7,115,124,736 | 3.91 GB | 13.25 GB |
+| flux-2-klein-4b-Q4_K_M.gguf | FLUX.2 klein 4B | flux | Q4_K_M | 5 + 20 | 3,875,544,576 | 2.43 GB | 7.22 GB |
+
+`qwen-image-2.1-Q4_K_M.gguf` carries 3.91 GB of weights where holding the same 7,115,124,736 numbers exactly would take 13.25 GB, which is 30% of it. The weights stay packed the whole way: a quantised tensor is expanded a block at a time inside the forward pass rather than expanded once on load, so the byte column is what the process carries and the file size on disk is not.
+
+`flux-2-klein-4b-Q4_K_M.gguf` carries 2.43 GB of weights where holding the same 3,875,544,576 numbers exactly would take 7.22 GB, which is 34% of it. The weights stay packed the whole way: a quantised tensor is expanded a block at a time inside the forward pass rather than expanded once on load, so the byte column is what the process carries and the file size on disk is not.
+
+One weight file is one component of a pipeline and not a pipeline. The diffusion transformer is loaded from the file and handed to a pipeline assembled from the base repository that goes with it, and that repository is where the text encoder, the VAE and the scheduler come from: `Qwen/Qwen-Image-2.1`, `black-forest-labs/FLUX.2-klein-4B`. That is where the memory actually goes, and it is the reason a model can be small on disk and still not run on a laptop.
+
+Which one runs is `--model` with a key: `qwen-image-2.1`, `flux-2-klein-4b`. `--list` reports every image model and every weight file no profile drives, and `--check` holds a file against the model that claims it, checks the quantisation against what the loader can expand, and prices the run against this machine, all before anything is downloaded.
+
 The quantisation in every file name agrees with the quantisation the header records, which is the cross-check that catches a renamed weight file before a run is attributed to the wrong one.
 
 A context window is a property of the file and not a promise about the run: the engine is started with an explicit context setting, and the value it accepted is in `results/engine/engine-profile.json` beside the image digest it came from.

@@ -189,7 +189,19 @@ def models_section(root: Path, models: list[dict], origin: str) -> list[str]:
 
     defaults = source.default_model_names(root)
     projector_prefix = source.PROJECTOR_PREFIX
-    chat = [m for m in models if not str(m.get("file", "")).startswith(projector_prefix)]
+
+    # An image model does not belong in this table at all. It cannot answer a
+    # benchmark task, so a row of dashes beside a language model would invite the
+    # reader to compare two things that are not comparable. Which files are image
+    # models is read out of the catalog the image tool itself resolves against,
+    # so the split cannot drift from what that tool will actually run.
+    image_files = source.image_model_files(root)
+    chat = [
+        m
+        for m in models
+        if not str(m.get("file", "")).startswith(projector_prefix)
+        and str(m.get("file", "")) not in image_files
+    ]
     support = [m for m in models if str(m.get("file", "")).startswith(projector_prefix)]
     selected = defaults.get("model", "")
 
@@ -266,7 +278,10 @@ def models_section(root: Path, models: list[dict], origin: str) -> list[str]:
         )
         lines.append("")
 
-    disagreements = source.quantisation_disagreements(models)
+    if image_files:
+        lines.extend(image_models_section(root))
+
+    disagreements = source.quantisation_disagreements(chat + support)
     if disagreements:
         lines.append(
             "One reading did not agree with the file it came from, and is reported rather than "
@@ -287,6 +302,98 @@ def models_section(root: Path, models: list[dict], origin: str) -> list[str]:
         "A context window is a property of the file and not a promise about the run: the engine "
         "is started with an explicit context setting, and the value it accepted is in "
         "`results/engine/engine-profile.json` beside the image digest it came from."
+    )
+    lines.append("")
+    return lines
+
+
+def image_models_section(root: Path) -> list[str]:
+    """The diffusion models, read from their tensor tables rather than a header.
+
+    Everything here is derived. The rows come from the tensor table of each
+    weight file, the split between these and the language models comes from the
+    catalog the tool resolves against, and the prose is assembled from those
+    numbers, so a file that is added or replaced moves the document with it.
+    """
+    models, origin = source.read_image_models(root)
+    if not models:
+        return []
+
+    lines = ["### Image models", ""]
+    lines.append(
+        "The directory also holds diffusion models, which generate an image rather than answer a "
+        "question. They are listed apart because they are not candidates for the benchmark and "
+        f"not comparable with the rows above. This table was built from {origin}. A diffusion "
+        "GGUF describes very little of itself in its metadata block and one of these describes "
+        "nothing at all, so every cell comes from the tensor table, which is what the loader "
+        "reads: the block counts are the architecture, and the byte counts are the quantisation."
+    )
+    lines.append("")
+
+    rows = []
+    for model in models:
+        blocks = model.get("blocks") or {}
+        rows.append(
+            [
+                model.get("file", ""),
+                model.get("label", ""),
+                model.get("architecture", "") or "-",
+                model.get("quantisation", "") or "-",
+                " + ".join(str(count) for count in blocks.values()) or "-",
+                plain_count(model.get("parameters")),
+                byte_label(int(model.get("packed_bytes") or 0)),
+                byte_label(int(model.get("exact_bytes") or 0)),
+            ]
+        )
+    lines.extend(
+        table(
+            [
+                "file",
+                "model",
+                "architecture",
+                "quantisation",
+                "blocks",
+                "weights",
+                "as stored",
+                "if held exactly",
+            ],
+            rows,
+        )
+    )
+    lines.append("")
+
+    for model in models:
+        packed = int(model.get("packed_bytes") or 0)
+        exact = int(model.get("exact_bytes") or 0)
+        if not packed or not exact:
+            continue
+        lines.append(
+            f"`{model.get('file', '')}` carries {byte_label(packed)} of weights where holding the "
+            f"same {plain_count(model.get('parameters'))} numbers exactly would take "
+            f"{byte_label(exact)}, which is {packed / exact:.0%} of it. The weights stay packed "
+            "the whole way: a quantised tensor is expanded a block at a time inside the forward "
+            "pass rather than expanded once on load, so the byte column is what the process "
+            "carries and the file size on disk is not."
+        )
+        lines.append("")
+
+    repositories = ", ".join(
+        f"`{model.get('repository', '')}`" for model in models if model.get("repository")
+    )
+    keys = ", ".join(f"`{model.get('key', '')}`" for model in models if model.get("key"))
+    lines.append(
+        "One weight file is one component of a pipeline and not a pipeline. The diffusion "
+        "transformer is loaded from the file and handed to a pipeline assembled from the base "
+        "repository that goes with it, and that repository is where the text encoder, the VAE "
+        f"and the scheduler come from: {repositories}. That is where the memory actually goes, "
+        "and it is the reason a model can be small on disk and still not run on a laptop."
+    )
+    lines.append("")
+    lines.append(
+        f"Which one runs is `--model` with a key: {keys}. `--list` reports every image model and "
+        "every weight file no profile drives, and `--check` holds a file against the model that "
+        "claims it, checks the quantisation against what the loader can expand, and prices the "
+        "run against this machine, all before anything is downloaded."
     )
     lines.append("")
     return lines

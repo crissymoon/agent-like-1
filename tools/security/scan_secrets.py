@@ -121,6 +121,13 @@ FORBIDDEN_PATHS: tuple[ForbiddenPath, ...] = (
         note="Model weights. Nine gigabytes, read-only input, never repository content.",
     ),
     ForbiddenPath(
+        prefix="venv_q_mdl_tester/",
+        note=(
+            "A virtual environment. Other people's installed packages, rebuilt from a "
+            "manifest in one command, and it describes the machine rather than the project."
+        ),
+    ),
+    ForbiddenPath(
         prefix="desktop/build/certs/",
         note=(
             "Signing material. A Developer ID certificate and its private key belong in a "

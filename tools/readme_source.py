@@ -178,6 +178,122 @@ def quantisation_disagreements(models: list[dict]) -> list[str]:
 
 
 # ---------------------------------------------------------------------------
+# The image models.
+#
+# Two kinds of model live in one directory, and they are not comparable: a
+# language model answers the benchmark's tasks and a diffusion model generates
+# an image. Which files are which is not decided here, because a second list of
+# model names would be a second list that can disagree with the first; it is
+# read out of the catalog that the image tool itself resolves names against.
+#
+# Their reading comes from a different place too. The metadata block of a
+# diffusion GGUF carries, at most, an architecture and nothing else, and one of
+# these two carries no metadata at all. So the facts are read from the tensor
+# table: how many blocks, how many numbers, and how many bytes the weights
+# occupy as stored against what they would occupy held exactly.
+
+
+IMAGE_SNAPSHOT_PATH = Path("results/models/image-index.json")
+
+
+def image_profiles() -> list:
+    """The image model profiles, or an empty list when the tool is absent."""
+    try:
+        from imgmodels import catalog
+    except Exception:
+        return []
+    return list(catalog.profiles())
+
+
+def image_model_files(root: Path) -> set[str]:
+    """Weight file names that an image model claims, not a guess from the name."""
+    directory = root / MODELS_DIR
+    claimed: set[str] = set()
+    for profile in image_profiles():
+        if (directory / profile.weights).is_file():
+            claimed.add(profile.weights)
+    return claimed
+
+
+def read_image_models(root: Path, record: bool = True) -> tuple[list[dict], str]:
+    """The image models held here, read from their tensor tables."""
+    directory = root / MODELS_DIR
+    live: list[dict] = []
+    for profile in image_profiles():
+        path = directory / profile.weights
+        if not path.is_file():
+            continue
+        try:
+            index = gguf.read_index(path)
+        except gguf.GgufError:
+            continue
+        live.append(
+            {
+                "file": path.name,
+                "key": profile.key,
+                "label": profile.label,
+                "repository": profile.repo,
+                "pipeline": profile.pipeline,
+                "weights": profile.weights,
+                "bytes": path.stat().st_size,
+                "architecture": str(index.metadata.get("general.architecture", "")),
+                "quantisation": gguf.file_type_name(index.metadata.get("general.file_type")),
+                "tensors": len(index.tensors),
+                "quantised_tensors": index.quantised_count(),
+                "type_histogram": index.type_histogram(),
+                "blocks": {
+                    prefix: len(index.block_indices(prefix))
+                    for prefix, _ in profile.signature.blocks
+                },
+                "parameters": index.elements(),
+                "packed_bytes": index.packed_bytes(),
+                "exact_bytes": index.exact_bytes(),
+            }
+        )
+
+    if live:
+        if record:
+            write_image_record(root, live)
+        return live, "the weight files on this machine"
+
+    recorded = read_json(root / IMAGE_SNAPSHOT_PATH)
+    if recorded:
+        models = recorded.get("models", [])
+        if isinstance(models, list) and models:
+            return models, "the recorded reading in " + str(IMAGE_SNAPSHOT_PATH)
+
+    return [], "nothing: no image weights on this machine and no recorded reading"
+
+
+def write_image_record(root: Path, models: list[dict]) -> Path:
+    """Record the tensor table reading, for a checkout without the weights."""
+    destination = root / IMAGE_SNAPSHOT_PATH
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(
+        json.dumps(
+            {
+                "schema_version": "1",
+                "document": "image-model-index",
+                "note": (
+                    "The tensor table of each image weight file as read on the machine that "
+                    "holds them. A diffusion GGUF describes almost none of its own shape in its "
+                    "metadata, and one of these describes none at all, so the count of blocks, "
+                    "the number of weights and the bytes they occupy as stored all come from the "
+                    "tensors rather than from the header. The weights are a local input and are "
+                    "not in this repository."
+                ),
+                "directory": str(MODELS_DIR),
+                "models": models,
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    return destination
+
+
+# ---------------------------------------------------------------------------
 # The recorded runs.
 # ---------------------------------------------------------------------------
 

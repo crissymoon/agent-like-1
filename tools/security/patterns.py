@@ -270,6 +270,92 @@ ALLOWED_VALUES: frozenset[str] = frozenset(
 )
 
 
+#: Words that only appear in a value somebody wrote for a reader to replace.
+#: A person writing documentation about a key has to write something in the
+#: examples, and "your key goes here" is what they write.
+INSTRUCTION_WORDS: frozenset[str] = frozenset(
+    {
+        "add",
+        "changeme",
+        "dummy",
+        "example",
+        "fake",
+        "here",
+        "insert",
+        "my",
+        "our",
+        "paste",
+        "placeholder",
+        "put",
+        "redacted",
+        "replace",
+        "sample",
+        "todo",
+        "you",
+        "your",
+    }
+)
+
+#: The nouns a value has to contain before it is talking about a credential at
+#: all. This check needs both halves: an instruction word alone is ordinary
+#: English, and a credential noun alone is ordinary English too, so a value has
+#: to be doing both before it is recognised as a written stand-in.
+CREDENTIAL_WORDS: frozenset[str] = frozenset(
+    {
+        "api",
+        "apikey",
+        "auth",
+        "credential",
+        "credentials",
+        "key",
+        "keys",
+        "passwd",
+        "password",
+        "secret",
+        "token",
+        "tokens",
+    }
+)
+
+_WORD_SPLIT: re.Pattern[str] = re.compile(r"[^A-Za-z0-9]+")
+
+#: A run of characters a person would write: letters, or a short number. Every
+#: segment of a value has to look like this before the value can be called
+#: written rather than generated, which is what keeps a key out. `AbCdEf12` and
+#: `a8f5f167` are not words, and no amount of instruction words beside them would
+#: make them one.
+_WRITTEN_SEGMENT: re.Pattern[str] = re.compile(r"[A-Za-z]+|\d{1,4}\Z")
+
+
+def is_written_credential_placeholder(value: str) -> bool:
+    """Whether a value is a stand-in a person wrote out in words.
+
+    `MY_API_KEY = "YOUR_SECRET_Vast_API_KEY"` is a document showing a reader
+    where a credential goes. It matches the assignment rule honestly: the name
+    says it holds a key and the value is a literal. It is not a credential, and
+    reporting it teaches the reader to skim the scanner's output, which costs
+    more than the finding bought.
+
+    Three things have to hold, and each excludes a different mistake. Every
+    segment must be a word or a short number, so a generated key is out however
+    it is punctuated. At least one segment must be about credentials, so an
+    ordinary hyphenated phrase is out. At least one must be an instruction to the
+    reader, so a bare noun like `secret` is out. Provider names pass through
+    untouched: `Vast` and `OpenAI` are words, and a person writing documentation
+    has to be able to name the service the key belongs to.
+    """
+    segments = [segment for segment in _WORD_SPLIT.split(value.strip()) if segment]
+    if not segments:
+        return False
+    if not all(_WRITTEN_SEGMENT.fullmatch(segment) for segment in segments):
+        return False
+
+    lowered = [segment.lower() for segment in segments]
+    if not any(word in CREDENTIAL_WORDS for word in lowered):
+        return False
+    return any(word in INSTRUCTION_WORDS for word in lowered)
+
+
 def is_placeholder(value: str) -> bool:
     """Whether a matched value is a stand-in rather than a credential."""
     candidate = value.strip()
@@ -279,6 +365,8 @@ def is_placeholder(value: str) -> bool:
     if lowered in PLACEHOLDER_VALUES or candidate in ALLOWED_VALUES:
         return True
     if any(hint in lowered for hint in STRUCTURAL_HINTS):
+        return True
+    if is_written_credential_placeholder(candidate):
         return True
     # A value that repeats one character is a mask, not a key.
     stripped = set(lowered)

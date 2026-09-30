@@ -37,6 +37,22 @@
       "gguf_version": 3
     },
     {
+      "file": "flux-2-klein-4b-Q4_K_M.gguf",
+      "bytes": 2604311104,
+      "architecture": "flux",
+      "name": "",
+      "size_label": "",
+      "parameter_count": null,
+      "context_length": null,
+      "embedding_length": null,
+      "block_count": null,
+      "file_type": 15,
+      "quantisation": "Q4_K_M",
+      "metadata_entries": 3,
+      "tensor_count": 149,
+      "gguf_version": 3
+    },
+    {
       "file": "gemma-4-E2B-it-Q4_K_M.gguf",
       "bytes": 3106738272,
       "architecture": "gemma4",
@@ -66,6 +82,22 @@
       "quantisation": "F16",
       "metadata_entries": 38,
       "tensor_count": 1411,
+      "gguf_version": 3
+    },
+    {
+      "file": "qwen-image-2.1-Q4_K_M.gguf",
+      "bytes": 4199565024,
+      "architecture": "",
+      "name": "",
+      "size_label": "",
+      "parameter_count": null,
+      "context_length": null,
+      "embedding_length": null,
+      "block_count": null,
+      "file_type": null,
+      "quantisation": "",
+      "metadata_entries": 0,
+      "tensor_count": 265,
       "gguf_version": 3
     },
     {
