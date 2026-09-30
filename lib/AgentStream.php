@@ -115,7 +115,10 @@ final class AgentStream
             'decoder_scope' => 'environment: HARNESS_AGENT_DECODER_SCOPE',
             'decoder_field' => 'environment: HARNESS_AGENT_DECODER_FIELD',
             'sandbox' => 'environment: HARNESS_AGENT_SANDBOX_POLICY',
-            'workspace_root' => 'environment: HARNESS_WORKSPACE, default ' . sys_get_temp_dir(),
+            // The default is a machine path, so the label records it the way a
+            // record keeps a path rather than the way the machine spells it.
+            'workspace_root' => 'environment: HARNESS_WORKSPACE, default '
+                . PathRecord::forRecord(sys_get_temp_dir()),
             'limit' => 'default',
             'stream' => 'default',
             'scripted' => 'default',
@@ -271,7 +274,7 @@ final class AgentStream
                 ],
                 $this->tasks
             ),
-            'settings' => $this->settings(),
+            'settings' => $this->recordedSettings(),
             'controls' => $controls->describe(),
             'containment' => ContainerBoundary::describe(),
             'engine' => [
@@ -280,7 +283,7 @@ final class AgentStream
                 'summary' => EngineProfile::summarize($engine),
                 'described' => $engine,
             ],
-            'transcript' => $this->stream->transcriptPath(),
+            'transcript' => PathRecord::forRecord($this->stream->transcriptPath()),
         ]);
 
         // The engine is replaceable and the loop is not, so a device that cannot
@@ -375,7 +378,7 @@ final class AgentStream
             'tasks' => $this->rows,
             'aggregate' => $aggregate,
             'counters' => $counterTotals,
-            'artifacts' => $this->artifacts(),
+            'artifacts' => $this->recordedArtifacts(),
             'duration_s' => $duration,
             'aborted' => false,
         ]);
@@ -407,7 +410,7 @@ final class AgentStream
         $this->stream->emit(EventStream::RUN_STARTED, [
             'model' => '(no task was run)',
             'tasks' => [],
-            'settings' => $this->settings(),
+            'settings' => $this->recordedSettings(),
             'controls' => $controls->describe(),
             'containment' => ContainerBoundary::describe(),
             'engine' => [
@@ -416,7 +419,7 @@ final class AgentStream
                 'summary' => EngineProfile::summarize($engine),
                 'described' => $engine,
             ],
-            'transcript' => $this->stream->transcriptPath(),
+            'transcript' => PathRecord::forRecord($this->stream->transcriptPath()),
         ]);
 
         $duration = round(microtime(true) - $startedAt, 3);
@@ -424,7 +427,7 @@ final class AgentStream
             'tasks' => [],
             'aggregate' => ['note' => 'describe only, no task was run', 'per_capability' => [], 'counters' => []],
             'counters' => [],
-            'artifacts' => $this->artifacts(),
+            'artifacts' => $this->recordedArtifacts(),
             'duration_s' => $duration,
             'aborted' => false,
         ]);
@@ -434,7 +437,7 @@ final class AgentStream
             'run_id' => $runId,
             'document' => 'agent-stream-describe',
             'duration_s' => $duration,
-            'settings' => $this->settings(),
+            'settings' => $this->recordedSettings(),
             'controls' => $controls->describe(),
         ];
     }
@@ -473,7 +476,7 @@ final class AgentStream
             'tasks' => [],
             'aggregate' => $record['aggregate'],
             'counters' => [],
-            'artifacts' => $this->artifacts(),
+            'artifacts' => $this->recordedArtifacts(),
             'duration_s' => $duration,
             'aborted' => true,
         ]);
@@ -483,12 +486,43 @@ final class AgentStream
     }
 
     /**
+     * The settings as a record keeps them.
+     *
+     * The live settings drive the run and are left alone: the loop reads the
+     * workspace out of them. This is the copy that goes into an event or a
+     * document, where the only thing a reader can do with a machine path is
+     * learn where the machine keeps its files.
+     *
+     * @return array<string, mixed>
+     */
+    private function recordedSettings(): array
+    {
+        return (array) PathRecord::tree($this->settings());
+    }
+
+    /**
+     * The artifacts as a record keeps them.
+     *
+     * `artifacts()` is the live pair and the record is written through it, so
+     * only this copy is shortened.
+     *
+     * @return array{transcript: string, record: string}
+     */
+    private function recordedArtifacts(): array
+    {
+        return [
+            'transcript' => PathRecord::forRecord($this->stream->transcriptPath()),
+            'record' => PathRecord::forRecord($this->stream->transcriptPath() . '.result.json'),
+        ];
+    }
+
+    /**
      * @return array{transcript: string, record: string}
      */
     private function artifacts(): array
     {
         return [
-            'transcript' => $this->stream->transcriptPath(),
+            'transcript' => PathRecord::forRecord($this->stream->transcriptPath()),
             'record' => $this->stream->transcriptPath() . '.result.json',
         ];
     }
@@ -516,7 +550,7 @@ final class AgentStream
             'started_at' => $startedAtIso,
             'finished_at' => date('c'),
             'duration_s' => $duration,
-            'settings' => $this->settings(),
+            'settings' => $this->recordedSettings(),
             'controls' => $controls->describe(),
             'engine' => $engine,
             'containment' => ContainerBoundary::describe(),

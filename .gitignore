@@ -88,6 +88,25 @@ desktop/out/
 results/benchmark/kaggle-pull/
 
 # ---------------------------------------------------------------------------
+# Interaction traces. Every run writes a transcript, and so does every probe:
+# pressing a row in the window, asking the engine to describe itself, and
+# stopping a load test each leave an events.ndjson behind. Those are the run
+# narrating itself rather than a measurement, and the load captures are the
+# scratch of a test whose result is kept in load-final. engine.log is the
+# server's own startup output on this machine, including its accelerator and
+# memory lines. All of them describe the device that produced them: absolute
+# paths, a loopback address, the temporary directory. The measured documents
+# beside them are kept, because those are what a reader compares.
+results/agent/ui-*/
+results/agent/scriptprobe/
+results/agent/stream-probe/
+results/agent/fixture-scripted/
+results/agent/describe-container/
+results/agent/load-harness*/
+results/load/
+results/engine/engine.log
+
+# ---------------------------------------------------------------------------
 # Heavy media and archives. The four dated photographs are vision fixtures
 # read from the host by absolute path; the JSON evidence records the path and
 # the model's reading of it, not the bytes. The Kaggle cover images are the

@@ -141,6 +141,9 @@ python3 tools/kaggle/kernel.py --owner $KAGGLE_OWNER --check
 python3 tools/security/scan_secrets.py --install-hook
 python3 tools/security/scan_secrets.py --tracked --paths
 
+# machine paths in a record, shortened to repository relative form
+python3 tools/normalize_paths.py --check
+
 # and this document
 python3 tools/build_readme.py
 python3 tools/build_readme.py --check
@@ -148,11 +151,15 @@ python3 tools/build_readme.py --check
 
 The harness never reaches the network on its own. A run that needs the hosted reference model reads its credential from the environment, which is the only place a credential is expected to be, and the scanner refuses a commit that puts one in a file instead.
 
+The same check refuses two more things. It refuses a directory that exists only for local work, and it refuses a machine path, because a recorded run that carries the checkout location also carries the account name and whatever sits beside it. A path is written into a record in the form a reader elsewhere can use: relative to this repository, or under a home or temporary marker. `lib/PathRecord.php` is that rule for the writers, `tools/normalize_paths.py` applies the same rule to records written before it existed, and the check keeps it from coming back.
+
 ## What is not in this repository
 
 Model weights, the Electron runtime, derived caches, task scratch, unpublished research notes, captured vendor pricing, and build artefacts are held outside version control. Some of them are large, some are regenerable in one command, and some are work that is not ready to leave the machine. `.gitignore` carries the full list with the reason for each entry, because a rule whose reason is lost is a rule somebody deletes.
 
 The evidence a run leaves behind is the opposite case and is committed. The CSVs, the manifests, the figures and the dataset under `results/` are small, they are the record of what was measured, and a claim without one is not a result.
+
+One part of that evidence is held out: the interaction traces. Every probe the window makes leaves an `events.ndjson`, and the load captures are the scratch of a test whose result is kept separately. They are the run narrating itself rather than a measurement, and they carry the absolute paths, the loopback address and the temporary directory of the device that produced them. The traces stay on the machine that made them; the measured documents beside them are what travels.
 
 ---
 

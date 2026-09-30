@@ -1,11 +1,18 @@
-"""Refuses to let a credential or a closed directory reach the remote.
+"""Refuses to let a credential, a closed directory or a machine path reach the remote.
 
-The repository is pushed by one command, and the two ways a push goes wrong are
-the same two every time: a key is written into a file because it was quicker
-than an environment variable, and a directory that exists for local work is
-added by name. Both are checked here, before the commit rather than after the
-push, because a secret that has reached a remote is not fixed by a later commit,
-it is fixed by rotating the secret.
+The repository is pushed by one command, and the ways a push goes wrong are the
+same few every time: a key is written into a file because it was quicker than an
+environment variable, a directory that exists for local work is added by name,
+and a record of a run carries the path the run happened in. All of them are
+checked here, before the commit rather than after the push, because a secret
+that has reached a remote is not fixed by a later commit, it is fixed by
+rotating the secret.
+
+A machine path is the mildest of the three and it is still refused, because a
+record is the thing that gets handed to somebody else: an absolute home path in
+a recorded run names the account, the checkout and whatever sits beside it, and
+none of that is a measurement. tools/normalize_paths.py rewrites the records
+that already carry one.
 
     python3 tools/security/scan_secrets.py                  # the staged files
     python3 tools/security/scan_secrets.py --tracked        # everything committed
@@ -38,17 +45,21 @@ if str(HERE) not in sys.path:
 
 try:  # the package
     from .patterns import (
+        DISCLOSURE_PATTERNS,
         GENERIC_ASSIGNMENT,
         PROVIDER_PATTERNS,
         SecretPattern,
         is_placeholder,
+        is_written_placeholder,
     )
 except ImportError:  # run as a script, beside its own module
     from patterns import (  # type: ignore[no-redef]
+        DISCLOSURE_PATTERNS,
         GENERIC_ASSIGNMENT,
         PROVIDER_PATTERNS,
         SecretPattern,
         is_placeholder,
+        is_written_placeholder,
     )
 
 #: Files larger than this are not scanned. A credential is a line of text, and
@@ -119,7 +130,7 @@ def _looks_binary(data: bytes) -> bool:
 
 
 def scan_text(text: str, path: str) -> list[Finding]:
-    """Every credential-shaped string in one file's text."""
+    """Every credential-shaped string and every machine path in one file's text."""
     findings: list[Finding] = []
 
     for pattern in (*PROVIDER_PATTERNS, GENERIC_ASSIGNMENT):
@@ -135,6 +146,25 @@ def scan_text(text: str, path: str) -> list[Finding]:
                     name=pattern.name,
                     detail=pattern.note,
                     excerpt=mask(value),
+                )
+            )
+
+    # A machine path is reported whole rather than masked: it is not a
+    # credential, and a reader who has to shorten it needs to see which part of
+    # it is the machine.
+    for pattern in DISCLOSURE_PATTERNS:
+        for match in pattern.regex.finditer(text):
+            value = match.group(pattern.group)
+            if not value or is_written_placeholder(value):
+                continue
+            findings.append(
+                Finding(
+                    kind="disclosure",
+                    path=path,
+                    line=_line_of(text, match.start()),
+                    name=pattern.name,
+                    detail=pattern.note,
+                    excerpt=value,
                 )
             )
 
@@ -317,14 +347,18 @@ def install_hook(root: Path) -> list[Path]:
 def _report(findings: list[Finding], mode: str, stream) -> None:
     secrets = [f for f in findings if f.kind == "secret"]
     paths = [f for f in findings if f.kind == "path"]
+    disclosures = [f for f in findings if f.kind == "disclosure"]
 
     if not findings:
-        print(f"scan_secrets: {mode} clean, no credential and no closed path", file=stream)
+        print(
+            f"scan_secrets: {mode} clean, no credential, no closed path and no machine path",
+            file=stream,
+        )
         return
 
     print(
-        f"scan_secrets: {mode} refused, {len(secrets)} credential(s) and "
-        f"{len(paths)} closed path(s)",
+        f"scan_secrets: {mode} refused, {len(secrets)} credential(s), "
+        f"{len(paths)} closed path(s) and {len(disclosures)} machine path(s)",
         file=stream,
     )
     for finding in findings:
@@ -333,6 +367,13 @@ def _report(findings: list[Finding], mode: str, stream) -> None:
         print(
             "  A matched value is masked. Rotate the credential before removing the "
             "line: it is already in the working tree and possibly in history.",
+            file=stream,
+        )
+    if disclosures:
+        print(
+            "  A machine path is a location, not a credential. Shorten it the way a "
+            "record keeps a path: relative to the repository, or under a home or "
+            "temporary marker. tools/normalize_paths.py --write rewrites the records.",
             file=stream,
         )
 
@@ -409,6 +450,7 @@ def main(argv: list[str] | None = None) -> int:
                     "counts": {
                         "secret": sum(1 for f in findings if f.kind == "secret"),
                         "path": sum(1 for f in findings if f.kind == "path"),
+                        "disclosure": sum(1 for f in findings if f.kind == "disclosure"),
                     },
                     "findings": [asdict(f) for f in findings],
                 },

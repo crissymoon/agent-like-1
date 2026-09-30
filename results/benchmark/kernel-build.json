@@ -6,11 +6,12 @@
   "cells": 33,
   "code_cells": 14,
   "markdown_cells": 19,
-  "tools_dir": "~/Documents/sql-mgr/tools",
+  "tools_module": "kaggle_kernel.py",
+  "tools_note": "the toolbelt that owns the notebook format is a sibling project, so its directory is recorded as the token <tools> rather than as the path it had on the machine that ran this build",
   "findings": [],
   "commands": [
-    "python3 ~/Documents/sql-mgr/tools/kaggle_kernel.py push --dir kernels/gemma-benchmark",
-    "python3 ~/Documents/sql-mgr/tools/kaggle_kernel.py watch crissymoon/agent-benchmark --timeout 1800 --path results/benchmark/kaggle-pull",
-    "python3 ~/Documents/sql-mgr/tools/kaggle_kernel.py verify-notebook crissymoon/agent-benchmark --dir kernels/gemma-benchmark --json results/benchmark/kernel-roundtrip.json"
+    "python3 <tools>/kaggle_kernel.py push --dir kernels/gemma-benchmark",
+    "python3 <tools>/kaggle_kernel.py watch crissymoon/agent-benchmark --timeout 1800 --path results/benchmark/kaggle-pull",
+    "python3 <tools>/kaggle_kernel.py verify-notebook crissymoon/agent-benchmark --dir kernels/gemma-benchmark --json results/benchmark/kernel-roundtrip.json"
   ]
 }

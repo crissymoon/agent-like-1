@@ -60,6 +60,7 @@ final class AgentSelfCheck
         $this->reportChecks($out);
         $this->benchmarkChecks($out);
         $this->streamChecks($out);
+        $this->pathChecks($out);
 
         $out(sprintf(
             '%s: %d check(s), %d failed',
@@ -851,6 +852,81 @@ final class AgentSelfCheck
         );
 
         self::clean($directory);
+    }
+
+    /**
+     * The path shortener, which is a security check rather than a formatting one.
+     *
+     * A record that carries the checkout path also carries the account name and
+     * the directory the checkout sits in, and a record is the thing that gets
+     * handed to somebody else. The property under test is that the shortened
+     * form cannot be read back into the machine that produced it: not the root,
+     * not the directory above the root, not the account name.
+     */
+    private function pathChecks(callable $out): void
+    {
+        $inside = HARNESS_ROOT . '/results/agent/baseline/events.ndjson';
+        $this->expect(
+            $out,
+            'a path inside the repository is recorded relative to it',
+            PathRecord::forRecord($inside) === 'results/agent/baseline/events.ndjson'
+        );
+        $this->expect(
+            $out,
+            'a recorded path does not carry the checkout or the directory above it',
+            !str_contains(PathRecord::forRecord($inside), HARNESS_PARENT)
+            && !str_contains(PathRecord::forRecord($inside), (string) HARNESS_ROOT)
+        );
+
+        $temp = sys_get_temp_dir() . '/gemma-agent-workspace';
+        $this->expect(
+            $out,
+            'a path under the temporary directory is recorded with a placeholder',
+            PathRecord::forRecord($temp) === '<tmp>/gemma-agent-workspace'
+        );
+        $this->expect(
+            $out,
+            'a path under the temporary directory is not recorded in full',
+            !str_contains(PathRecord::forRecord($temp . '/total.txt'), (string) sys_get_temp_dir())
+        );
+        $this->expect(
+            $out,
+            'a prefix that is the whole value is recorded as the marker alone',
+            PathRecord::forRecord((string) sys_get_temp_dir()) === '<tmp>'
+            && PathRecord::forRecord((string) HARNESS_ROOT) === '.'
+        );
+
+        $home = (string) (getenv('HOME') ?: '');
+        if ($home !== '') {
+            $elsewhere = $home . '/Documents/another-project/tools/x.py';
+            $this->expect(
+                $out,
+                'a path outside the repository but inside the account is recorded from home',
+                str_starts_with(PathRecord::forRecord($elsewhere), '~/')
+                && !str_contains(PathRecord::forRecord($elsewhere), $home)
+            );
+        }
+
+        $untouched = ['http://127.0.0.1:8081', 'results/agent', '', '/var/log/system.log'];
+        $this->expect(
+            $out,
+            'a URL and an already relative path are left alone',
+            array_map([PathRecord::class, 'forRecord'], $untouched) === $untouched
+        );
+
+        $tree = PathRecord::tree([
+            'settings' => ['workspace_root' => $inside, 'max_tokens' => 768],
+            'artifacts' => ['transcript' => $temp . '/events.ndjson'],
+            'count' => 3,
+        ]);
+        $this->expect(
+            $out,
+            'the shortener walks a nested record and leaves the other types alone',
+            $tree['settings']['workspace_root'] === 'results/agent/baseline/events.ndjson'
+            && $tree['settings']['max_tokens'] === 768
+            && $tree['artifacts']['transcript'] === '<tmp>/gemma-agent-workspace/events.ndjson'
+            && $tree['count'] === 3
+        );
     }
 
     private static function scratch(string $name): string

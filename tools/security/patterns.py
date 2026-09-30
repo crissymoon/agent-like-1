@@ -14,12 +14,30 @@ credentials until nobody reads the output, and a report nobody reads is worse
 than no report. And nothing here is allowed to be widened into a guess: every
 pattern below is either a documented token prefix or a name that states what it
 holds.
+
+The second list below is a different question with the same answer. A machine
+path is not a credential, and it is still not repository content: an absolute
+home path in a recorded run names the account, the checkout location and
+whatever sits beside it, and a record is the thing that gets handed to somebody
+else. It is kept apart from the credential list because the two are reported
+differently and a reader should be able to tell at a glance which of the two
+they are looking at.
 """
 
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class DisclosurePattern:
+    """A string that describes the machine rather than the work, and how to spot it."""
+
+    name: str
+    regex: re.Pattern[str]
+    note: str
+    group: int = 0
 
 
 @dataclass(frozen=True)
@@ -142,6 +160,32 @@ GENERIC_ASSIGNMENT: SecretPattern = SecretPattern(
 )
 
 
+#: Strings that describe the machine that produced a file rather than the work
+#: in it. Each of these is a layout an operator can read: an account name, the
+#: directory a checkout sits in, the drive a project lives on.
+#:
+#: Nothing here matches a relative path, and nothing here matches a loopback
+#: address, because those are what a record is supposed to carry. The rule is
+#: about who the record describes, not about how specific it is.
+DISCLOSURE_PATTERNS: tuple[DisclosurePattern, ...] = (
+    DisclosurePattern(
+        name="home-directory-path",
+        regex=_compile(r"(?:/Users|/home|/root)/[A-Za-z0-9._-]+(?:/[^\"'\s\\]*)"),
+        note="An absolute home path. Shorten it to a repository path, a home marker or a placeholder.",
+    ),
+    DisclosurePattern(
+        name="windows-home-path",
+        regex=_compile(r"[A-Za-z]:[\\/]Users[\\/][^\\/\"'\s]+"),
+        note="A drive letter, an account name and the checkout location in one string.",
+    ),
+    DisclosurePattern(
+        name="macos-temp-path",
+        regex=_compile(r"/(?:private/)?var/folders/[A-Za-z0-9_]{2,}/[A-Za-z0-9_]{2,}/[A-Za-z0-9_]+"),
+        note="The per-user temporary directory, which names the account that ran the work.",
+    ),
+)
+
+
 #: Values that are not credentials. A structural marker is checked as a
 #: substring; a word is compared whole, because a real key can contain a word
 #: like `test` by chance and dropping it would be a false negative.
@@ -213,3 +257,14 @@ def is_placeholder(value: str) -> bool:
         return True
 
     return False
+
+
+def is_written_placeholder(value: str) -> bool:
+    """Whether a matched path is a stand-in the project writes on purpose.
+
+    A document that explains this rule has to be able to name the shape it
+    refuses without the explanation being refused itself, so a value carrying
+    an angle bracket or an environment reference is a written placeholder
+    rather than a machine path.
+    """
+    return any(hint in value for hint in STRUCTURAL_HINTS)

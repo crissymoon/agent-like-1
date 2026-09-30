@@ -795,7 +795,9 @@ $run = [
         'max_observation_chars' => HARNESS_AGENT_MAX_OBSERVATION,
         'command_timeout_s' => HARNESS_AGENT_COMMAND_TIMEOUT,
         'history_turns' => HARNESS_AGENT_HISTORY_TURNS,
-        'workspace_root' => $workspaceRoot,
+        // Recorded in the shortened form: the workspace is a machine path, and
+        // the manifest travels out of the machine that measured it.
+        'workspace_root' => PathRecord::forRecord($workspaceRoot),
     ],
     'tasks' => array_map(static fn (array $task): array => [
         'id' => (string) $task['id'],

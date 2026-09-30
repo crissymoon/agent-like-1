@@ -31,7 +31,7 @@ final class Bootstrap
             'Metrics', 'SandboxPolicy', 'ShellCommand', 'Sandbox', 'ToolRegistry', 'ActionSchema',
             'AgentTask', 'AgentPrompt', 'AgentAction', 'DecodingConstraint', 'LoopGuard',
             'AgentControls', 'AgentClient', 'OpenAICompatAgentClient', 'ScriptedAgentClient',
-            'StreamingSse', 'AgentLoop', 'AgentStream', 'AgentScoring',
+            'StreamingSse', 'PathRecord', 'AgentLoop', 'AgentStream', 'AgentScoring',
             'EventStream', 'ContainerBoundary', 'EngineProfile', 'AgentSelfCheck', 'AgentReport',
             'PostTrainGap', 'TrajectoryReplay', 'LadderCompare', 'StreamSelfCheck',
             'ModelCatalog', 'ModelBenchmark',

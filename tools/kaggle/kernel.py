@@ -37,8 +37,30 @@ from gembench import notebook  # noqa: E402
 #: restated here.
 TOOLBELT_MODULE = "kaggle_kernel.py"
 
+#: The toolbelt is a sibling project, so a command that names it by absolute
+#: path records the machine rather than the build: the account name, the
+#: directory the two projects sit in, and how they are laid out beside each
+#: other. The token stands for wherever the directory is, which is the one thing
+#: about it a reader with their own checkout needs.
+TOOLS_TOKEN = "<tools>"
+
 DEFAULT_SLUG = "agent-benchmark"
 DEFAULT_TITLE = "Agent Benchmark"
+
+
+def recorded_path(path: Path) -> str:
+    """A path as the build record keeps it.
+
+    Under the project it is relative to the project, which is what a reader with
+    a checkout can follow. Outside it the path belongs to another project, and
+    where that project sits is a fact about this machine, so the token is kept
+    in its place.
+    """
+    resolved = path.expanduser().resolve()
+    try:
+        return str(resolved.relative_to(PROJECT.resolve()))
+    except ValueError:
+        return f"{TOOLS_TOKEN}/{resolved.name}"
 
 
 def resolve_tools(explicit: str | None) -> Path:
@@ -103,14 +125,15 @@ def build(directory: Path, owner: str, slug: str, title: str, private: bool, too
 
     kinds = [cell["cell_type"] for cell in document["cells"]]
     return {
-        "directory": str(directory),
-        "notebook": str(notebook_path),
-        "metadata": str(metadata_path),
+        "directory": recorded_path(directory),
+        "notebook": recorded_path(notebook_path),
+        "metadata": recorded_path(metadata_path),
         "identifier": identifier,
         "cells": len(document["cells"]),
         "code_cells": kinds.count("code"),
         "markdown_cells": kinds.count("markdown"),
-        "tools_dir": str(tools_dir),
+        "tools_module": TOOLBELT_MODULE,
+        "tools_dir_live": str(tools_dir),
         "notebook_document": document,
         "toolbelt": toolbelt,
     }
@@ -145,14 +168,14 @@ def findings_for(built: dict) -> list[str]:
 
 
 def commands(built: dict) -> list[str]:
-    """The publish loop, in the order it is run."""
+    """The publish loop, in the order it is run, in the form a record keeps it."""
     directory = built["directory"]
     identifier = built["identifier"]
-    tools = built["tools_dir"]
+    tool = f"{TOOLS_TOKEN}/{TOOLBELT_MODULE}"
     return [
-        f"python3 {tools}/kaggle_kernel.py push --dir {directory}",
-        f"python3 {tools}/kaggle_kernel.py watch {identifier} --timeout 1800 --path results/benchmark/kaggle-pull",
-        f"python3 {tools}/kaggle_kernel.py verify-notebook {identifier} --dir {directory} "
+        f"python3 {tool} push --dir {directory}",
+        f"python3 {tool} watch {identifier} --timeout 1800 --path results/benchmark/kaggle-pull",
+        f"python3 {tool} verify-notebook {identifier} --dir {directory} "
         "--json results/benchmark/kernel-roundtrip.json",
     ]
 
@@ -191,7 +214,7 @@ def main(argv: list[str] | None = None) -> int:
         f"cells    : {built['cells']} "
         f"({built['code_cells']} code, {built['markdown_cells']} markdown)"
     )
-    print(f"toolbelt : {built['tools_dir']}")
+    print(f"toolbelt : {built['tools_dir_live']}")
 
     found = findings_for(built)
     for item in found:
@@ -207,7 +230,19 @@ def main(argv: list[str] | None = None) -> int:
     if args.json:
         out = Path(args.json)
         out.parent.mkdir(parents=True, exist_ok=True)
-        record = {key: value for key, value in built.items() if key not in {"notebook_document", "toolbelt"}}
+        # The module objects and the live toolbelt path stay out of the record:
+        # the first two are processes rather than facts, and the third is where
+        # this machine happens to keep a sibling project.
+        record = {
+            key: value
+            for key, value in built.items()
+            if key not in {"notebook_document", "toolbelt", "tools_dir_live"}
+        }
+        record["tools_note"] = (
+            "the toolbelt that owns the notebook format is a sibling project, so its "
+            f"directory is recorded as the token {TOOLS_TOKEN} rather than as the path "
+            "it had on the machine that ran this build"
+        )
         record["findings"] = found
         record["commands"] = commands(built)
         out.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
