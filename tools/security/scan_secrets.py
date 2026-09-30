@@ -17,12 +17,19 @@ that already carry one.
     python3 tools/security/scan_secrets.py                  # the staged files
     python3 tools/security/scan_secrets.py --tracked        # everything committed
     python3 tools/security/scan_secrets.py --all            # plus untracked, minus ignored
+    python3 tools/security/scan_secrets.py --history        # every blob any ref can reach
     python3 tools/security/scan_secrets.py --install-hook   # wire it into git
 
 `--install-hook` writes two hooks, because one is not enough. The pre-commit
 hook reads the index, which catches a credential as it is written. The pre-push
 hook reads everything committed, which catches one that was committed before
 either hook existed and would otherwise leave with the next push.
+
+`--history` is the widest view and it is not in either hook, because it is the
+expensive one: a credential that was committed and then deleted is gone from
+the tree and still travels with the history that holds it, so this reads every
+blob any ref can reach rather than the tree at HEAD. Run it before a history
+rewrite, and after one to prove the rewrite did what it claimed.
 
 Exit status is zero when clean, one when something was found, and two when the
 check could not run, so a hook that cannot run fails the commit rather than
@@ -219,6 +226,25 @@ def _worktree_paths(root: Path) -> list[str]:
     return [line for line in output.splitlines() if line.strip()]
 
 
+def _history_blobs(root: Path) -> list[tuple[str, str]]:
+    """Every blob reachable from any ref, as (object id, a path it is stored at).
+
+    A push sends objects rather than a tree, so the tree at HEAD is not the
+    whole answer: a credential that was committed and then deleted is gone from
+    HEAD and still leaves with the next push of the history that holds it. This
+    is the expensive view, which is why it is offered rather than run by
+    default, and the object id is the key so a blob stored at twenty paths is
+    read once.
+    """
+    output = _git("rev-list", "--objects", "--all", cwd=root)
+    blobs: dict[str, str] = {}
+    for line in output.splitlines():
+        parts = line.split(" ", 1)
+        if len(parts) == 2 and parts[1].strip():
+            blobs.setdefault(parts[0], parts[1])
+    return sorted(blobs.items())
+
+
 def _staged_bytes(root: Path, path: str) -> bytes:
     """The content of a staged path, which is the version that would be committed.
 
@@ -238,11 +264,42 @@ def _staged_bytes(root: Path, path: str) -> bytes:
 
 
 def scan_repository(root: Path, mode: str) -> list[Finding]:
-    """Scan one of the three views of the repository.
+    """Scan one of the four views of the repository.
 
-    `mode` is "staged", "tracked" or "all". The staged view reads the index; the
-    other two read the working tree.
+    `mode` is "staged", "tracked", "all" or "history". The staged view reads the
+    index; the middle two read the working tree; the history view reads every
+    blob reachable from any ref, which is what a push actually sends.
     """
+    if mode == "history":
+        findings: list[Finding] = []
+        for object_id, path in _history_blobs(root):
+            result = subprocess.run(
+                ["git", "cat-file", "blob", object_id],
+                cwd=str(root),
+                capture_output=True,
+                check=False,
+            )
+            if result.returncode != 0:
+                continue
+            data = result.stdout
+            if len(data) > MAX_FILE_BYTES:
+                findings.append(
+                    Finding(
+                        kind="path",
+                        path=path,
+                        line=0,
+                        name="oversized-blob",
+                        detail=(
+                            "A blob over the scan limit is in the history. This usually means "
+                            "something that should never have been committed is there."
+                        ),
+                        excerpt=f"{len(data)} bytes at {object_id[:10]}",
+                    )
+                )
+                continue
+            findings.extend(scan_bytes(data, f"{path} ({object_id[:10]})"))
+        return findings
+
     if mode == "staged":
         paths = _staged_paths(root)
     elif mode == "tracked":
@@ -387,6 +444,11 @@ def main(argv: list[str] | None = None) -> int:
     view.add_argument("--staged", action="store_true", help="scan the index (default)")
     view.add_argument("--tracked", action="store_true", help="scan everything committed")
     view.add_argument("--all", action="store_true", help="scan tracked plus untracked, minus ignored")
+    view.add_argument(
+        "--history",
+        action="store_true",
+        help="scan every blob reachable from any ref, which is what a push sends",
+    )
     parser.add_argument(
         "--paths",
         action="store_true",
@@ -412,7 +474,15 @@ def main(argv: list[str] | None = None) -> int:
             print(f"scan_secrets: installed {hook}")
         return 0
 
-    mode = "tracked" if args.tracked else "all" if args.all else "staged"
+    mode = (
+        "tracked"
+        if args.tracked
+        else "all"
+        if args.all
+        else "history"
+        if args.history
+        else "staged"
+    )
 
     try:
         findings = scan_repository(root, mode)
@@ -422,13 +492,14 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.paths:
         try:
-            candidates = (
-                _staged_paths(root)
-                if mode == "staged"
-                else _tracked_paths(root)
-                if mode == "tracked"
-                else _worktree_paths(root)
-            )
+            if mode == "history":
+                candidates = [path for _, path in _history_blobs(root)]
+            elif mode == "staged":
+                candidates = _staged_paths(root)
+            elif mode == "tracked":
+                candidates = _tracked_paths(root)
+            else:
+                candidates = _worktree_paths(root)
         except RuntimeError as error:
             print(f"scan_secrets: {error}", file=sys.stderr)
             return 2

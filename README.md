@@ -141,6 +141,9 @@ python3 tools/kaggle/kernel.py --owner $KAGGLE_OWNER --check
 python3 tools/security/scan_secrets.py --install-hook
 python3 tools/security/scan_secrets.py --tracked --paths
 
+# and the wide view, every blob any ref can reach, before or after a rewrite
+python3 tools/security/scan_secrets.py --history
+
 # machine paths in a record, shortened to repository relative form
 python3 tools/normalize_paths.py --check
 
