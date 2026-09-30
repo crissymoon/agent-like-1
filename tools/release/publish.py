@@ -150,7 +150,9 @@ def publish(
 
     if dry_run:
         out("release: dry run, the command would be " + " ".join(arguments))
-        return _refuse(root, report, receipt, out, "nothing was sent")
+        written = _record(root, report, receipt, None)
+        out(f"release: nothing was sent, the receipt is {_relative(root, written)}")
+        return 0
 
     out(f"release: sending {report.commit[:12]} to {public_remote} ({url}) as {branch}")
     # Run rather than capture: a push reports its progress over time and can ask
