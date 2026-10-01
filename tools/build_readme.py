@@ -85,6 +85,27 @@ LAYOUT: tuple[tuple[str, str], ...] = (
 #: shows is a sentence that drifts from the image.
 BANNER: tuple[str, str] = ("images/agent-like.webp", "agent-like")
 
+#: The image the document closes with, the name it is announced under, and the
+#: page it points at. A picture at the end of a document is a link in practice
+#: and a bare image is a dead end, so the two are declared together and emitted
+#: as one anchor rather than as a picture and an address beside it.
+CLOSING_IMAGE: tuple[str, str, str] = (
+    "images/xcalibur-full-cat.webp",
+    "Xcalibur Moon",
+    "https://xcaliburmoon.net/",
+)
+
+#: What else the last section points at, as a label and an address. The notebook
+#: runs the same suite off this machine, which is the one part of the work a
+#: reader can open without a checkout, so it is stated beside the picture rather
+#: than described in the section that owns the arithmetic.
+CLOSING_LINKS: tuple[tuple[str, str], ...] = (
+    (
+        "Partially share with Kaggle for benchmarking",
+        "https://www.kaggle.com/code/crissymoon/agent-benchmark",
+    ),
+)
+
 
 # ---------------------------------------------------------------------------
 # Small formatting helpers. A table cell is the only place a value is changed.
@@ -161,6 +182,34 @@ def banner_section(root: Path) -> list[str]:
     if not (root / path).exists():
         return []
     return [f'<p align="center"><img src="{path}" alt="{alt}" width="100%"></p>', ""]
+
+
+def closing_section(root: Path) -> list[str]:
+    """The picture the document closes with, and the addresses beside it.
+
+    The picture is emitted only where the file is on disk, for the reason the
+    banner is: an anchor around a file that is not there is a broken image at
+    the end of the page rather than a link. The addresses below it are text, so
+    they are emitted either way, because a reader who never sees the picture can
+    still follow the notebook.
+
+    It closes the document rather than opening it, so it carries what a reader
+    would otherwise have to leave the page to find: the site the work is
+    described on, and the hosted notebook that runs the same suite.
+    """
+    lines = ["## Links", ""]
+    path, alt, href = CLOSING_IMAGE
+    if (root / path).exists():
+        lines.append(
+            f'<p align="center"><a href="{href}"><img src="{path}" alt="{alt}" '
+            'width="100%"></a></p>'
+        )
+        lines.append("")
+    lines.extend(
+        f'<p align="center"><a href="{url}">{label}</a></p>' for label, url in CLOSING_LINKS
+    )
+    lines.append("")
+    return lines
 
 
 def layout_section(root: Path) -> list[str]:
@@ -1066,6 +1115,7 @@ def build(root: Path, record: bool = True) -> str:
         distribution_section(root),
         licence_section(root),
         exclusions_section(),
+        closing_section(root),
         footer(),
     ]
 
