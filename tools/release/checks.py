@@ -1,11 +1,12 @@
 """The review a checkout passes before either copy is sent to.
 
-Nine questions are asked of the commit every time, and each of the two send
-commands adds the two preconditions that belong to it. The nine are the ones
+Ten questions are asked of the commit every time, and each of the two send
+commands adds the two preconditions that belong to it. The ten are the ones
 that hold wherever the commit is going: whether anything that belongs on this
 machine is in the tree, whether the reading is of the commit a person is looking
-at, and whether every file in it is written down with its size and the hash of
-its content so the list can be read and compared.
+at, whether a page the repository holds is readable where it is read, and
+whether every file in it is written down with its size and the hash of its
+content so the list can be read and compared.
 
 The two commands differ in what they refuse rather than in what they read. A
 send to the private repository must add to it rather than rewrite it, and must
@@ -337,6 +338,32 @@ def readme_check(root: Path) -> Check:
     return Check(name, result.returncode == 0, verdict or "no output")
 
 
+def page_markdown_check(root: Path) -> Check:
+    """The markdown of an exported page is addressed for the reader that finds it.
+
+    A page is two files with two readers. The page beside its images is served
+    from the folder it sits in, and the markdown of the same name is rendered by
+    GitHub, which resolves every path from the tree instead. A reference written
+    for the server - an image from the site root, a link to the exported `.html`
+    - answers to the first reader and to nothing for the second, and it reaches
+    the repository as a broken image or a source listing rather than a page.
+
+    The export hands the copy to `github_md.py`, so the same tool is asked here
+    rather than a second reading of the same rule. It is asked of the commit
+    because a page exported before the converter ran, or exported to a
+    destination that has none, carries the server's addressing into the
+    repository otherwise, and a page that is broken on the remote is read by a
+    person before it is fixed.
+    """
+    name = "every exported page's markdown is addressed for GitHub"
+    result = run_command(root, [sys.executable, str(TOOLS / "github_md.py"), "--check"])
+    verdict = last_line(command_text(result))
+    if result.returncode not in (0, 1):
+        raise ReleaseError("the markdown converter could not run: " + (verdict or "no output"))
+
+    return Check(name, result.returncode == 0, verdict or "no output")
+
+
 def self_check(root: Path) -> Check:
     """The harness checks itself on this machine, and the review reads the result."""
     name = "the self-check passes"
@@ -546,7 +573,7 @@ def review(
     operation: str = "public",
     extra_checks: tuple[Check, ...] = (),
 ) -> Review:
-    """The whole reading: the nine shared questions, then the two that belong here."""
+    """The whole reading: the ten shared questions, then the two that belong here."""
     entries = manifest(root)
     commit = first_line(command_text(git(root, "rev-parse", "HEAD")))
     if not commit:
@@ -563,6 +590,7 @@ def review(
             secret_scan_check(root, "history"),
             recorded_path_check(root),
             readme_check(root),
+            page_markdown_check(root),
             self_check(root),
             closed_directory_check(root),
             largest_file_check(entries),
