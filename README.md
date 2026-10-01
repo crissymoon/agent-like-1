@@ -16,6 +16,7 @@ A harness for measuring what a small local language model can actually finish. I
 | desktop/ | The Electron view over a run directory; it drives the same harness, never a copy. |
 | tools/ | Portable tooling: the benchmark that runs on both sides, the kernel builder, the release review, this builder. |
 | local-model-quick-tester/ | The interactive front end: a menu over the same GGUF weights, and the markdown transcript of a run, written to a directory held out of version control. |
+| mermaid-viewer/ | A diagram viewer: renders the .mmd files in the directory with the mermaid build vendored beside it, offline, with pan, zoom and SVG or PNG export. |
 | results/ | What each run left behind. Evidence, committed, so a claim has a file behind it. |
 | local-benchmarking.md | The ladder: what a rung is, what decides it, and what a result does not claim. |
 | LICENSE | The terms the work is offered under, and the holder it belongs to. |

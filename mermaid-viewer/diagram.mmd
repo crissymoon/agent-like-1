@@ -1,0 +1,40 @@
+graph TD
+    %% Styling and Definitions
+    classDef input fill:#fff1f3,stroke:#f43f5e,stroke-width:2px,color:#000;
+    classDef output fill:#f0fdf4,stroke:#22c55e,stroke-width:2px,color:#000;
+    classDef orchestrator fill:#f8fafc,stroke:#64748b,stroke-width:3px,font-weight:bold,color:#000;
+    classDef sandbox fill:#fef08a,stroke:#eab308,stroke-width:2px,stroke-dasharray: 5 5,color:#000;
+    classDef database fill:#eff6ff,stroke:#3b82f6,stroke-width:2px,color:#000;
+
+    %% --- INBOUND USER PROMPT ---
+    P_In["0. Prompt -1 Inbound"]:::input --> P_Eval["Prompt-Eval <br> (Analyze Requirements)"]:::input
+    P_Eval -->|1. Inbound Vector| ORCH["ORCH - U <br> (Multi-Model Orchestrator)"]:::orchestrator
+
+    %% --- PATHWAY SELECTOR / PATH A vs B vs C ---
+    ORCH -->|2. Incubator Query| VF_Query{"Do we already have<br>code that is close?"}:::database
+
+    %% --- JAVA VECTOR API & INCUBATOR STORAGE ---
+    subgraph INCUBATOR ["JAVA VECTOR API & JSON LINES INCUBATOR"]
+        VF_Query -->|"Vector Match Lookups"| JSON_L[("JSON Lines File Registry <br> Naming: primary-id-disc-timestamp")]:::database
+        JSON_L --> FF["FileFinder <br> (Quick find closest relatable)"]:::database
+        FF --> FSP["FileSurgicalPull <br> (Extract specific code blocks)"]:::database
+    end
+
+    %% --- CONTEXT RECYCLING & SENDING TO SANDBOX ---
+    FSP -->|3. Extracted Context| CF["ContextFiller"]:::input
+    CF -->|4. Push Context Chunks| TB["Temp Base <br> (Staging Context)"]:::input
+
+    %% --- EXECUTION ENVIRONMENT (PHP BINARY) ---
+    subgraph SANDBOX ["MODEL HOUSE LOCAL SANDBOX (Jail Block)"]
+        TB --> CL["5. Chunk Loop <br> (Iterative Processing)"]:::sandbox
+        CL <--> MH["Model House Local <br> (v1.0 / 5.5)"]:::sandbox
+        CL --> LB["Lint Box <br> (Validate Syntax & Tests)"]:::sandbox
+        LB --> AG["6. Aggregates <br> (Compile Processed Code)"]:::sandbox
+    end
+
+    %% --- OUTBOUND PROMOTION & DEPLOYMENT ---
+    AG -->|7. Final Push| JAIL["Review & Approve <br> (In Jail Gate)"]:::output
+    JAIL -->|8. Release| OUT["Out of Jail <br> (Deploy Reusable Function)"]:::output
+
+    %% --- INCUBATION CLOSING FEEDBACK LOOP ---
+    OUT -->|Self-Cataloging Loop| JSON_L

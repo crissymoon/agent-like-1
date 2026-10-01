@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mermaid Viewer</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="toolbar" role="toolbar" aria-label="Diagram controls">
+  <div class="toolbar__group toolbar__group--brand">
+    <span class="brand">Mermaid Viewer</span>
+    <span class="badge" id="mmd-version">mermaid</span>
+  </div>
+
+  <div class="toolbar__group">
+    <label class="source-label" for="source-picker">Source</label>
+    <select id="source-picker" aria-label="Diagram source file"></select>
+    <button type="button" id="btn-reload" title="Reload the selected file from disk">Reload</button>
+  </div>
+
+  <div class="toolbar__group">
+    <button type="button" id="btn-zoom-out" title="Zoom out">-</button>
+    <button type="button" id="btn-zoom-reset" title="Reset zoom and pan">100%</button>
+    <button type="button" id="btn-zoom-in" title="Zoom in">+</button>
+    <button type="button" id="btn-fit" title="Fit diagram to the viewport">Fit</button>
+  </div>
+
+  <div class="toolbar__group">
+    <button type="button" id="btn-theme" title="Toggle light and dark theme">Theme</button>
+    <button type="button" id="btn-export-svg" title="Download rendered SVG">SVG</button>
+    <button type="button" id="btn-export-png" title="Download rendered PNG">PNG</button>
+  </div>
+</header>
+
+<main class="stage" id="stage">
+  <div class="canvas" id="canvas">
+    <div class="diagram" id="diagram" role="img" aria-label="Rendered mermaid diagram"></div>
+  </div>
+  <div class="error" id="error" hidden>
+    <div class="error__title">Render failed</div>
+    <pre class="error__body" id="error-body"></pre>
+  </div>
+  <div class="hint" id="hint">Drag to pan, scroll or ctrl+scroll to zoom, double click to fit.</div>
+</main>
+
+<!-- vendor/mermaid.min.js is the unmodified upstream 11.17.2 distribution build,
+     from https://unpkg.com/mermaid@11.17.2/dist/mermaid.min.js, sha256
+     581ed7d74bd9048d0e3a91363927d72ef22942d7722546b27f7cc29e35390eb8 -->
+<script src="vendor/mermaid.min.js"></script>
+<script src="viewer.js"></script>
+</body>
+</html>
