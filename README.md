@@ -263,7 +263,9 @@ The last one is not evidence and not scratch. `Standard Operation Procedures/` h
 
 <p align="center"><a href="https://xcaliburmoon.net/"><img src="images/xcalibur-full-cat.webp" alt="Xcalibur Moon" width="100%"></a></p>
 
-<p align="center"><a href="https://www.kaggle.com/code/crissymoon/agent-benchmark">Partially share with Kaggle for benchmarking</a></p>
+<p align="center"><a href="https://xcaliburmoon.net/">https://xcaliburmoon.net/</a></p>
+
+<p align="center"><a href="https://www.kaggle.com/code/crissymoon/agent-benchmark">https://www.kaggle.com/code/crissymoon/agent-benchmark - Notebook that is on Kaggle for this.</a></p>
 
 ---
 

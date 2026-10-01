@@ -98,10 +98,16 @@ CLOSING_IMAGE: tuple[str, str, str] = (
 #: What else the last section points at, as a label and an address. The notebook
 #: runs the same suite off this machine, which is the one part of the work a
 #: reader can open without a checkout, so it is stated beside the picture rather
-#: than described in the section that owns the arithmetic.
+#: than described in the section that owns the arithmetic. Each label is the
+#: address it points at, so the line reads as one while it is being skimmed and
+#: can still be copied out of the rendered page, which a phrase cannot. The site
+#: leads because it is what the picture above already points at, and a reader who
+#: arrives at a text line rather than an image should not have to hunt for it.
 CLOSING_LINKS: tuple[tuple[str, str], ...] = (
+    ("https://xcaliburmoon.net/", "https://xcaliburmoon.net/"),
     (
-        "Partially share with Kaggle for benchmarking",
+        "https://www.kaggle.com/code/crissymoon/agent-benchmark"
+        " - Notebook that is on Kaggle for this.",
         "https://www.kaggle.com/code/crissymoon/agent-benchmark",
     ),
 )
@@ -196,6 +202,11 @@ def closing_section(root: Path) -> list[str]:
     It closes the document rather than opening it, so it carries what a reader
     would otherwise have to leave the page to find: the site the work is
     described on, and the hosted notebook that runs the same suite.
+
+    Each address is its own raw block with a blank line after it. Two lines of
+    raw HTML with nothing between them are one block, which renders the same but
+    reads as one paragraph in the source, and the source is what a reader of this
+    repository opens.
     """
     lines = ["## Links", ""]
     path, alt, href = CLOSING_IMAGE
@@ -205,10 +216,9 @@ def closing_section(root: Path) -> list[str]:
             'width="100%"></a></p>'
         )
         lines.append("")
-    lines.extend(
-        f'<p align="center"><a href="{url}">{label}</a></p>' for label, url in CLOSING_LINKS
-    )
-    lines.append("")
+    for label, url in CLOSING_LINKS:
+        lines.append(f'<p align="center"><a href="{url}">{label}</a></p>')
+        lines.append("")
     return lines
 
 
