@@ -1,0 +1,38 @@
+sequenceDiagram
+    autonumber
+    actor Model as Local Model<br/>(Orchestrator Role)
+    participant Java as Java Application<br/>Orchestration Layer
+    participant SIMD as Java Vector API<br/>SIMD Engine
+    participant DB as JSON Lines Partition<br/>(.jsonl)
+    participant AST as AST Pre-Flight Guard<br/>(JavaParser / Antlr)
+
+    %% Discovery Workflow
+    Note over Model, DB: Module Discovery Workflow
+    Model->>Java: Invokes tool: find_module("strict file router")
+    Java->>Java: Generates embedding vector from query string
+    Java->>SIMD: Passes query vector (1536d / 3072d)
+    DB->>SIMD: Stream memory-mapped float arrays across CPU lanes
+    activate SIMD
+    SIMD->>SIMD: FloatVector.fromArray() loops (AVX-512 / Neon)
+    SIMD->>Java: Returns top matching Module IDs & Metadata
+    deactivate SIMD
+    Java->>Model: Returns clean, isolated module signatures (No raw source code)
+
+    %% Module Construction & Validation Workflow
+    Note over Model, AST: Module Contribution & Validation Workflow
+    Model->>Java: Submits new module attempt for registration
+    activate Java
+    Java->>AST: Route raw snippet to Abstract Syntax Tree check
+    activate AST
+    Note over AST: Check 1: Lines count < 1000<br/>Check 2: Cyclomatic complexity limit<br/>Check 3: Reject magic numbers
+    alt Fails Strict Guardrails
+        AST-->>Java: Verification Error (e.g., God function detected)
+        Java-->>Model: Rejection notification + code formatting feedback
+    else Passes Guardrails
+        AST-->>Java: Validated AST Structure
+        deactivate AST
+        Java->>Java: Compute SHA-256 Hash of code body
+        Java->>DB: Append module registry line to target domain file (.jsonl)
+        Java-->>Model: Registration successful (Returns canonical module ID)
+    end
+    deactivate Java

@@ -1,6 +1,6 @@
 """Parse the files named, or the tracked ones, and report what will not load.
 
-    python3 tools/lint/check.py mermaid-viewer/diagram.mmd
+    python3 tools/lint/check.py mermaid-viewer/diagrams/overall-flow.mmd
     python3 tools/lint/check.py --tracked --fail-on warning
     python3 tools/lint/check.py --fix tools/lint/
 

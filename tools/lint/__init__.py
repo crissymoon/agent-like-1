@@ -6,7 +6,7 @@ parser already installed on the machine, and the only one that needs a browser
 is the diagram, which is drawn in the mermaid build already vendored beside it.
 
     from lint import lint_path
-    report = lint_path(Path("mermaid-viewer/diagram.mmd"))
+    report = lint_path(Path("mermaid-viewer/diagrams/overall-flow.mmd"))
 
 `lint_text` is the same question asked of a string, which is how a candidate
 file can be parsed before it is written anywhere. `supported_languages` says

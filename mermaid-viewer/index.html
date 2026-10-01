@@ -7,9 +7,11 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
 <header class="toolbar" role="toolbar" aria-label="Diagram controls">
   <div class="toolbar__group toolbar__group--brand">
-    <span class="brand">Mermaid Viewer</span>
+    <span class="mark" aria-hidden="true"></span>
+    <span class="brand">mermaid viewer</span>
     <span class="badge" id="mmd-version">mermaid</span>
   </div>
 
@@ -17,13 +19,6 @@
     <label class="source-label" for="source-picker">Source</label>
     <select id="source-picker" aria-label="Diagram source file"></select>
     <button type="button" id="btn-reload" title="Reload the selected file from disk">Reload</button>
-  </div>
-
-  <div class="toolbar__group">
-    <button type="button" id="btn-zoom-out" title="Zoom out">-</button>
-    <button type="button" id="btn-zoom-reset" title="Reset zoom and pan">100%</button>
-    <button type="button" id="btn-zoom-in" title="Zoom in">+</button>
-    <button type="button" id="btn-fit" title="Fit diagram to the viewport">Fit</button>
   </div>
 
   <div class="toolbar__group">
@@ -37,17 +32,52 @@
   <div class="canvas" id="canvas">
     <div class="diagram" id="diagram" role="img" aria-label="Rendered mermaid diagram"></div>
   </div>
+
   <div class="error" id="error" hidden>
     <div class="error__title">Render failed</div>
     <pre class="error__body" id="error-body"></pre>
   </div>
-  <div class="hint" id="hint">Drag to pan, scroll or ctrl+scroll to zoom, double click to fit.</div>
+
+  <div class="hint" id="hint">Drag to pan. Scroll to zoom. Double-click to fit.</div>
+
+  <div class="controls" role="group" aria-label="Viewport controls">
+    <div class="controls__row">
+      <button type="button" class="ctl" id="btn-zoom-out" title="Zoom out" aria-label="Zoom out">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8h9"/></svg>
+      </button>
+      <button type="button" class="ctl ctl--readout" id="btn-zoom-reset" title="Reset to 100% and centre">100%</button>
+      <button type="button" class="ctl" id="btn-zoom-in" title="Zoom in" aria-label="Zoom in">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8h9M8 3.5v9"/></svg>
+      </button>
+    </div>
+
+    <button type="button" class="ctl ctl--wide" id="btn-fit" title="Fit diagram to the viewport">Fit to view</button>
+
+    <div class="pad" role="group" aria-label="Pan the diagram">
+      <button type="button" class="ctl pad__btn pad__up" id="btn-pan-up" title="Pan up" aria-label="Pan up">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3.5M4 7.5 8 3.5l4 4"/></svg>
+      </button>
+      <button type="button" class="ctl pad__btn pad__left" id="btn-pan-left" title="Pan left" aria-label="Pan left">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8H3.5M7.5 4 3.5 8l4 4"/></svg>
+      </button>
+      <button type="button" class="ctl pad__btn pad__center" id="btn-center" title="Centre the diagram" aria-label="Centre the diagram">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="2.5"/><path d="M8 1.5v3M8 11.5v3M1.5 8h3M11.5 8h3"/></svg>
+      </button>
+      <button type="button" class="ctl pad__btn pad__right" id="btn-pan-right" title="Pan right" aria-label="Pan right">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9.5M8.5 4l4 4-4 4"/></svg>
+      </button>
+      <button type="button" class="ctl pad__btn pad__down" id="btn-pan-down" title="Pan down" aria-label="Pan down">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v9.5M4 8.5 8 12.5l4-4"/></svg>
+      </button>
+    </div>
+  </div>
 </main>
 
 <!-- vendor/mermaid.min.js is the unmodified upstream 11.17.2 distribution build,
      from https://unpkg.com/mermaid@11.17.2/dist/mermaid.min.js, sha256
      581ed7d74bd9048d0e3a91363927d72ef22942d7722546b27f7cc29e35390eb8 -->
 <script src="vendor/mermaid.min.js"></script>
+<script src="labels.js"></script>
 <script src="viewer.js"></script>
 </body>
 </html>

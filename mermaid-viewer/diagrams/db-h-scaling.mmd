@@ -1,0 +1,52 @@
+graph TD
+    %% Define System Nodes
+    subgraph NetworkLoadDistribution [Network Load Distribution]
+        LB[Edge Router / Hash-Based Load Balancer]
+    end
+
+    subgraph ExecutionNodes [Horizontally Scaled Execution Nodes]
+        %% Node 1
+        subgraph NodeA [Computation Node A]
+            M1[Local Model Engine<br/>Gemma / Qwen / Llama] <--> App1[Java Orchestration App]
+            App1 <--> VEC1[Java Vector API Engine<br/>SIMD Parallel Scans]
+            App1 <--> MM1[Memory-Mapped File IO<br/>FileChannel.map]
+
+            subgraph DiskA [Local Sharded Storage]
+                F1[(routing.jsonl)]
+                F2[(ui_themes.jsonl)]
+            end
+            MM1 <--> F1
+            MM1 <--> F2
+        end
+
+        %% Node 2
+        subgraph NodeB [Computation Node B]
+            M2[Local Model Engine<br/>Gemma / Qwen / Llama] <--> App2[Java Orchestration App]
+            App2 <--> VEC2[Java Vector API Engine<br/>SIMD Parallel Scans]
+            App2 <--> MM2[Memory-Mapped File IO<br/>FileChannel.map]
+
+            subgraph DiskB [Local Sharded Storage]
+                F3[(auth.jsonl)]
+                F4[(db_helpers.jsonl)]
+            end
+            MM2 <--> F3
+            MM2 <--> F4
+        end
+    end
+
+    subgraph Registry [Content-Addressable Storage]
+        CAS[(Global Module Library<br/>Indexed by SHA-256 Hash)]
+    end
+
+    %% Wiring Connections
+    LB -->|Route by Task Domain / Hash| NodeA
+    LB -->|Route by Task Domain / Hash| NodeB
+
+    CAS -.->|Read-Only Sync / Replicate Changes| DiskA
+    CAS -.->|Read-Only Sync / Replicate Changes| DiskB
+
+    %% Styling
+    style LB fill:#2d3748,stroke:#4a5568,stroke-width:2px,color:#fff
+    style CAS fill:#1a202c,stroke:#2d3748,stroke-width:2px,color:#fff
+    style NodeA fill:#23272a,stroke:#5865F2,stroke-width:2px,color:#fff
+    style NodeB fill:#23272a,stroke:#5865F2,stroke-width:2px,color:#fff

@@ -8,11 +8,14 @@ case that needs no help, and it accepts everything else in silence:
     A["a"] --> Misspelled["b"]                parsed, drawn, and both are right
 
 So there are two passes here and the second is the one that catches the quiet
-failures. The static pass reads the source, which needs no browser: it counts
-subgraph against end, resolves every `:::` reference against the classes that
-were declared, and notes a node whose first mention is outside the subgraph it
-is later used in, because mermaid keeps such a node in the outer group however
-the drawing ends up looking. The render pass draws the diagram in the mermaid
+failures. The static pass reads the source, which needs no browser. Where the
+source is a flowchart it can go further, and it does: it counts subgraph against
+end, resolves every `:::` reference against the classes that were declared, and
+notes a node whose first mention is outside the subgraph it is later used in,
+because mermaid keeps such a node in the outer group however the drawing ends up
+looking. The groups and the nodes are asked about only for that family, because
+every other family writes `end` for blocks of its own and names its members in
+notation of its own. The render pass draws the diagram in the mermaid
 build already vendored in this repository and compares what was declared against
 what came out, which is the only way to see a style property that never reached
 the stylesheet.
@@ -65,6 +68,13 @@ KEYWORDS = frozenset(
 
 #: A graph header is a type and a direction, and it names no node.
 HEADER = re.compile(r"^(graph|flowchart)\b.*$")
+
+#: The family whose source is `subgraph` blocks closed by `end`, and whose node
+#: ids can therefore be counted from the source. Every other family reuses the
+#: word end for blocks of its own - a sequence diagram closes each `alt` that way
+#: - so counting `end` against `subgraph` in one of those reports a diagram that
+#: draws correctly as one that cannot parse.
+FLOWCHART_TYPES = frozenset({"graph", "flowchart"})
 
 #: Statements whose line holds no node, only styling or a link.
 NON_NODE_STATEMENTS = ("classDef", "class ", "style ", "linkStyle", "click ", "direction")
@@ -159,6 +169,28 @@ def find_chrome(explicit: str | None = None) -> str | None:
     return None
 
 
+def diagram_type(text: str) -> str:
+    """The word a diagram's source opens with, past comments and front matter."""
+    in_front_matter = False
+    for raw in text.splitlines():
+        line = COMMENT.sub("", raw).strip()
+        if not line:
+            continue
+        if line == "---":
+            in_front_matter = not in_front_matter
+            continue
+        if in_front_matter:
+            continue
+        words = line.split()
+        return words[0].lower() if words else ""
+    return ""
+
+
+def is_flowchart(text: str) -> bool:
+    """True when the source is the family the group and node rules were read off."""
+    return diagram_type(text) in FLOWCHART_TYPES
+
+
 def strip_line(line: str) -> str:
     """A source line with everything that is not an id taken out of it.
 
@@ -242,21 +274,28 @@ def declared_nodes(
 
 
 def static_findings(text: str, path: str) -> list[Finding]:
-    """Everything the source alone can settle."""
+    """Everything the source alone can settle.
+
+    The group and node rules are read off the flowchart family, so they are
+    asked only of a source in that family. A sequence, class, state or gantt
+    diagram is answered for by the render pass, which is the pass that knows
+    what its blocks mean.
+    """
     findings: list[Finding] = []
 
-    opens = len(re.findall(r"^\s*subgraph\b", text, flags=re.MULTILINE))
-    closes = len(re.findall(r"^\s*end\s*$", text, flags=re.MULTILINE))
-    if opens != closes:
-        findings.append(
-            Finding(
-                path,
-                Severity.ERROR,
-                "mmd-subgraph-unbalanced",
-                f"{opens} subgraph(s) but {closes} end(s), so the diagram cannot parse",
-                hint="every subgraph line needs a matching line that is only the word end",
+    if is_flowchart(text):
+        opens = len(re.findall(r"^\s*subgraph\b", text, flags=re.MULTILINE))
+        closes = len(re.findall(r"^\s*end\s*$", text, flags=re.MULTILINE))
+        if opens != closes:
+            findings.append(
+                Finding(
+                    path,
+                    Severity.ERROR,
+                    "mmd-subgraph-unbalanced",
+                    f"{opens} subgraph(s) but {closes} end(s), so the diagram cannot parse",
+                    hint="every subgraph line needs a matching line that is only the word end",
+                )
             )
-        )
 
     classes = declared_classes(text)
     referenced = referenced_classes(text)
@@ -280,7 +319,7 @@ def static_findings(text: str, path: str) -> list[Finding]:
             )
         )
 
-    scopes, indirect = declared_nodes(text)
+    scopes, indirect = declared_nodes(text) if is_flowchart(text) else ({}, [])
     for token, first, later in indirect:
         findings.append(
             Finding(
@@ -388,8 +427,11 @@ def render_findings(text: str, path: str, chrome: str, bundle: Path) -> list[Fin
                 )
             )
 
-    declared = set(declared_nodes(text)[0])
-    drawn = {node["id"] for node in payload.get("nodes", [])}
+    # Only a flowchart source names its nodes in a way this scan can follow, and
+    # the harness only counts flowchart nodes, so the comparison is asked of a
+    # flowchart and of nothing else.
+    declared = set(declared_nodes(text)[0]) if is_flowchart(text) else set()
+    drawn = {node["id"] for node in payload.get("nodes", [])} if is_flowchart(text) else set()
     for name in sorted(drawn - declared):
         findings.append(
             Finding(

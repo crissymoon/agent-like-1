@@ -8,6 +8,7 @@ the interpreter line, and each answer carries the evidence that produced it:
 
     GGUF at byte 0            the file is a weight file, whatever it is called
     suffix .mmd               a mermaid diagram, which is checked by rendering it
+    name ending .mmd.md       the same diagram, named for a markdown preview
     no suffix, #!/bin/sh      a shell script, which is checked with sh -n
     suffix .log               text, and nothing here has a checker for it
 
@@ -62,6 +63,12 @@ SUFFIX_LANGUAGES: dict[str, str] = {
     ".xml": "text",
     ".svg": "text",
 }
+
+#: A diagram an editor previews as markdown is still a diagram, whatever the
+#: last suffix says: `sequence.mmd.md` is checked by rendering it, not by
+#: looking for a fenced code block in it.
+DIAGRAM_SUFFIXES: tuple[str, ...] = (".mmd", ".mermaid")
+MARKDOWN_SUFFIX = ".md"
 
 #: Bytes at offset zero that name a type the suffix can only get wrong. The
 #: list is short on purpose: it carries the types this repository actually
@@ -159,6 +166,13 @@ def detect_file(path: Path) -> FileKind:
     if shebang is not None:
         language, evidence = shebang
         return FileKind(path, language, evidence, False)
+
+    name = path.name.lower()
+    if name.endswith(MARKDOWN_SUFFIX):
+        stem = name[: -len(MARKDOWN_SUFFIX)]
+        for diagram in DIAGRAM_SUFFIXES:
+            if stem.endswith(diagram):
+                return FileKind(path, "mermaid", f"name ends with {diagram}{MARKDOWN_SUFFIX}", False)
 
     suffix = path.suffix.lower()
     if suffix in SUFFIX_LANGUAGES:

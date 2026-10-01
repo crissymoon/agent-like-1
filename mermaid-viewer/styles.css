@@ -1,31 +1,61 @@
+/*
+ * The viewer borrows the project design system: a soft tint as the field,
+ * black used as weight rather than as area, and the communicative cyan as the
+ * interactive accent. Corners are square and shadows are hard, matching the
+ * desktop shell, so the viewer reads as part of the same product.
+ */
 :root {
-  --bg: #f4f6f9;
-  --panel: #ffffff;
-  --border: #d7dee8;
-  --text: #0f172a;
-  --muted: #5b6b82;
-  --accent: #3b82f6;
-  --danger-bg: #fff1f2;
-  --danger-border: #f43f5e;
-  --danger-text: #9f1239;
-  --stage-grid: #e4e9f0;
+  --tint: #f0f9ff;
+  --tint-deep: #e2f3fd;
+  --ink: #000000;
+  --paper: #ffffff;
+  --accent: #00e1ff;
+  --transform: #ff0062;
+  --harmonious: #00ff1e;
+
+  --bg: var(--tint);
+  --panel: var(--paper);
+  --border: var(--ink);
+  --text: var(--ink);
+  --muted: #3f4d5a;
+  --danger-bg: #ffe3ec;
+  --danger-border: var(--transform);
+  --danger-text: #8a0040;
+  --stage-grid: #d6eaf7;
+
+  --hairline: 1px solid var(--ink);
+  --shadow: 3px 3px 0 var(--ink);
+  --shadow-tight: 2px 2px 0 var(--ink);
+  --step: 8px;
+  /* Control heights are pinned rather than derived from padding and leading.
+     A select reports a normal line-height whatever it is told, so sizing it
+     from its text made it stand taller than the buttons beside it. */
+  --control-height: 31px;
+  --ctl-height: 34px;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --system: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 [data-theme="dark"] {
-  --bg: #0b1220;
-  --panel: #121c2e;
-  --border: #263247;
-  --text: #e6ecf5;
-  --muted: #93a3bb;
-  --accent: #60a5fa;
+  --tint: #0b1015;
+  --tint-deep: #121a21;
+  --ink: #f0f9ff;
+  --paper: #0b1015;
+
+  --bg: var(--tint);
+  --panel: var(--tint-deep);
+  --border: var(--ink);
+  --text: var(--ink);
+  --muted: #93a3b5;
   --danger-bg: #2a1420;
-  --danger-border: #f43f5e;
-  --danger-text: #fecdd3;
-  --stage-grid: #1a2438;
+  --danger-border: var(--transform);
+  --danger-text: #ffd0e0;
+  --stage-grid: #17222b;
 }
 
 * {
   box-sizing: border-box;
+  border-radius: 0;
 }
 
 html,
@@ -39,7 +69,7 @@ body {
   flex-direction: column;
   background: var(--bg);
   color: var(--text);
-  font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font: 14px/1.45 var(--system);
 }
 
 .toolbar {
@@ -49,7 +79,7 @@ body {
   gap: 8px 18px;
   padding: 10px 14px;
   background: var(--panel);
-  border-bottom: 1px solid var(--border);
+  border-bottom: var(--hairline);
   position: sticky;
   top: 0;
   z-index: 5;
@@ -65,52 +95,65 @@ body {
   margin-right: auto;
 }
 
+.mark {
+  width: 8px;
+  height: 24px;
+  background: var(--accent);
+  border: var(--hairline);
+}
+
 .brand {
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-weight: 600;
+  text-transform: lowercase;
+  letter-spacing: -0.01em;
+  font-size: 15px;
 }
 
 .badge {
-  font-size: 11px;
+  font: 11px/1 var(--mono);
   color: var(--muted);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 2px 8px;
+  border: 1px solid var(--muted);
+  padding: 3px 7px;
   white-space: nowrap;
 }
 
 .source-label {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
 }
 
 button,
 select {
-  font: inherit;
+  font: 13px/1 var(--mono);
   color: var(--text);
   background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 6px 10px;
+  border: var(--hairline);
+  height: var(--control-height);
+  padding: 8px 10px;
   cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.toolbar button,
+.toolbar select {
+  box-shadow: var(--shadow-tight);
 }
 
 button:hover,
 select:hover {
-  border-color: var(--accent);
-  color: var(--accent);
+  background: var(--accent);
+  color: var(--ink);
 }
 
 button:active {
-  transform: translateY(1px);
+  transform: translate(2px, 2px);
+  box-shadow: none;
 }
 
 button:focus-visible,
 select:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--ink);
   outline-offset: 2px;
 }
 
@@ -128,6 +171,13 @@ select {
     linear-gradient(var(--stage-grid) 1px, transparent 1px),
     linear-gradient(90deg, var(--stage-grid) 1px, transparent 1px);
   background-size: 24px 24px;
+  /* A drag in the stage pans the diagram, so it must never begin a text
+     selection: a drag over the rendered SVG otherwise sweeps a highlight
+     across every label it crosses. The error box below opts back in, because
+     an error message is something a person copies. */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .canvas {
@@ -152,7 +202,6 @@ select {
 .diagram svg {
   display: block;
   max-width: none;
-  height: auto;
 }
 
 .error {
@@ -160,35 +209,139 @@ select {
   inset: 20px auto auto 20px;
   max-width: min(720px, calc(100% - 40px));
   background: var(--danger-bg);
-  border: 1px solid var(--danger-border);
-  border-radius: 10px;
+  border: var(--hairline);
+  border-left: 6px solid var(--danger-border);
   padding: 14px 16px;
   color: var(--danger-text);
+  box-shadow: var(--shadow);
 }
 
 .error__title {
   font-weight: 700;
   margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 12px;
 }
 
 .error__body {
   margin: 0;
   white-space: pre-wrap;
   word-break: break-word;
-  font-size: 12.5px;
+  font: 12.5px/1.4 var(--mono);
+}
+
+.error,
+.error * {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 .hint {
   position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 16px;
+  left: 16px;
   font-size: 12px;
   color: var(--muted);
   background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 4px 12px;
+  border: var(--hairline);
+  padding: 4px 10px;
   pointer-events: none;
-  opacity: 0.9;
+  opacity: 0.92;
 }
+
+.controls {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: var(--step);
+  width: 156px;
+  padding: 10px;
+  background: var(--panel);
+  border: var(--hairline);
+  box-shadow: var(--shadow);
+}
+
+/* Fixed rails for the step buttons and a flexible readout in the middle keeps
+   every row inside the panel, however long the zoom percentage gets. */
+.controls__row {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 34px;
+  gap: 6px;
+}
+
+.controls__row .ctl {
+  width: 100%;
+  min-width: 0;
+}
+
+.ctl {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: var(--ctl-height);
+  padding: 0 6px;
+  font: 12px/1 var(--mono);
+  color: var(--text);
+  background: var(--paper);
+  border: var(--hairline);
+  box-shadow: var(--shadow-tight);
+  cursor: pointer;
+}
+
+.ctl:hover {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+.ctl:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.ctl:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.ctl svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+
+.ctl--readout {
+  min-width: 0;
+  padding: 0 4px;
+}
+
+.ctl--wide {
+  width: 100%;
+  height: var(--ctl-height);
+}
+
+.pad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.pad__btn {
+  width: 100%;
+  min-width: 0;
+}
+
+.pad__up { grid-area: 1 / 2; }
+.pad__left { grid-area: 2 / 1; }
+.pad__center { grid-area: 2 / 2; }
+.pad__right { grid-area: 2 / 3; }
+.pad__down { grid-area: 3 / 2; }
