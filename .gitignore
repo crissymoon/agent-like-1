@@ -45,6 +45,13 @@
 /paper/
 /pricing-data/
 
+# One paper an outside group wrote, held here to be read rather than to be
+# republished, so it leaves the index on the same terms as the two above. It
+# carries no named refusal beside it: the pre-push check refuses a closed path
+# by name, and a reading list is not a closed path. Nothing has read it, so
+# nothing here depends on it.
+/research/
+
 # ---------------------------------------------------------------------------
 # Local operating procedures. The folder describes how the work is run rather
 # than what it found: the procedure that reviews this checkout before any of it
