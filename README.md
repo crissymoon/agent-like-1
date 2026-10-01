@@ -1,3 +1,5 @@
+<p align="center"><img src="images/agent-like.webp" alt="agent-like" width="100%"></p>
+
 # agent-like
 
 A harness for measuring what a small local language model can actually finish. It gives a model a fixed set of tools, a sandbox and a step budget, then checks the end state of the workspace rather than the model's account of it. The same tasks run on a machine and on a hosted notebook from one source, so a result carries the conditions that produced it and can be re-run anywhere.

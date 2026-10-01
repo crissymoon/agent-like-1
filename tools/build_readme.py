@@ -76,6 +76,15 @@ LAYOUT: tuple[tuple[str, str], ...] = (
     ("LICENSE", "The terms the work is offered under, and the holder it belongs to."),
 )
 
+#: The image the document opens with, and its description. It is emitted only
+#: where the file is on disk, for the reason the layout table leaves an entry
+#: out rather than describing it in the abstract: a link to a file that is not
+#: there is a broken image at the top of the page a reader arrives at first. The
+#: description is the repository name rather than a reading of the picture,
+#: because nothing here opens the file, and a sentence claiming what an image
+#: shows is a sentence that drifts from the image.
+BANNER: tuple[str, str] = ("images/agent-like.webp", "agent-like")
+
 
 # ---------------------------------------------------------------------------
 # Small formatting helpers. A table cell is the only place a value is changed.
@@ -137,6 +146,21 @@ def flag(value) -> str:
 # ---------------------------------------------------------------------------
 # The sections.
 # ---------------------------------------------------------------------------
+
+
+def banner_section(root: Path) -> list[str]:
+    """The image the document opens with, where that image is on disk.
+
+    Centred and set to the width of whatever column it lands in, because the
+    file is wider than the column GitHub gives a README and a reader should see
+    the whole of it. Where the file is absent this is empty rather than a link,
+    which is what keeps a checkout without the picture from opening on a broken
+    image.
+    """
+    path, alt = BANNER
+    if not (root / path).exists():
+        return []
+    return [f'<p align="center"><img src="{path}" alt="{alt}" width="100%"></p>', ""]
 
 
 def layout_section(root: Path) -> list[str]:
@@ -1014,6 +1038,7 @@ def footer() -> list[str]:
 def build(root: Path, record: bool = True) -> str:
     models, origin = source.read_models(root, record=record)
     blocks: list[list[str]] = [
+        banner_section(root),
         ["# agent-like", ""],
         [
             "A harness for measuring what a small local language model can actually finish. It "
