@@ -150,6 +150,17 @@ service-account*.json
 /workspace/
 
 # ---------------------------------------------------------------------------
+# Host engagement state. `plans_and_writeups/track.php` creates `engage/` on the
+# first visit and appends an entry on every one after that, so it is the record
+# of who read the published pages on whichever host served them rather than a
+# part of the viewer. It describes the host and not the project, and every visit
+# to the local copy rewrites the working tree, which the release review reads as
+# a checkout that holds something besides the commit. The directory is created
+# on demand, so a checkout that has never served a page does not have one and
+# does not need one.
+/plans_and_writeups/engage/
+
+# ---------------------------------------------------------------------------
 # The platform's own copy of a finished run. `kaggle_kernel.py watch --path`
 # downloads the whole output tree, which is the same evidence already recorded
 # under results/benchmark/kaggle plus the notebook's figures, dataset and zip.

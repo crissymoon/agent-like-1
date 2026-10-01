@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XCM Articles</title>
+    <link rel="icon" type="image/webp" href="https://xcaliburmoon.net/new_design_imgs/xcalibur-full-cat.webp">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 16px; scroll-behavior: smooth; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #251e18;
+            background: #fdfcfc;
+            line-height: 1.6;
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+        body.dark {
+            background: #14100c;
+            color: #e8d8b8;
+        }
+
+        /* --- Header --- */
+        .page-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #fdfcfc;
+            border-bottom: 2px solid #fa7000;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        body.dark .page-header {
+            background: #14100c;
+            border-bottom-color: #fa7000;
+        }
+        .top-back-link {
+            font-size: 0.72rem;
+            color: #fa7000;
+            text-decoration: none;
+            display: block;
+            line-height: 1.2;
+        }
+        .top-back-link:hover { text-decoration: underline; }
+        body.dark .top-back-link { color: #fa7000; }
+        .page-logo {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #fa7000;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            white-space: nowrap;
+        }
+        .page-logo-sub {
+            font-weight: 400;
+            font-size: 0.75rem;
+            color: #7a6040;
+            letter-spacing: 0.02em;
+            margin-left: 4px;
+        }
+        body.dark .page-logo-sub { color: #b8a87a; }
+        .header-spacer { flex: 1; }
+        .search-wrap {
+            position: relative;
+            flex: 0 1 340px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 9px 14px 9px 36px;
+            border: 1px solid #c8b898;
+            border-radius: 0;
+            font-size: 0.88rem;
+            background: #fdfcfc;
+            color: #251e18;
+            outline: none;
+            transition: border-color 0.2s, background 0.3s, color 0.3s;
+        }
+        body.dark .search-input {
+            background: #1a1208;
+            color: #e8d8b8;
+            border-color: #4a3820;
+        }
+        .search-input:focus { border-color: #fa7000; }
+        .search-input::placeholder { color: #b8a890; }
+        body.dark .search-input::placeholder { color: #6a5a40; }
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7a6040;
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+        body.dark .search-icon { color: #b8a87a; }
+
+        .mode-btn {
+            background: #fa7000;
+            color: #1a1208;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            border-radius: 0;
+            white-space: nowrap;
+            transition: opacity 0.2s;
+        }
+        .mode-btn:hover { opacity: 0.85; }
+
+        /* --- Stats --- */
+        .stats-bar {
+            padding: 10px 32px;
+            font-size: 0.82rem;
+            color: #7a6040;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        body.dark .stats-bar { color: #b8a87a; }
+        .stats-bar .clear-recents {
+            background: none;
+            border: 1px solid #c8b898;
+            color: #7a6040;
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            border-radius: 0;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        body.dark .clear-recents { border-color: #4a3820; color: #b8a87a; }
+        .clear-recents:hover { border-color: #fa7000; color: #fa7000; }
+
+        /* --- Recents row --- */
+        .recents-section {
+            padding: 0 32px 12px;
+            display: none;
+        }
+        .recents-section.has-recents { display: block; }
+        .recents-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #7a6040;
+            margin-bottom: 8px;
+        }
+        body.dark .recents-label { color: #b8a87a; }
+        .recents-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .recents-chip {
+            flex-shrink: 0;
+            background: #f0ece4;
+            color: #251e18;
+            padding: 6px 14px;
+            font-size: 0.82rem;
+            cursor: pointer;
+            border-radius: 0;
+            transition: background 0.2s;
+            white-space: nowrap;
+            border: 1px solid #c8b898;
+        }
+        body.dark .recents-chip {
+            background: #251e18;
+            color: #e8d8b8;
+            border-color: #4a3820;
+        }
+        .recents-chip:hover { background: #fa7000; color: #1a1208; }
+        .recents-more-btn {
+            background: none;
+            border: 1px solid #c8b898;
+            color: #7a6040;
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            border-radius: 0;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        body.dark .recents-more-btn { border-color: #4a3820; color: #b8a87a; }
+        .recents-more-btn:hover { border-color: #fa7000; color: #fa7000; }
+        .recents-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 200;
+            background: #fdfcfc;
+            border: 1px solid #c8b898;
+            min-width: 220px;
+            max-width: 300px;
+            max-height: 240px;
+            overflow-y: auto;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        body.dark .recents-dropdown {
+            background: #1a1208;
+            border-color: #4a3820;
+        }
+        .recents-dropdown.open { display: block; }
+        .recents-dropdown-item {
+            padding: 8px 14px;
+            font-size: 0.82rem;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: background 0.15s;
+        }
+        .recents-dropdown-item:hover { background: #f0ece4; }
+        body.dark .recents-dropdown-item:hover { background: #251e18; }
+        .recents-dropdown-wrap {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* --- Grid --- */
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 0 32px 60px;
+        }
+        @media (max-width: 900px) {
+            .articles-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) {
+            .articles-grid { grid-template-columns: 1fr; padding: 0 16px 40px; gap: 14px; }
+            .page-header { padding: 12px 16px; flex-wrap: wrap; }
+            .search-wrap { flex: 1 1 100%; order: 3; }
+            .stats-bar { padding: 8px 16px; flex-direction: column; align-items: flex-start; }
+            .recents-section { padding: 0 16px 10px; }
+        }
+
+        .article-card {
+            background: #fdfcfc;
+            border: 1px solid #c8b898;
+            padding: 20px;
+            cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+        body.dark .article-card {
+            background: #1a1208;
+            border-color: #3a2a14;
+        }
+        .article-card:hover {
+            border-color: #fa7000;
+            box-shadow: 0 2px 12px rgba(250, 112, 0, 0.12);
+        }
+        body.dark .article-card:hover {
+            box-shadow: 0 2px 12px rgba(250, 112, 0, 0.2);
+        }
+        .article-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1a1208;
+            margin-bottom: 6px;
+            line-height: 1.3;
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+        body.dark .article-title { color: #fa7000; }
+        .article-meta {
+            font-size: 0.76rem;
+            color: #7a6040;
+            margin-bottom: 8px;
+            overflow-wrap: break-word;
+        }
+        body.dark .article-meta { color: #b8a87a; }
+        .article-desc {
+            font-size: 0.88rem;
+            color: #251e18;
+            line-height: 1.55;
+            flex: 1;
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+        body.dark .article-desc { color: #e8d8b8; }
+        .article-tags {
+            margin-top: 10px;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .article-tag {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            background: #f0ece4;
+            color: #5a4a30;
+            border-radius: 0;
+        }
+        body.dark .article-tag {
+            background: #251e18;
+            color: #b8986a;
+        }
+
+        /* --- Sentinel / loader --- */
+        .sentinel {
+            height: 1px;
+            width: 100%;
+        }
+        .loader-msg {
+            text-align: center;
+            padding: 24px;
+            color: #7a6040;
+            font-size: 0.85rem;
+        }
+        body.dark .loader-msg { color: #b8a87a; }
+        .loader-msg.done { display: none; }
+
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: #7a6040;
+            font-size: 1rem;
+        }
+        body.dark .no-results { color: #b8a87a; }
+
+        /* --- Empty state --- */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #7a6040;
+        }
+        body.dark .empty-state { color: #b8a87a; }
+        .empty-state h2 {
+            font-size: 1.4rem;
+            color: #fa7000;
+            margin-bottom: 8px;
+        }
+
+        /* --- Footer notice --- */
+        .page-footer {
+            text-align: center;
+            padding: 24px 32px 32px;
+            font-size: 0.78rem;
+            color: #7a6040;
+            border-top: 1px solid #c8b898;
+            margin-top: 20px;
+        }
+        body.dark .page-footer {
+            color: #b8a87a;
+            border-top-color: #3a2a14;
+        }
+        .page-footer a {
+            color: #fa7000;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        body.dark .page-footer a { color: #ff9040; }
+    </style>
+</head>
+<body>
+
+<header class="page-header">
+    <div>
+        <a class="top-back-link" href="https://xcaliburmoon.net/" target="_blank" rel="noopener noreferrer">https://xcaliburmoon.net/</a>
+        <span class="page-logo">XCM Articles</span>
+        <span class="page-logo-sub">/public</span>
+    </div>
+    <div class="header-spacer"></div>
+    <div class="search-wrap">
+        <span class="search-icon">&#x1F50D;</span>
+        <input type="text" id="searchInput" class="search-input" placeholder="Fuzzy search articles..." autocomplete="off" spellcheck="false">
+    </div>
+    <button class="mode-btn" id="modeToggle">Toggle Theme</button>
+</header>
+
+<div class="stats-bar">
+    <span id="statsCount">0 articles</span>
+    <button class="clear-recents" id="clearRecents">Clear Recents</button>
+</div>
+
+<div class="recents-section" id="recentsSection">
+    <div class="recents-label">Recently Viewed</div>
+    <div class="recents-row" id="recentsRow">
+        <div class="recents-dropdown-wrap" id="recentsDropdownWrap" style="display:none;">
+            <button class="recents-more-btn" id="recentsMoreBtn">Show more</button>
+            <div class="recents-dropdown" id="recentsDropdown"></div>
+        </div>
+    </div>
+</div>
+
+<div class="articles-grid" id="articlesGrid"></div>
+<div class="sentinel" id="sentinel"></div>
+<div class="loader-msg" id="loaderMsg">Loading...</div>
+
+<div class="page-footer">
+    This page tracks only visits, article clicks, and browser provider. No sensitive information is collected.
+    <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>
+    
+    <div style="margin-top: 15px;">
+        &copy; 2026 <a href="https://xcaliburmoon.net/" target="_blank" rel="noopener">XcaliburMoon</a>. All rights reserved.
+    </div>
+    
+</div>
+
+<script>
+(function () {
+    'use strict';
+
+    /* --- State --- */
+    var allArticles = [];
+    var filteredArticles = [];
+    var displayedCount = 0;
+    var BATCH_SIZE = 12;
+    var isLoading = false;
+    var allLoaded = false;
+    var currentQuery = '';
+    var recents = [];
+
+    /* --- DOM refs --- */
+    var grid        = document.getElementById('articlesGrid');
+    var sentinel    = document.getElementById('sentinel');
+    var loaderMsg   = document.getElementById('loaderMsg');
+    var searchInput = document.getElementById('searchInput');
+    var statsCount  = document.getElementById('statsCount');
+    var recentsSection = document.getElementById('recentsSection');
+    var recentsRow  = document.getElementById('recentsRow');
+    var clearBtn    = document.getElementById('clearRecents');
+
+    /* --- Tracking --- */
+    function sendTrack(type, data) {
+        data.type = type;
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'track.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify(data));
+    }
+
+    // Track page visit (once)
+    sendTrack('visit', {
+        page: window.location.pathname,
+        referrer: document.referrer || ''
+    });
+
+    /* --- Path prefix: local vs live --- */
+    var PAGES_PREFIX = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? '/pages'
+        : '/docs/pages';
+
+    /* --- Theme --- */
+    var modeBtn = document.getElementById('modeToggle');
+    var saved = localStorage.getItem('pagesTheme');
+    if (saved === 'dark' || saved === null) {
+        document.body.classList.add('dark');
+        if (saved === null) localStorage.setItem('pagesTheme', 'dark');
+    }
+    modeBtn.addEventListener('click', function () {
+        var isDark = document.body.classList.toggle('dark');
+        localStorage.setItem('pagesTheme', isDark ? 'dark' : 'light');
+    });
+
+    /* --- Fuzzy match --- */
+    function fuzzyMatch(query, target) {
+        if (!query) return true;
+        query = query.toLowerCase();
+        target = target.toLowerCase();
+        if (target.indexOf(query) !== -1) return true;
+        var qi = 0;
+        for (var ti = 0; ti < target.length && qi < query.length; ti++) {
+            if (query[qi] === target[ti]) qi++;
+        }
+        return qi === query.length;
+    }
+
+    function fuzzyScore(query, target) {
+        if (!query) return 0;
+        query = query.toLowerCase();
+        target = target.toLowerCase();
+        var idx = target.indexOf(query);
+        if (idx === 0) return 100 + query.length;
+        if (idx > 0) return 80 + query.length - idx;
+        var qi = 0, score = 0;
+        for (var ti = 0; ti < target.length && qi < query.length; ti++) {
+            if (query[qi] === target[ti]) {
+                score += (target.length - ti) / target.length * 10;
+                qi++;
+            }
+        }
+        return qi === query.length ? Math.round(score) : -1;
+    }
+
+    /* --- Search --- */
+    function performSearch() {
+        currentQuery = searchInput.value.trim();
+        if (!currentQuery) {
+            filteredArticles = allArticles.slice();
+        } else {
+            var scored = [];
+            for (var i = 0; i < allArticles.length; i++) {
+                var a = allArticles[i];
+                var text = (a.title || '') + ' ' + (a.description || '') + ' ' + (a.tags || []).join(' ');
+                if (fuzzyMatch(currentQuery, text)) {
+                    var s = fuzzyScore(currentQuery, text);
+                    if (s >= 0) scored.push({ article: a, score: s });
+                }
+            }
+            scored.sort(function (a, b) { return b.score - a.score; });
+            filteredArticles = scored.map(function (s) { return s.article; });
+        }
+        displayedCount = 0;
+        allLoaded = false;
+        grid.innerHTML = '';
+        loaderMsg.className = 'loader-msg';
+        loaderMsg.textContent = 'Loading...';
+        loadMore();
+        updateStats();
+    }
+
+    /* --- Render cards --- */
+    function renderCards(articles) {
+        var frag = document.createDocumentFragment();
+        for (var i = 0; i < articles.length; i++) {
+            var a = articles[i];
+            var card = document.createElement('div');
+            card.className = 'article-card';
+            card.setAttribute('data-id', a.id);
+
+            var title = document.createElement('div');
+            title.className = 'article-title';
+            title.textContent = a.title;
+
+            var meta = document.createElement('div');
+            meta.className = 'article-meta';
+            meta.textContent = a.created + (a.source_md ? '  \u2022  ' + a.source_md : '');
+
+            var desc = document.createElement('div');
+            desc.className = 'article-desc';
+            desc.textContent = a.description || 'No description.';
+
+            card.appendChild(title);
+            card.appendChild(meta);
+            card.appendChild(desc);
+
+            if (a.tags && a.tags.length) {
+                var tagsWrap = document.createElement('div');
+                tagsWrap.className = 'article-tags';
+                for (var t = 0; t < a.tags.length; t++) {
+                    var tag = document.createElement('span');
+                    tag.className = 'article-tag';
+                    tag.textContent = a.tags[t];
+                    tagsWrap.appendChild(tag);
+                }
+                card.appendChild(tagsWrap);
+            }
+
+            card.addEventListener('click', (function (id, titleText) {
+                return function () {
+                    trackRecent(id, titleText);
+                    sendTrack('click', { article_id: id, article_title: titleText });
+                    window.location.href = PAGES_PREFIX + '/' + id + '.html';
+                };
+            })(a.id, a.title));
+
+            frag.appendChild(card);
+        }
+        grid.appendChild(frag);
+    }
+
+    /* --- Load more (batched) --- */
+    function loadMore() {
+        if (isLoading || allLoaded) return;
+        var remaining = filteredArticles.length - displayedCount;
+        if (remaining <= 0) {
+            allLoaded = true;
+            loaderMsg.className = 'loader-msg done';
+            if (filteredArticles.length === 0 && !currentQuery) {
+                grid.innerHTML = '<div class="empty-state"><h2>No Articles Yet</h2><p>Export HTML from the MD Editor to populate this page.</p></div>';
+            } else if (filteredArticles.length === 0 && currentQuery) {
+                grid.innerHTML = '<div class="no-results">No articles match your search.</div>';
+            }
+            return;
+        }
+        isLoading = true;
+        var batch = filteredArticles.slice(displayedCount, displayedCount + BATCH_SIZE);
+        renderCards(batch);
+        displayedCount += batch.length;
+        isLoading = false;
+        updateStats();
+        if (displayedCount >= filteredArticles.length) {
+            allLoaded = true;
+            loaderMsg.className = 'loader-msg done';
+        }
+    }
+
+    /* --- Stats --- */
+    function updateStats() {
+        var total = filteredArticles.length;
+        var shown = Math.min(displayedCount, total);
+        var label = total + ' article' + (total !== 1 ? 's' : '');
+        if (currentQuery) {
+            label = shown + ' of ' + total + ' article' + (total !== 1 ? 's' : '') + ' matched';
+        }
+        statsCount.textContent = label;
+    }
+
+    /* --- Recents --- */
+    var MAX_VISIBLE_CHIPS = 3;
+    var MAX_RECENTS = 15;
+
+    function loadRecents() {
+        try {
+            var stored = localStorage.getItem('pagesRecents');
+            recents = stored ? JSON.parse(stored) : [];
+        } catch (e) { recents = []; }
+        renderRecents();
+    }
+
+    function renderRecents() {
+        recentsRow.innerHTML = '';
+        var dropdownWrap = document.createElement('div');
+        dropdownWrap.className = 'recents-dropdown-wrap';
+        dropdownWrap.id = 'recentsDropdownWrap';
+        dropdownWrap.style.display = 'none';
+
+        if (!recents.length) {
+            recentsSection.className = 'recents-section';
+            return;
+        }
+        recentsSection.className = 'recents-section has-recents';
+
+        var visible = recents.slice(0, MAX_VISIBLE_CHIPS);
+        var extra = recents.slice(MAX_VISIBLE_CHIPS);
+
+        for (var i = 0; i < visible.length; i++) {
+            recentsRow.appendChild(makeChip(recents[i].id, recents[i].title));
+        }
+
+        if (extra.length) {
+            var moreBtn = document.createElement('button');
+            moreBtn.className = 'recents-more-btn';
+            moreBtn.id = 'recentsMoreBtn';
+            moreBtn.textContent = 'Show more (' + extra.length + ')';
+            moreBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var dd = document.getElementById('recentsDropdown');
+                dd.classList.toggle('open');
+            });
+            dropdownWrap.appendChild(moreBtn);
+
+            var dd = document.createElement('div');
+            dd.className = 'recents-dropdown';
+            dd.id = 'recentsDropdown';
+            for (var j = 0; j < extra.length; j++) {
+                var item = document.createElement('div');
+                item.className = 'recents-dropdown-item';
+                item.textContent = truncate(extra[j].title, 20);
+                item.title = extra[j].title;
+                item.addEventListener('click', (function (id) {
+                    return function () { window.location.href = PAGES_PREFIX + '/' + id + '.html'; };
+                })(extra[j].id));
+                dd.appendChild(item);
+            }
+            dropdownWrap.appendChild(dd);
+            dropdownWrap.style.display = 'inline-block';
+            recentsRow.appendChild(dropdownWrap);
+        }
+    }
+
+    function truncate(str, max) {
+        return str.length > max ? str.slice(0, max) + '...' : str;
+    }
+
+    function makeChip(id, title) {
+        var chip = document.createElement('span');
+        chip.className = 'recents-chip';
+        chip.textContent = truncate(title, 20);
+        chip.title = title;
+        chip.addEventListener('click', function () {
+            window.location.href = PAGES_PREFIX + '/' + id + '.html';
+        });
+        return chip;
+    }
+
+    function trackRecent(id, title) {
+        if (!id) return;
+        recents = recents.filter(function (r) { return r.id !== id; });
+        recents.unshift({ id: id, title: title });
+        if (recents.length > MAX_RECENTS) recents.length = MAX_RECENTS;
+        try { localStorage.setItem('pagesRecents', JSON.stringify(recents)); } catch (e) {}
+        renderRecents();
+    }
+
+    clearBtn.addEventListener('click', function () {
+        recents = [];
+        try { localStorage.setItem('pagesRecents', JSON.stringify([])); } catch (e) {}
+        renderRecents();
+    });
+
+    document.addEventListener('click', function () {
+        var dd = document.getElementById('recentsDropdown');
+        if (dd) dd.classList.remove('open');
+    });
+
+    /* --- Fetch data --- */
+    function getCacheBustedExportsUrl() {
+        var version = '';
+        try {
+            version = String(Date.now()) + '-' + String(Math.random()).slice(2);
+        } catch (e) {
+            version = String(Date.now());
+        }
+        return 'exports.json?v=' + encodeURIComponent(version);
+    }
+
+    function fetchExports(retries) {
+        retries = retries || 0;
+        var urls = [getCacheBustedExportsUrl(), getCacheBustedExportsUrl()];
+        if (retries >= urls.length) {
+            grid.innerHTML = '<div class="empty-state"><h2>No Articles Yet</h2><p>Export HTML from the MD Editor to populate this page.</p></div>';
+            loaderMsg.className = 'loader-msg done';
+            dataLoaded = true;
+            return;
+        }
+        fetch(urls[retries], {
+            cache: 'no-store',
+            headers: {
+                'Cache-Control': 'no-cache, no-store, max-age=0',
+                'Pragma': 'no-cache'
+            }
+        })
+            .then(function (r) {
+                if (!r.ok) throw new Error('Failed to load exports.json');
+                return r.json();
+            })
+            .then(function (data) { handleExports(data); })
+            .catch(function () { fetchExports(retries + 1); });
+    }
+
+    function handleExports(data) {
+        if (!Array.isArray(data) || !data.length) {
+            grid.innerHTML = '<div class="empty-state"><h2>No Articles Yet</h2><p>Export HTML from the MD Editor to populate this page.</p></div>';
+            loaderMsg.className = 'loader-msg done';
+            dataLoaded = true;
+            return;
+        }
+        allArticles = data.slice().sort(function (a, b) {
+            return (b.created || '').localeCompare(a.created || '');
+        });
+        filteredArticles = allArticles.slice();
+        dataLoaded = true;
+        loadMore();
+        updateStats();
+        loadRecents();
+    }
+
+    /* --- Infinite scroll via IntersectionObserver --- */
+    var dataLoaded = false;
+    var observer = new IntersectionObserver(function (entries) {
+        if (entries[0].isIntersecting && dataLoaded) {
+            loadMore();
+        }
+    }, { rootMargin: '200px' });
+    observer.observe(sentinel);
+
+    /* --- Debounced search --- */
+    var searchTimer;
+    searchInput.addEventListener('input', function () {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(performSearch, 250);
+    });
+
+    /* --- Kick off --- */
+    fetchExports(0);
+})();
+</script>
+</body>
+</html>

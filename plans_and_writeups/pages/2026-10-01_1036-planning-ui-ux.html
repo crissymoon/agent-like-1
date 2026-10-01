@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planning Ui Ux</title>
+    <meta name="description" content="...">
+    <link rel="icon" type="image/webp" href="https://xcaliburmoon.net/new_design_imgs/xcalibur-full-cat.webp">
+    <base target="_blank">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 16px; }
+        body {
+            font-family: Georgia, "Times New Roman", serif;
+            color: #251e18;
+            background: #fdfcfc;
+            line-height: 1.5;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 48px;
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+        }
+        body.dark {
+            background: #14100c;
+            color: #e8d8b8;
+        }
+        .mode-toggle {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 1000;
+            background: #ff7000;
+            color: #1a1208;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            border-radius: 0;
+            transition: opacity 0.2s;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        .mode-toggle:hover { opacity: 0.85; }
+        @media (max-width: 600px) {
+            .mode-toggle { top: 8px; right: 8px; padding: 6px 12px; font-size: 0.72rem; }
+        }
+        .back-link {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 1000;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 0.88rem;
+            font-weight: 600;
+            text-decoration: none;
+            color: #ff7000;
+            transition: opacity 0.2s;
+        }
+        .back-link:hover { opacity: 0.75; }
+        body.dark .back-link { color: #ff9040; }
+        @media (max-width: 600px) {
+            .back-link { top: 8px; left: 8px; font-size: 0.78rem; }
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 700;
+            margin: 0.6em 0 0.2em;
+            line-height: 1.25;
+            color: #1a1208;
+        }
+        body.dark h1, body.dark h2, body.dark h3, body.dark h4, body.dark h5, body.dark h6 { color: #ff7000; }
+        h1 { font-size: 2em; margin-top: 1.2em; }
+        h2 { font-size: 1.55em; border-bottom: 2px solid #ff7000; padding-bottom: 4px; }
+        h3 { font-size: 1.25em; color: #ff7000; }
+        body.dark h3 { color: #ff9040; }
+        p { margin: 0 0 0.75em; }
+        p.md-spacer { display: none; }
+        strong { font-weight: 700; }
+        em { font-style: italic; }
+        del { text-decoration: line-through; opacity: 0.7; }
+        a {
+            color: #0089fa;
+            text-decoration: underline;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        body.dark a { color: #60b0ff; }
+        p, li, blockquote, td, th, h1, h2, h3, h4, h5, h6 { overflow-wrap: break-word; }
+        code {
+            font-family: "Courier New", monospace;
+            background: #f0ece4;
+            padding: 1px 5px;
+            font-size: 0.88em;
+        }
+        body.dark code { background: #2e2010; color: #e8c898; }
+        p code {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .code-block {
+            margin: 0.9em 0;
+            border: 1px solid #d9cfbf;
+            background: #f0ece4;
+            overflow: hidden;
+        }
+        body.dark .code-block {
+            background: #2e2010;
+            border-color: #4a3820;
+        }
+        .code-block-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.04);
+            border-bottom: 1px solid #d9cfbf;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        body.dark .code-block-header {
+            background: rgba(255, 255, 255, 0.04);
+            border-bottom-color: #4a3820;
+        }
+        .code-block-header-no-lang {
+            justify-content: flex-end;
+        }
+        .code-block-lang {
+            font-size: 0.76rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #7a6040;
+        }
+        body.dark .code-block-lang { color: #c8a87a; }
+        .code-copy-btn {
+            border: 1px solid #ff7000;
+            background: transparent;
+            color: #ff7000;
+            padding: 6px 10px;
+            min-width: 78px;
+            font-size: 0.76rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            text-align: center;
+        }
+        .code-copy-btn:hover { background: rgba(255, 112, 0, 0.08); }
+        .code-copy-btn.copied {
+            background: #ff7000;
+            color: #1a1208;
+            transition: background 0.15s, color 0.15s;
+        }
+        .code-copy-btn:active { transform: scale(0.96); }
+        .code-copy-btn.copy-flash { animation: copyPulse 0.4s ease; }
+        @keyframes copyPulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 112, 0, 0.5); }
+            100% { box-shadow: 0 0 0 8px rgba(255, 112, 0, 0); }
+        }
+        pre {
+            background: transparent;
+            padding: 16px 18px;
+            overflow-x: auto;
+            margin: 0;
+            font-size: 0.88em;
+            white-space: pre;
+            overflow-wrap: normal;
+            word-break: normal;
+            tab-size: 4;
+        }
+        pre code {
+            background: none;
+            padding: 0;
+            display: block;
+            white-space: pre;
+            overflow-wrap: normal;
+            word-break: normal;
+            word-wrap: normal;
+            line-break: auto;
+        }
+        blockquote {
+            border-left: 4px solid #ff7000;
+            margin: 0.7em 0;
+            padding: 4px 0 4px 18px;
+            color: #6e5a3a;
+            background: #fdf5ea;
+        }
+        body.dark blockquote { background: #251e12; color: #b8986a; }
+        ul, ol { margin: 0.5em 0 0.75em; padding-left: 2.25em; }
+        ol { list-style-position: outside; }
+        li { margin: 0.15em 0; padding-left: 0.2em; }
+        hr { border: none; border-top: 2px solid #ff7000; margin: 1.2em 0; }
+        table { border-collapse: collapse; width: auto; max-width: 100%; margin: 0.8em 0; }
+        th, td {
+            border: 1px solid #c8b898;
+            padding: 7px 14px;
+            text-align: left;
+        }
+        body.dark th, body.dark td { border-color: #4a3820; }
+        th { background: #f0ece4; font-weight: 700; color: #1a1208; }
+        body.dark th { background: #2e2010; color: #e8c898; }
+        img { max-width: 100%; height: auto; display: block; margin: 0.5em 0; }
+        @media (max-width: 700px) {
+            body { padding: 52px 16px 20px; font-size: 15px; }
+            table {
+                display: block;
+                max-width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                white-space: nowrap;
+            }
+        }
+        @media (max-width: 480px) {
+            body { padding: 46px 12px 18px; }
+            h1 { font-size: 1.6em; }
+            h2 { font-size: 1.35em; }
+            h3 { font-size: 1.15em; }
+            ul, ol { padding-left: 1.5em; }
+            blockquote { padding: 4px 0 4px 12px; }
+            th, td { padding: 6px 9px; }
+            .code-copy-btn { min-width: 64px; }
+        }
+        @page { size: auto; margin: 0.7in; }
+        @media print {
+            html { font-size: 11pt; }
+            body, body.dark { max-width: none; min-height: 0; margin: 0; padding: 0; background: #fff; color: #251e18; }
+            .mode-toggle, .back-link, .copy-toast, .code-copy-btn { display: none !important; }
+            body.dark h1, body.dark h2, body.dark h3, body.dark h4, body.dark h5, body.dark h6 { color: #1a1208; }
+            h1, h2, h3, h4, h5, h6 { break-after: avoid-page; page-break-after: avoid; }
+            p, li, blockquote { orphans: 3; widows: 3; }
+            img, table, pre, blockquote, .code-block { break-inside: avoid; page-break-inside: avoid; }
+            a { color: #251e18; text-decoration: underline; }
+            .code-block, pre, code, body.dark .code-block, body.dark code { background: #f0ece4; color: #251e18; }
+            .code-block-header { display: none; }
+            table { width: 100%; }
+        }
+        .copy-toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            background: #ff7000;
+            color: #1a1208;
+            padding: 10px 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border-radius: 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            pointer-events: none;
+        }
+        .copy-toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        body.dark .copy-toast {
+            background: #ff9040;
+            color: #1a1208;
+        }
+        @media (max-width: 600px) {
+            .copy-toast { bottom: 16px; right: 16px; font-size: 0.78rem; padding: 8px 14px; }
+        }
+    </style>
+</head>
+<body>
+    <button class="mode-toggle" id="modeToggle">Toggle Theme</button>
+    <a class="back-link" href="../index.html" id="backLink">&#8592; Back to Articles</a>
+    <h1>Potential Img Visuals</h1><p>...</p><p class="md-spacer"></p><h2>App Icon</h2><p><img  src="imgs/agent-like-icon.webp" alt="Potential Agent-Like Icon - Thu Oct 1, 2026"></p><p class="md-spacer"></p><h2>Agent Tone</h2><ol><li>"Hey, I got a module for that!"</li><li>"Oh, I have something for that!"</li><li>...</li></ol>
+    <script>
+        (function() {
+            function copyText(text) {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    return navigator.clipboard.writeText(text);
+                }
+                return new Promise(function(resolve, reject) {
+                    try {
+                        var field = document.createElement("textarea");
+                        field.value = text;
+                        field.setAttribute("readonly", "readonly");
+                        field.style.position = "absolute";
+                        field.style.left = "-9999px";
+                        document.body.appendChild(field);
+                        field.select();
+                        document.execCommand("copy");
+                        document.body.removeChild(field);
+                        resolve();
+                    } catch (err) {
+                        reject(err);
+                    }
+                });
+            }
+
+            function clearCopyReset(button) {
+                if (button._copyResetTimer) {
+                    window.clearTimeout(button._copyResetTimer);
+                    button._copyResetTimer = null;
+                }
+            }
+
+            function setCopyState(button, copied) {
+                clearCopyReset(button);
+                if (copied) {
+                    button.textContent = "Copied!";
+                    button.setAttribute("aria-label", "Code copied");
+                    button.classList.add("copied");
+                    button.classList.add("copy-flash");
+                    button._copyResetTimer = window.setTimeout(function() {
+                        button.textContent = "Copy";
+                        button.setAttribute("aria-label", "Copy code");
+                        button.classList.remove("copied");
+                        button.classList.remove("copy-flash");
+                        button._copyResetTimer = null;
+                    }, 2000);
+                } else {
+                    button.textContent = "Copy";
+                    button.setAttribute("aria-label", "Copy code");
+                    button.classList.remove("copied");
+                    button.classList.remove("copy-flash");
+                }
+            }
+
+            function showCopyToast() {
+                var toast = document.getElementById("copyToast");
+                if (!toast) {
+                    toast = document.createElement("div");
+                    toast.id = "copyToast";
+                    toast.className = "copy-toast";
+                    toast.textContent = "Copied to clipboard!";
+                    document.body.appendChild(toast);
+                }
+                toast.classList.add("show");
+                if (toast._hideTimer) {
+                    window.clearTimeout(toast._hideTimer);
+                    toast._hideTimer = null;
+                }
+                toast._hideTimer = window.setTimeout(function() {
+                    toast.classList.remove("show");
+                    toast._hideTimer = null;
+                }, 2000);
+            }
+
+            var saved = localStorage.getItem("exportTheme");
+            if (saved === "dark" || saved === null) {
+                document.body.classList.add("dark");
+                if (saved === null) localStorage.setItem("exportTheme", "dark");
+            }
+
+            document.getElementById("modeToggle").addEventListener("click", function() {
+                var isDark = document.body.classList.toggle("dark");
+                localStorage.setItem("exportTheme", isDark ? "dark" : "light");
+            });
+
+            Array.prototype.forEach.call(document.querySelectorAll(".code-copy-btn"), function(button) {
+                button.addEventListener("click", function() {
+                    var block = button.closest(".code-block");
+                    var code = block ? block.querySelector("pre code") : null;
+                    if (!code) return;
+                    var raw = code.textContent;
+                    var normalized = raw.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+                    copyText(normalized).then(function() {
+                        setCopyState(button, true);
+                        showCopyToast();
+                    }).catch(function() {
+                        setCopyState(button, false);
+                    });
+                });
+            });
+        })();
+    </script>
+</body>
+</html>
