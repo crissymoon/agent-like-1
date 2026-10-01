@@ -463,7 +463,7 @@
       setError(
         window.location.protocol === "file:"
           ? fileProtocolHint()
-          : "No diagram files were found beside the viewer. Put a .mmd or .mermaid file in the diagrams folder, then press Reload."
+          : "This host served no diagram listing and no sources.json, so the viewer cannot see which diagrams are here. Serve the folder with ./serve.sh, or keep the generated sources.json beside the page, then press Reload."
       );
       return;
     }
@@ -660,10 +660,13 @@
     }
     const candidates = sortNames(Array.from(found));
     if (!candidates.length) {
-      // Nothing could enumerate the folder. Offer the conventional path rather
-      // than an empty picker, because a host that serves files but cannot list
-      // them probably has a diagram there; a failed load corrects the list.
-      return [DIAGRAM_DIR + "/" + PREFERRED_NAME];
+      // Neither a manifest nor a listing answered, so the viewer has nothing to
+      // go on. An empty list is the honest answer, and the page says which two
+      // things would have filled it. Naming a file from memory here would offer
+      // a path nothing has promised exists, and a diagram renamed on disk is
+      // then looked for under its old name and reported as a 404 that reads like
+      // a fault in the file rather than in the listing.
+      return [];
     }
     // An empty answer here means every candidate was reported gone, and the
     // picker says so rather than offering files that cannot be read.
