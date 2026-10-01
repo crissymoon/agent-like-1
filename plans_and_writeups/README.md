@@ -72,6 +72,29 @@ references come from the open document plus every `pages/*.md` and
 nothing references removed, so this folder holds exactly the images its articles
 use.
 
+## The two readers
+
+Each export answers to two readers, and each one reads a different file:
+
+| file | reader | how a reference is resolved |
+| --- | --- | --- |
+| `pages/<name>.html` | the local viewer, which serves this folder | from the site root, `/imgs/a.webp` |
+| `pages/<name>.md` | GitHub, which renders the repository | from the file, `imgs/a.webp` |
+
+The markdown is copied out of the editor as it was typed, which is addressed for
+the server, so the export hands the copy to `~/Documents/gemma/tools/github_md.py`,
+named by the destination's `md_converter` setting. It rewrites only the markdown:
+a root relative image becomes relative to the page, a link to an exported page
+becomes a link to the markdown it was generated from, and a reference that is
+already right is left alone. The page itself is never touched.
+
+Run it by hand after adding articles another way:
+
+```
+python3 tools/github_md.py --check     # report, change nothing, non-zero if it would rewrite
+python3 tools/github_md.py --write     # rewrite every markdown under pages/
+```
+
 `exports.json` is owned by the export path. It is upserted by `id` or `filename`, so re-exporting the same source updates the existing row and preserves `created` and `tags`. The file is validated before anything is written, and a page is never written without a matching row. Edit it by hand only if you accept that the next export of that same article will overwrite your row.
 
 A row looks like this:
