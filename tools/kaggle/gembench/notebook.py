@@ -236,7 +236,7 @@ def source() -> str:
         "    _module = types.ModuleType('gembench.' + _name)",
         "    _module.__package__ = 'gembench'",
         "    sys.modules['gembench.' + _name] = _module",
-        "    exec(compile(MODULES[_name], 'gembench/' + _name + '.py', 'exec'), _module.__dict__)",
+        "    exec(compile(MODULES[_name], 'gembench/' + _name + '.py', 'exec'), _module.__dict__)",  # security-allow: the code is this repository's own source, embedded into the notebook by this builder and read back from the embedded map rather than from anywhere a caller can reach
         "    setattr(_package, _name, _module)",
         "",
         "from gembench import suite, scoring, reference, runner, compare, parity",

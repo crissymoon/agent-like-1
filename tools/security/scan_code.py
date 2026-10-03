@@ -137,6 +137,8 @@ def scan_lines(text: str, relative: str, language: str, report: Report) -> None:
                 continue
             if rule.unless and any(marker in line for marker in rule.unless):
                 continue
+            if rule.unless_re is not None and rule.unless_re.search(line):
+                continue
             if reported >= FINDING_CAP:
                 report.tally("lines-not-reported")
                 return

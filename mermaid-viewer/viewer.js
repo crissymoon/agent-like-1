@@ -385,7 +385,11 @@
   function configureMermaid() {
     window.mermaid.initialize({
       startOnLoad: false,
-      securityLevel: "loose",
+      // The source being drawn is text a file supplied and the svg it produces
+      // is assigned as markup, so the sanitiser stays on: `strict` is what puts
+      // it between the two. `loose` would pass the drawing through untouched,
+      // which would make the assignment below the whole of the guard.
+      securityLevel: "strict",
       theme: currentTheme(),
       fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif",
       flowchart: { htmlLabels: true, curve: "basis", useMaxWidth: false },
@@ -405,7 +409,7 @@
     const renderId = "mmd-" + Date.now().toString(36);
     try {
       const result = await window.mermaid.render(renderId, state.code);
-      els.diagram.innerHTML = result.svg;
+      els.diagram.innerHTML = result.svg; // security-allow: the markup is the svg the vendored mermaid build drew from the source above and sanitised at the strict level configureMermaid sets
       state.natural = measureDiagram(tidyEdgeLabels());
       state.rendered = true;
       window.requestAnimationFrame(fit);

@@ -61,6 +61,12 @@ class Rule:
     also: tuple[str, ...] = ()
     #: Substrings whose presence on the line means the rule does not fire.
     unless: tuple[str, ...] = ()
+    #: A pattern whose match means the rule does not fire, for the harmless
+    #: shapes a substring cannot express. `unless` tests for a substring, and a
+    #: substring is not a shape: `innerHTML = ""` clears an element, and
+    #: `innerHTML = "<p>empty state</p>"` writes a page, and the pair of them
+    #: share both words.
+    unless_re: re.Pattern[str] | None = None
     #: Extra file names this rule is limited to, when the pattern is not enough.
     only_paths: tuple[str, ...] = ()
 
@@ -74,6 +80,7 @@ def _rule(
     hint: str = "",
     also: tuple[str, ...] = (),
     unless: tuple[str, ...] = (),
+    unless_re: str | None = None,
     only_paths: tuple[str, ...] = (),
 ) -> Rule:
     return Rule(
@@ -85,12 +92,24 @@ def _rule(
         hint=hint,
         also=also,
         unless=unless,
+        unless_re=re.compile(unless_re) if unless_re else None,
         only_paths=only_paths,
     )
 
 
 #: A request superglobal, which is the only thing in PHP that is a user input.
 PHP_REQUEST = r"\$_(?:GET|POST|REQUEST|COOKIE|FILES|SERVER|ENV)"
+
+#: An assignment whose whole right hand side is one string literal. A literal is
+#: markup this line wrote, and there is nowhere in it for a value to have come
+#: from, so there is nothing to trace. The empty literal is the same case: it
+#: clears the element. A literal with anything beside it, a concatenation or an
+#: interpolation, is not this shape and is still read.
+JS_LITERAL_MARKUP = re.compile(
+    r"\.(?:innerHTML|outerHTML)\s*=\s*"
+    r"""(?:"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')"""
+    r"\s*;?\s*(?://.*)?$"
+)
 
 RULES: tuple[Rule, ...] = (
     # ------------------------------------------------------------------ php
@@ -254,7 +273,7 @@ RULES: tuple[Rule, ...] = (
         r"\.(innerHTML|outerHTML)\s*=",
         "markup is assigned as markup",
         "a value that is not markup this code produced is a cross site scripting defect; a cleared element is fine and is not a value at all",
-        unless=('""', "''", "''", "empty", "clear", "` `"),
+        unless_re=JS_LITERAL_MARKUP,
     ),
     _rule(
         "js-insert-adjacent-html",
@@ -262,6 +281,15 @@ RULES: tuple[Rule, ...] = (
         "javascript",
         r"\binsertAdjacentHTML\s*\(",
         "markup is inserted as markup",
+    ),
+    _rule(
+        "js-mermaid-loose",
+        Severity.MEDIUM,
+        "javascript",
+        r"securityLevel\s*[:=]\s*[\"']loose[\"']",
+        "the diagram sanitiser is turned off",
+        "mermaid only sanitises the svg it returns at the strict level, and a page that "
+        "assigns that svg as markup has nothing else between the source and the page",
     ),
     _rule(
         "js-child-process",

@@ -92,7 +92,7 @@ var SRC = __SOURCE__;
     return (node.id || '').replace(/^.*?-flowchart-/, '').replace(/-\\d+$/, '');
   }
   try {
-    mermaid.initialize({startOnLoad: false, theme: 'default', securityLevel: 'loose'});
+    mermaid.initialize({startOnLoad: false, theme: 'default', securityLevel: 'strict'});
     mermaid.render('lint', SRC).then(function (res) {
       var host = document.getElementById('host');
       host.innerHTML = res.svg;

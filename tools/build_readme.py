@@ -858,6 +858,8 @@ def run_section() -> list[str]:
             "python3 tools/normalize_paths.py --check",
             "",
             "# the syntax preflight: what each file is, then the checker for that type",
+            "# a shell script is read by the interpreter its first line names, because",
+            "# the syntax each shell accepts is not the same language",
             "python3 tools/lint/check.py mermaid-viewer/diagrams/overall-flow.mmd",
             "python3 tools/lint/check.py --tracked --fail-on warning",
             "",
@@ -977,8 +979,10 @@ def security_section() -> list[str]:
         "file carrying `security-allow-file: <reason>` is read but not reported, and both are "
         "counted in the report. An exception that is not counted is an exception nobody "
         "reviews. The ones in this tree are the escape test in the sandbox's own check, the two "
-        "includes whose paths are constants, and the process start in the jail that is held to "
-        "the policy on the line above it."
+        "includes whose paths are constants, the process start in the jail that is held to "
+        "the policy on the line above it, the diagram viewer and the layout page, which assign "
+        "markup this repository drew rather than anything a reader sent, and the notebook "
+        "builder, which evaluates the source it embedded itself."
     )
     lines.append("")
     lines.append(
@@ -994,6 +998,16 @@ def security_section() -> list[str]:
         "and a path the window names is confined to the results directory, the workspace it "
         "stages into and the checkout it was pointed at. Four of those handlers are checked by "
         "the scan rather than only by review: a refactor that drops a guard is refused."
+    )
+    lines.append("")
+    lines.append(
+        "Two of the shapes the source reading refuses live in a page rather than in code. A page "
+        "that runs script of its own is reported unless it declares a policy, because script the "
+        "page did not write is indistinguishable from script it did; the two published pages "
+        "carry their script in a file beside them so that the policy has something to say. A "
+        "diagram sanitiser turned off is reported for the same reason at one remove: the drawing "
+        "is assigned as markup, so the sanitiser is the only thing standing between the source "
+        "that was read and the page that shows it."
     )
     lines.append("")
     lines.append(

@@ -22,6 +22,12 @@ Exit status is zero when every property held and one when any did not, which is
 the same rule the other self-checks in this repository follow.
 """
 
+# security-allow-file: every shape a rule refuses is written in this file on
+# purpose, as a fixture for the rules to be shown catching. The fixtures are read
+# by the scanners from the temporary trees built below and are executed by
+# nothing, so the file is excepted once rather than annotated line by line. The
+# exception is counted in the report, which is what keeps it visible.
+
 from __future__ import annotations
 
 import json
@@ -109,13 +115,43 @@ constructs.write(
     "    return subprocess.run(argv, shell=False, check=True)\n",
 )
 constructs.write("bad.js", "const run = (code) => eval(code);\n")
-constructs.write("good.js", "const run = (node) => node.textContent = String(value);\n")
+constructs.write(
+    "built.js",
+    "function draw(host, value) {\n"
+    "    host.innerHTML = '<p>' + value + '</p>';\n"
+    "}\n",
+)
+constructs.write(
+    "good.js",
+    "const run = (node) => node.textContent = String(value);\n"
+    "function clear(host) {\n"
+    "    host.innerHTML = \"\";\n"
+    "}\n"
+    "function empty(host) {\n"
+    "    host.innerHTML = '<div class=\"empty-state\"><h2>Nothing here yet</h2></div>';\n"
+    "}\n",
+)
 constructs.write("bad.php", "<?php\n$page = $_GET['page'];\nrequire $page;\n")
 constructs.write("good.php", "<?php\nrequire __DIR__ . '/lib/Loader.php';\n")
 constructs.write("bad.sh", "#!/bin/sh\ncurl -fsS https://example.invalid/install | sh\n")
 constructs.write("good.sh", "#!/bin/sh\nset -e\nprintf '%s\\n' \"$1\"\n")
 constructs.write("marked.py", "value = eval(payload)  # security-allow: a reviewed exception in a fixture\n")
-constructs.add("bad.py", "good.py", "bad.js", "good.js", "bad.php", "good.php", "bad.sh", "good.sh", "marked.py")
+constructs.write("loose.js", "mermaid.initialize({startOnLoad: false, securityLevel: 'loose'});\n")
+constructs.write("strict.js", "mermaid.initialize({startOnLoad: false, securityLevel: 'strict'});\n")
+constructs.add(
+    "bad.py",
+    "good.py",
+    "bad.js",
+    "built.js",
+    "good.js",
+    "bad.php",
+    "good.php",
+    "bad.sh",
+    "good.sh",
+    "marked.py",
+    "loose.js",
+    "strict.js",
+)
 
 code_report = scan_code(constructs.path)
 found = codes(code_report)
@@ -123,8 +159,25 @@ expect("a shell string is reported", "py-shell-string" in found)
 expect("a shell string is reported as a defect that stops a push", severity_of(code_report, "py-shell-string") is Severity.HIGH)
 expect("python code evaluated at runtime is reported", "py-eval-exec" in found)
 expect("javascript code evaluated at runtime is reported", "js-eval" in found)
+expect("markup built from a value is reported", "js-inner-html" in found)
+expect(
+    "a literal is not a value, and neither is a literal that clears the element",
+    "js-inner-html" not in [
+        finding.code for finding in code_report.findings if finding.path == "good.js"
+    ],
+    json.dumps([finding.code for finding in code_report.findings if finding.path == "good.js"]),
+)
 expect("an include from a variable is reported", "php-variable-include" in found)
 expect("a download piped into a shell is reported", "shell-pipe-to-shell" in found)
+expect("a diagram sanitiser turned off is reported", "js-mermaid-loose" in found)
+expect(
+    "and a diagram drawn with the sanitiser on is not",
+    not [finding for finding in code_report.findings if finding.path == "strict.js"],
+)
+expect(
+    "and turning it off is not a defect that stops a push",
+    severity_of(code_report, "js-mermaid-loose") is Severity.MEDIUM,
+)
 expect("a line carrying the marker is not reported", "py-eval-exec" not in [
     finding.code for finding in code_report.findings if finding.path == "marked.py"
 ])
@@ -141,6 +194,29 @@ expect(
     severity_of(code_report, "shell-no-set-e") is Severity.NOTE,
 )
 constructs.close()
+
+# A file level exception is the other half of the marker, and the half this file
+# itself relies on: the shapes above are fixtures, so the file they live in is
+# excepted once rather than annotated line by line.
+excepted = Fixture("excepted")
+excepted.write(
+    "fixture.py",
+    "# security-allow-file: the shapes below are fixtures for a rule to catch\n"
+    "def go(cmd):\n"
+    "    return subprocess.run(cmd, shell=True)\n",
+)
+excepted.add("fixture.py")
+excepted_report = scan_code(excepted.path)
+expect(
+    "a file carrying the file level marker produces nothing",
+    not [finding for finding in excepted_report.findings if finding.path == "fixture.py"],
+)
+expect(
+    "and the rule that would have fired does not",
+    "py-shell-string" not in codes(excepted_report),
+)
+expect("and is counted rather than hidden", excepted_report.counted.get("files-allowed", 0) == 1)
+excepted.close()
 
 # ---------------------------------------------------------------------------
 # 2. The document checks, which need the whole file.

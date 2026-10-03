@@ -2572,7 +2572,7 @@
 
         var preview = document.createElement('div');
         preview.className = 'pl-card__preview';
-        preview.innerHTML = layout.svg;
+        preview.innerHTML = layout.svg; // security-allow: layout is a row of the LAYOUTS constant in this file and svg is its field, so the markup is authored here and arrived from nowhere
 
         var info = document.createElement('div');
         info.className = 'pl-card__info';
@@ -2643,7 +2643,7 @@
         lbCounter.textContent = (activeIdx + 1) + ' / ' + filteredIds.length;
 
         // Large SVG
-        lbBody.innerHTML = layout.svg;
+        lbBody.innerHTML = layout.svg; // security-allow: the same authored field as the card preview, read from the LAYOUTS constant in this file
 
         // Zone breakdown
         var breakdown = document.createElement('div');

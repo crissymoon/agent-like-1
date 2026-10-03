@@ -7,7 +7,8 @@ one of them is already installed rather than fetched:
     json        the standard library parses it
     php         `php -l` parses it and exits non-zero on a parse error
     javascript  `node --check` parses it without running it
-    shell       `sh -n` parses it and exits non-zero on a syntax error
+    shell       the interpreter in the shebang reads it with `-n` and exits
+                non-zero on a syntax error
     mermaid     the vendored build draws it in a headless browser
 
 None of them is a substitute for the other, which is the point of asking the
@@ -42,6 +43,11 @@ FINDING_CAP = 12
 #: Path fragments that mean a file is somebody else's build output. A vendored
 #: bundle is not this repository's source and is not checked unless asked for.
 VENDOR_MARKERS = ("/vendor/", "/node_modules/", "/site-packages/", "/.venv/", "/venv_")
+
+#: The shells that read a file with `-n` instead of running it. A shebang naming
+#: one of these decides which parser reads the file, because the syntax each one
+#: accepts is not the same language.
+SHELL_NAMES: tuple[str, ...] = ("sh", "bash", "dash", "ash", "ksh", "zsh")
 
 
 @dataclass(frozen=True)
@@ -226,24 +232,86 @@ def check_javascript(context: Context, text: str) -> list[Finding]:
     ]
 
 
-def check_shell(context: Context, text: str) -> list[Finding]:
-    tool = shutil.which("sh")
+def _shebang_interpreter(text: str) -> str | None:
+    """The interpreter the first line names, or None when there is no shebang.
+
+    Only the name is kept. `#!/usr/bin/env bash`, `#!/bin/bash` and
+    `#!/usr/bin/env -S bash -e` all name `bash`, because that is the part that
+    decides which parser can read the rest of the file.
+    """
+    first_line = text.split("\n", 1)[0].strip()
+    if not first_line.startswith("#!"):
+        return None
+    words = first_line[2:].split()
+    if not words:
+        return None
+    name = Path(words[0]).name
+    if name != "env":
+        return name
+    for word in words[1:]:
+        if word.startswith("-"):
+            continue
+        return Path(word).name
+    return None
+
+
+def _shell_command(context: Context, text: str) -> tuple[list[str], str, Finding | None]:
+    """What to read the file with, what to call that reading, and any reading taken.
+
+    The interpreter comes from the shebang rather than being fixed to `sh`. A
+    file that says it is bash is allowed to use a bash construct, and `sh -n`
+    refusing one is a parser answering about a language the file never claimed:
+    the file is correct and the reading would be wrong. So a named interpreter
+    that is present is the one asked. A named interpreter that is absent is a
+    reading rather than a fallback, because a script read by a shell it does not
+    claim cannot be said to have parsed.
+    """
+    named = _shebang_interpreter(text)
+    if named is None or named == "sh":
+        tool = shutil.which("sh")
+        if tool is None:
+            return [], "sh", _missing_tool(context, "shell", "sh", "any base system has sh")
+        return [tool, "-n", str(context.path)], "sh", None
+    if named not in SHELL_NAMES:
+        return [], named, Finding(
+            context.name,
+            Severity.NOTE,
+            "shell-not-checked",
+            f"the file is read as a shell script and its first line names {named}, "
+            "which is not a shell, so it was not parsed",
+            hint="the shebang and the file's suffix disagree; one of them is wrong",
+        )
+    tool = shutil.which(named)
     if tool is None:
-        return [_missing_tool(context, "shell", "sh", "any base system has sh")]
-    result = _run(context, [tool, "-n", str(context.path)])
+        return [], named, Finding(
+            context.name,
+            Severity.NOTE,
+            "shell-not-checked",
+            f"the file names {named} on its first line and {named} is not on PATH, "
+            "so it was not parsed",
+            hint=f"install {named}, or change the shebang, to have this file read",
+        )
+    return [tool, "-n", str(context.path)], named, None
+
+
+def check_shell(context: Context, text: str) -> list[Finding]:
+    command, named, reading = _shell_command(context, text)
+    if reading is not None:
+        return [reading]
+    result = _run(context, command)
     if result is None:
         return [
             Finding(
                 context.name,
                 Severity.NOTE,
                 "shell-not-checked",
-                "sh -n did not finish, so the file was not parsed",
+                f"{named} -n did not finish, so the file was not parsed",
             )
         ]
     if result.returncode == 0:
         return []
     output = (result.stderr or result.stdout).decode("utf-8", "replace").strip()
-    first = output.splitlines()[0] if output else "sh -n reported a syntax error"
+    first = output.splitlines()[0] if output else f"{named} -n reported a syntax error"
     line_match = re.search(r"line (\d+)", first)
     return [
         Finding(
