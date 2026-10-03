@@ -848,6 +848,12 @@ def run_section() -> list[str]:
             "# and the wide view, every blob any ref can reach, before or after a rewrite",
             "python3 tools/security/scan_secrets.py --history",
             "",
+            "# the whole security reading: the scanners' own check, the syntax preflight,",
+            "# then secrets, source, file modes and dependencies as one list",
+            "./security-scan.sh",
+            "./security-scan.sh --with-registry   # also ask the registry for advisories",
+            "python3 tools/security/selftest.py   # the scanners against a fixture, on their own",
+            "",
             "# machine paths in a record, shortened to repository relative form",
             "python3 tools/normalize_paths.py --check",
             "",
@@ -896,6 +902,125 @@ def run_section() -> list[str]:
         "repository, or under a home or temporary marker. `lib/PathRecord.php` is that rule for "
         "the writers, `tools/normalize_paths.py` applies the same rule to records written before "
         "it existed, and the check keeps it from coming back."
+    )
+    lines.append("")
+    return lines
+
+
+def security_section() -> list[str]:
+    """What is read before anything is sent, and what each reading can and cannot see."""
+    lines = ["## Security", ""]
+    lines.append(
+        "The repository is read before it is sent, and the reading is one command. What it "
+        "cannot see is reachability: a pattern that matches a line does not know whether the "
+        "line runs, and one that misses does not know what a value is. So the command reports "
+        "what it read as well as what it found, and a construct it marks that is in fact correct "
+        "is answered in the source rather than by a change to the rule."
+    )
+    lines.append("")
+    lines.extend(
+        [
+            "```bash",
+            "./security-scan.sh                     # the four surfaces, offline, refusing at high",
+            "./security-scan.sh --with-registry      # and the advisories the registry answers with",
+            "./security-scan.sh --fail-on medium     # stricter than the review is",
+            "```",
+            "",
+        ]
+    )
+    lines.extend(
+        table(
+            ["surface", "the question it answers", "the command that answers it"],
+            [
+                [
+                    "secrets",
+                    "is a credential, a closed directory or a machine path in the tree, or in any "
+                    "blob any ref can reach",
+                    "`tools/security/scan_secrets.py --tracked --paths`, then `--history`",
+                ],
+                [
+                    "source",
+                    "is a shape a defect is written in in the source, and does the application "
+                    "still have the properties it says it has",
+                    "`tools/security/scan_code.py --tracked`",
+                ],
+                [
+                    "files",
+                    "what the tree holds and how it is held: the mode of every tracked file, the "
+                    "links, the names a credential is written as, and the ignore rules that hold "
+                    "them out",
+                    "`tools/security/scan_files.py`",
+                ],
+                [
+                    "dependencies",
+                    "what this tree installs, whether the declared versions are pinned, whether "
+                    "every locked package carries the hash of what it installs",
+                    "`tools/security/scan_deps.py [--with-registry]`",
+                ],
+            ],
+        )
+    )
+    lines.append("")
+    lines.append(
+        "A severity is a claim about what happens next rather than about how worried a reader "
+        "should be. `high` is a defect that should stop a push: either it is exploitable as "
+        "read, or it is a property the code claims and does not have. `medium` is a place that "
+        "is safe only because of something nearby, which is where the next defect will be "
+        "written. `low` is hygiene, and `note` is a reading rather than a finding, which is how "
+        "a check that could not run is reported: never as a pass, because a scan that did not "
+        "happen and a scan that found nothing must not print the same thing."
+    )
+    lines.append("")
+    lines.append(
+        "A rule that cannot see reachability will always mark some correct code, so the way out "
+        "is part of the format. A line carrying `security-allow: <reason>` is not reported and a "
+        "file carrying `security-allow-file: <reason>` is read but not reported, and both are "
+        "counted in the report. An exception that is not counted is an exception nobody "
+        "reviews. The ones in this tree are the escape test in the sandbox's own check, the two "
+        "includes whose paths are constants, and the process start in the jail that is held to "
+        "the policy on the line above it."
+    )
+    lines.append("")
+    lines.append(
+        "The source reading also holds the desktop application to the properties a reader "
+        "cannot see on screen, because each of them decides whether the page in front of them "
+        "is the page that was served: context isolation, no node integration in the renderer, "
+        "the sandbox, a content security policy that denies what it does not name, a request to "
+        "open a window being refused, and navigation away from the one document being refused. "
+        "The window holds no privilege of its own: it cannot start a process, open a file or "
+        "resolve a path. What it can do is ask, and `desktop/lib/guard.js` is what every "
+        "request is held to. A setting is a value of a name the application already has, of the "
+        "kind that name takes, so a patch cannot invent a name or turn a setting into a command, "
+        "and a path the window names is confined to the results directory, the workspace it "
+        "stages into and the checkout it was pointed at. Four of those handlers are checked by "
+        "the scan rather than only by review: a refactor that drops a guard is refused."
+    )
+    lines.append("")
+    lines.append(
+        "Advisories are read only when `--with-registry` asks for them, because an answer that "
+        "depends on the registry today is a different kind of claim from one that depends on the "
+        "commit. When it is asked, an advisory that cannot be acted on yet is listed in the "
+        "scanner with the reason it cannot be, reported as a reading every time, and counted: "
+        "one unfixable advisory reached by seven packages is reported as one advisory and seven "
+        "packages, rather than as eight findings, because eight findings is the same as none. "
+        "An advisory with a fixed version published is never excepted; the finding names the "
+        "version that clears it."
+    )
+    lines.append("")
+    lines.append(
+        "The reading is not committed. A report names the file modes on this machine, the hooks "
+        "installed in this clone and the registry as it answered that day, so it describes the "
+        "checkout rather than the commit, and the release review takes the reading again rather "
+        "than trusting a receipt written earlier."
+    )
+    lines.append("")
+    lines.append(
+        "None of it is worth much if the rules are wrong, and a scanner that reports nothing "
+        "prints exactly what a scanner that reads nothing prints. So the rules are exercised "
+        "against a fixture before they are pointed at the repository: a file that holds the "
+        "shape has to be reported at the severity the rule claims, a file that does not has to "
+        "be silent, and a marker has to be counted. That check is the first tier of the command "
+        "for the same reason."
     )
     lines.append("")
     return lines
@@ -1122,6 +1247,7 @@ def build(root: Path, record: bool = True) -> str:
         agent_section(root),
         sides_section(root),
         run_section(),
+        security_section(),
         distribution_section(root),
         licence_section(root),
         exclusions_section(),

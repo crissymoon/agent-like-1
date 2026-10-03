@@ -62,6 +62,7 @@ final class AgentSelfCheck
         $this->validatorChecks($out);
         $this->guardChecks($out);
         $this->sandboxChecks($out);
+        $this->incubatorChecks($out);
         $this->boundaryChecks($out);
         $this->engineProfileChecks($out);
         $this->reportChecks($out);
@@ -270,7 +271,7 @@ final class AgentSelfCheck
         }
 
         $refused = [
-            'awk \'BEGIN{system("id")}\'',
+            'awk \'BEGIN{system("id")}\'', // security-allow: a command the sandbox policy is required to refuse
             'sed -e \'e id\' data/app.log',
             'find . -exec rm {} ;',
             'sort --compress-program=sh in.txt',
@@ -389,8 +390,69 @@ final class AgentSelfCheck
      * host the mode is `auto` and the section is skipped with a line, because a
      * developer running the controls on a laptop is not claiming containment.
      */
-    private function boundaryChecks(callable $out): void
+    /**
+     * The bridge to the incubator command, held to the two properties that keep it
+     * a tool rather than a way out of the jail: the argument reading, and the
+     * confinement of every path option to the workspace.
+     *
+     * Whether this machine can run the command is reported rather than asserted,
+     * because a harness image need not carry a built sql-mgr. What is asserted is
+     * what does not depend on that: a quoted value is one argument, a path outside
+     * the workspace is refused, and a command with no root is given one inside the
+     * workspace.
+     */
+    private function incubatorChecks(callable $out): void
     {
+        $root = '/tmp/gemma-incubator-check';
+        $names = ToolRegistry::names();
+        $this->expect($out, 'the registry offers the incubator tool', in_array('sql_incubator', $names, true));
+
+        $tokens = IncubatorBridge::tokenize('search --domain code --text "strict file router" --k 3');
+        $this->expect(
+            $out,
+            'a quoted value is one argument',
+            count($tokens) === 7 && $tokens[4] === 'strict file router',
+            implode('|', $tokens)
+        );
+
+        $this->expect(
+            $out,
+            'a path outside the workspace is refused',
+            IncubatorBridge::confine(['search', '--root', '../escape'], $root) === null
+        );
+        $this->expect(
+            $out,
+            'an absolute path is refused',
+            IncubatorBridge::confine(['rebuild', '--root', '/etc'], $root) === null
+        );
+
+        $confined = IncubatorBridge::confine(['rebuild'], $root);
+        $this->expect(
+            $out,
+            'a command with no root is given one inside the workspace',
+            is_array($confined) && in_array('--root', $confined, true)
+            && in_array($root . '/.incubator', $confined, true)
+        );
+
+        $relative = IncubatorBridge::confine(
+            ['append', '--root', 'registry', '--body-file', 'b.txt'],
+            $root
+        );
+        $this->expect(
+            $out,
+            'a relative path is placed under the workspace',
+            is_array($relative) && in_array($root . '/registry', $relative, true)
+            && in_array($root . '/b.txt', $relative, true)
+        );
+
+        $this->expect(
+            $out,
+            'the launcher report agrees with availability',
+            IncubatorBridge::available() === (IncubatorBridge::launcherLine() !== '')
+        );
+    }
+
+    private function boundaryChecks(callable $out): void    {
         if (!ContainerBoundary::active()) {
             $out('skip the containment boundary: mode ' . ContainerBoundary::mode() . ', not inside a container');
 
@@ -750,10 +812,37 @@ final class AgentSelfCheck
                 !in_array($projector['file'], array_column($models, 'file'), true)
             );
         }
+        // Every weight file is accounted for: offered, or left out beside the
+        // reason it was left out. The two counts and the speaker make the whole
+        // directory, which is what stops a file from disappearing from the
+        // benchmark without the listing saying so.
+        $excluded = ModelCatalog::excluded();
         $this->expect(
             $out,
-            'the catalog holds every weight file that is not a support file',
-            count($models) === count($weights) - ($projector === null ? 0 : 1)
+            'the catalog accounts for every weight file that is not a support file',
+            count($models) + count($excluded) === count($weights) - ($projector === null ? 0 : 1)
+        );
+        $this->expect(
+            $out,
+            'a weight file the catalog leaves out is not also offered',
+            array_intersect(array_column($excluded, 'file'), array_column($models, 'file')) === []
+        );
+        $this->expect(
+            $out,
+            'a weight file the catalog leaves out carries the reason it was left out',
+            count(array_filter(
+                array_column($excluded, 'reason'),
+                static fn (string $reason): bool => trim($reason) !== ''
+            )) === count($excluded)
+        );
+        $this->expect(
+            $out,
+            'a weight file larger than the engine ceiling is left out',
+            ModelCatalog::memoryCeiling() <= 0
+                || array_filter(
+                    $models,
+                    static fn (array $model): bool => $model['bytes'] > ModelCatalog::memoryCeiling()
+                ) === []
         );
         $selected = ModelCatalog::selected();
         $this->expect(

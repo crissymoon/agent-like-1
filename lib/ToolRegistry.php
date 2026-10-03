@@ -108,6 +108,14 @@ final class ToolRegistry
                 'required' => ['command'],
             ],
             [
+                'name' => 'sql_incubator',
+                'summary' => 'Run the sql-mgr incubator command: query and grow the vector module registry, load it from any SQL database, or replicate shards between nodes. Give the verb and its options, for example "dialects", "route --domain code --id alpha" or "search --domain code --text router --k 3". The command may read any SQL database it is pointed at; the registry it writes stays inside the workspace. The sql-mgr engine is developed separately in a private repository and has no public release at the moment; this tool is the only interface to it.',
+                'parameters' => [
+                    'args' => ['type' => 'string', 'description' => 'Incubator command line: a verb and its options, for example "search --domain code --text router --k 3".'],
+                ],
+                'required' => ['args'],
+            ],
+            [
                 'name' => 'finish',
                 'summary' => 'End the task and report the final answer.',
                 'parameters' => [
@@ -237,6 +245,7 @@ final class ToolRegistry
             'make_directory' => $this->makeDirectory(self::stringArgument($arguments, 'path')),
             'search_files' => $this->searchFiles(self::stringArgument($arguments, 'pattern')),
             'run_command' => $this->runCommand(self::stringArgument($arguments, 'command')),
+            'sql_incubator' => $this->sqlIncubator(self::stringArgument($arguments, 'args')),
             'finish' => 'finish',
             default => throw new InvalidArgumentException('unsupported tool ' . $tool),
         };
@@ -330,6 +339,38 @@ final class ToolRegistry
         }
 
         return $this->clip(implode("\n", $parts), $command);
+    }
+
+    /**
+     * The incubator command, run through the bridge that knows how to reach it.
+     *
+     * The observation is worded exactly as a shell command's is - exit code first,
+     * then stdout, then stderr - because the two tools differ in what they reach
+     * and not in how a model reads the answer. A bridge that could not start or
+     * was refused a path reports exit code 127 and its reason on the error line,
+     * so a model can recover from it the same way it recovers from a failed
+     * command.
+     */
+    private function sqlIncubator(string $arguments): string
+    {
+        $bridge = new IncubatorBridge($this->sandbox->root());
+        $result = $bridge->run($arguments);
+        $parts = ['exit code ' . $result['exit_code']];
+
+        if (trim($result['stdout']) !== '') {
+            $parts[] = "stdout:\n" . rtrim($result['stdout']);
+        }
+        if (trim($result['stderr']) !== '') {
+            $parts[] = "stderr:\n" . rtrim($result['stderr']);
+        }
+        if ($result['timed_out']) {
+            $parts[] = '(the command was killed after the time limit)';
+        }
+        if (trim($result['stdout']) === '' && trim($result['stderr']) === '') {
+            $parts[] = '(no output)';
+        }
+
+        return $this->clip(implode("\n", $parts), $arguments);
     }
 
     /**

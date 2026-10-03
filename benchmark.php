@@ -29,6 +29,7 @@ declare(strict_types=1);
  */
 
 require __DIR__ . '/config.php';
+require __DIR__ . '/lib/GgufHeader.php';
 require __DIR__ . '/lib/ModelCatalog.php';
 require __DIR__ . '/lib/ModelBenchmark.php';
 
@@ -201,6 +202,24 @@ if ($options['mode'] === 'list') {
             PHP_EOL
         );
     }
+    // The files left out are named with the reason, so the count above is a
+    // reading a reader can check rather than one they have to trust. A weight
+    // file a benchmark would refuse to run for a reason nobody printed is the
+    // failure this listing exists to prevent.
+    $excluded = ModelCatalog::excluded();
+    if ($excluded !== []) {
+        printf('%s  left out%s', PHP_EOL, PHP_EOL);
+        foreach ($excluded as $entry) {
+            printf(
+                '    %-32.32s %-12s %s%s',
+                $entry['file'],
+                humanBytes($entry['bytes']),
+                $entry['reason'],
+                PHP_EOL
+            );
+        }
+    }
+
     printf(
         '%s%d model(s). The selected one is the file the runtime is pointed at by default.%s',
         PHP_EOL,

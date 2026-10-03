@@ -41,8 +41,17 @@ window.AgentUI = window.AgentUI || {};
     return dom.el('div', { class: 'turn-head' }, [dom.el('div', { class: 'chips' }, chips)]);
   }
 
+  /**
+   * One turn of the transcript, foldable by its own step.
+   *
+   * The transcript is the longest column in the window and it only grows, so a
+   * reader following the newest turn pays for every turn above it. The fold is
+   * keyed on the task and the step rather than on the position in the list, so a
+   * turn that is folded stays folded as later turns arrive and the redraw that
+   * each fragment costs cannot reopen it.
+   */
   function turnNode(turn) {
-    const children = [turnHead(turn)];
+    const children = [];
 
     if (turn.actions.length > 0) {
       for (const action of turn.actions) {
@@ -72,7 +81,12 @@ window.AgentUI = window.AgentUI || {};
       }));
     }
 
-    return dom.el('section', { class: 'turn' }, children);
+    return UI.disclosure.card(`run.turn.${turn.task_id}.${turn.step}`, {
+      title: `step ${turn.step}`,
+      head: turnHead(turn),
+      open: true,
+      sectionClass: 'turn disclosure turn-disclosure'
+    }, children);
   }
 
   function controlsCard(state) {
@@ -87,7 +101,11 @@ window.AgentUI = window.AgentUI || {};
       byName[fired.control] = (byName[fired.control] || 0) + 1;
     }
 
-    return dom.card('Controls that fired', { right: `${state.controlsFired.length} time(s)` }, [
+    return UI.disclosure.card('run.controls', {
+      title: 'Controls that fired',
+      summary: `${state.controlsFired.length} time(s)`,
+      open: false
+    }, [
       dom.keyValue(Object.entries(byName).map(([name, count]) => [name, `${count}`])),
       dom.el('div', { class: 'rows' }, state.controlsFired.slice(-6).map((fired) => dom.el('div', { class: 'row row-static' }, [
         dom.el('span', { class: 'mono', text: `${fired.control} at step ${fired.step}` }),
@@ -101,7 +119,11 @@ window.AgentUI = window.AgentUI || {};
     const decoder = controls.decoder || {};
     const constrained = decoder.mode && decoder.mode !== 'none';
 
-    return dom.card('What was constrained', { right: constrained ? `decoder ${decoder.mode}` : 'application side only' }, [
+    return UI.disclosure.card('run.constrained', {
+      title: 'What was constrained',
+      summary: constrained ? `decoder ${decoder.mode}` : 'application side only',
+      open: false
+    }, [
       dom.keyValue([
         ['loop guard', controls.loop_guard === undefined ? null : String(controls.loop_guard)],
         ['repeat limit', controls.guard_repeat_limit === undefined ? null : String(controls.guard_repeat_limit)],
@@ -207,7 +229,11 @@ window.AgentUI = window.AgentUI || {};
       }
     }
 
-    return dom.card('Actions taken', { right: `${rows.length} call(s)` }, [
+    return UI.disclosure.card('run.actions', {
+      title: 'Actions taken',
+      summary: `${rows.length} call(s)`,
+      open: false
+    }, [
       dom.table([
         { label: 'task', value: (row) => row.task },
         { label: 'step', value: (row) => row.step, numeric: true },

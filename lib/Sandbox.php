@@ -222,7 +222,7 @@ final class Sandbox
             2 => ['pipe', 'w'],
         ];
 
-        $process = proc_open($command, $descriptors, $pipes, $this->root, self::commandEnvironment());
+        $process = proc_open($command, $descriptors, $pipes, $this->root, self::commandEnvironment()); // security-allow: $command is held to assertCommandAllowed on the line above
         if (!is_resource($process)) {
             throw new RuntimeException('could not start the command');
         }

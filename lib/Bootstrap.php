@@ -28,14 +28,15 @@ final class Bootstrap
     public static function modules(): array
     {
         return [
-            'Metrics', 'SandboxPolicy', 'ShellCommand', 'Sandbox', 'ToolRegistry', 'ActionSchema',
+            'Metrics', 'SandboxPolicy', 'ShellCommand', 'Sandbox', 'IncubatorBridge', 'ToolRegistry',
+            'ActionSchema',
             'AgentTask', 'AgentPrompt', 'AgentAction', 'DecodingConstraint', 'LoopGuard',
             'AgentControls', 'AgentClient', 'OpenAICompatAgentClient', 'ScriptedAgentClient',
             'StreamingSse', 'PathRecord', 'AgentLoop', 'AgentStream', 'AgentScoring',
             'EventStream', 'ContainerBoundary', 'EngineProfile', 'DistributionCheck',
             'AgentSelfCheck', 'AgentReport',
             'PostTrainGap', 'TrajectoryReplay', 'LadderCompare', 'StreamSelfCheck',
-            'ModelCatalog', 'ModelBenchmark',
+            'GgufHeader', 'ModelCatalog', 'ModelBenchmark',
         ];
     }
 
@@ -67,7 +68,7 @@ final class Bootstrap
                 PHP_EOL
             );
         }
-        require $parser;
+        require $parser; // security-allow: the path is the constant this file defines, checked with is_file above
 
         if (is_file(DEEPSEEK_VISION_DIR . '/config.php')) {
             require DEEPSEEK_VISION_DIR . '/config.php';
@@ -86,7 +87,7 @@ final class Bootstrap
             if (!is_file($path)) {
                 return 'The harness module was not found: ' . $path . PHP_EOL;
             }
-            require $path;
+            require $path; // security-allow: this directory plus a module name from the fixed list in modules()
         }
 
         return '';

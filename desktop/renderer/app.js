@@ -72,8 +72,9 @@
       settings: state.settings ? Object.keys(state.settings.settable || {}).length : 0,
       history: bridgeCtx.history.length
     };
+    const views = Object.values(UI.views);
     const nav = document.getElementById('nav');
-    dom.replace(nav, Object.values(UI.views).map((view) => dom.el('button', {
+    dom.replace(nav, views.map((view) => dom.el('button', {
       type: 'button',
       'aria-current': view.id === active ? 'true' : 'false',
       onclick: () => {
@@ -84,6 +85,10 @@
       dom.el('span', { text: view.label }),
       dom.el('span', { class: 'count', text: String(counts[view.id] === undefined ? '' : counts[view.id]) })
     ])));
+    const heading = document.getElementById('nav-count');
+    if (heading !== null) {
+      heading.textContent = `${views.length} screens`;
+    }
   }
 
   function renderCounters() {
@@ -235,18 +240,83 @@
   bridgeCtx.store.subscribe(() => schedule());
 
   /**
+   * What the layout actually did, read from the painted document.
+   *
+   * A window asked to fit a tablet can fail in ways no build step catches: the
+   * rail can fold and the side menu can disappear, the ground under the counters
+   * can be the ink it started as, and a card can be wide enough to push the page
+   * sideways. Each of those is a property of a rendered box, so each is read
+   * from a rendered box rather than from the stylesheet that asked for it.
+   */
+  function readLayout() {
+    const rail = document.getElementById('rail');
+    const stage = document.getElementById('stage');
+    const nav = document.getElementById('nav');
+    const strip = document.getElementById('counterstrip');
+    const screen = document.getElementById('screen');
+    const railBox = rail.getBoundingClientRect();
+    const stageBox = stage.getBoundingClientRect();
+    const rows = new Set(Array.from(strip.children).map((node) => Math.round(node.getBoundingClientRect().top)));
+    const stripBox = strip.getBoundingClientRect();
+
+    return {
+      railWidth: Math.round(railBox.width),
+      railHeight: Math.round(railBox.height),
+      stageWidth: Math.round(stageBox.width),
+      navOnSide: railBox.right <= stageBox.left + 1 && railBox.height >= stageBox.height - 1,
+      navDirection: window.getComputedStyle(nav).flexDirection,
+      navScrolls: nav.scrollHeight > nav.clientHeight,
+      counterGround: window.getComputedStyle(strip).backgroundColor,
+      counterRows: rows.size,
+      // The strip is the bottom edge of the window, so whether it is inside the
+      // frame is the reading that says the layout fits rather than merely wraps.
+      counterInView: stripBox.bottom <= window.innerHeight + 1 && stripBox.top >= 0,
+      pageScrollsSideways: document.documentElement.scrollWidth > window.innerWidth,
+      pageScrollsVertically: document.documentElement.scrollHeight > window.innerHeight + 1,
+      screenScrollsSideways: screen.scrollWidth > screen.clientWidth
+    };
+  }
+
+  /**
    * The seam a check drives the window through.
    *
    * A smoke check and a load measurement both need to start a run and read what
    * the window made of it, without a human clicking. Exposing four calls is
    * cheaper and more honest than a second entry point that renders a different
    * application, because the thing being measured stays the thing users run.
+   *
+   * Folding is part of that seam rather than beside it. A fold that is drawn but
+   * not exercised is a fold nobody has watched work, and the readings below let
+   * a check put every fold on a screen into both states and read the frame each
+   * way, which is how a body that keeps its height while claiming to be hidden
+   * is caught rather than shipped.
    */
   window.__agentUi = {
     go: (screen) => bridgeCtx.go(screen),
     startRun: () => bridgeCtx.startRun(),
     cancelRun: () => bridgeCtx.cancelRun(),
     describe: () => bridgeCtx.describe(),
+    /** What the folds on the current screen are, with the height each one has. */
+    disclosures: () => UI.disclosure.reading(document.getElementById('screen')),
+    /** Fold or unfold one drawn fold by its key, so a single card can be measured. */
+    setDisclosure: (key, open) => {
+      const node = document.querySelector(`#screen .disclosure[data-key="${key}"]`);
+      if (node === null) {
+        return false;
+      }
+      UI.disclosure.apply(node, open === true);
+
+      return true;
+    },
+    /** Fold or unfold every fold on the current screen at once. */
+    setDisclosures: (open) => {
+      const nodes = Array.from(document.querySelectorAll('#screen .disclosure'));
+      for (const node of nodes) {
+        UI.disclosure.apply(node, open === true);
+      }
+
+      return nodes.length;
+    },
     /** What the window currently shows, as a reading rather than an opinion. */
     summary() {
       const state = bridgeCtx.store.state;
@@ -254,9 +324,12 @@
         ready: true,
         title: document.getElementById('title').textContent,
         screen: active,
+        viewport: { width: window.innerWidth, height: window.innerHeight },
+        layout: readLayout(),
         navButtons: document.querySelectorAll('#nav button').length,
         actions: document.getElementById('actions').childElementCount,
         screenSections: document.getElementById('screen').querySelectorAll('section.card').length,
+        disclosures: UI.disclosure.reading(document.getElementById('screen')),
         counters: document.getElementById('counterstrip').childElementCount,
         turns: state.turns.length,
         deltas: state.deltas,

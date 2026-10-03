@@ -38,11 +38,13 @@ The weights are a local input. They are mounted read only into the engine and th
 | gemma-4-E2B-it-Q4_K_M.gguf | gemma4 | 4.6B | Q4_K_M | 131,072 (128K) | 1,536 | 35 | 2.89 GB | the runtime's selected model |
 | Llama-3.2-3B-Instruct-Q4_K_M.gguf | llama | 3B | Q4_K_M | 131,072 (128K) | 3,072 | 28 | 1.88 GB | the comparison model |
 | Phi-3.5-mini-instruct-Q4_K_M.gguf | phi3 | mini | Q4_K_M | 131,072 (128K) | 3,072 | 32 | 2.23 GB | the comparison model |
+| llama-coder-hybrid-Q2_K.gguf | llama | 11B | Q2_K | 131,072 (128K) | 4,096 | 44 | 3.86 GB | the comparison model |
+| llama-coder-hybrid-Q4_K_M.gguf | llama | 11B | Q4_K_M | 131,072 (128K) | 4,096 | 44 | 6.04 GB | the comparison model |
 | qwen2.5-coder-1.5b-instruct-q4_k_m.gguf | qwen2 | 1.5B | Q4_K_M | 32,768 (32K) | 1,536 | 28 | 1.04 GB | the comparison model |
 
 The runtime starts on `gemma-4-E2B-it-Q4_K_M.gguf`, so it is the model every recorded run measured and the one a comparison starts from. A benchmark run swaps the weight file behind the same engine, the same tools and the same sandbox, which is what makes two rows comparable: the only thing that moved is the model.
 
-The other files in the directory are the breadth of the study rather than a preference: `Llama-3.2-3B-Instruct-Q4_K_M.gguf`, `Phi-3.5-mini-instruct-Q4_K_M.gguf`, `qwen2.5-coder-1.5b-instruct-q4_k_m.gguf` are the same measurement on a different architecture, and the point of running them is to see whether a result belongs to the harness or to one model. A capability that only the largest model shows is a property of the model; one that every model shows is a property of the task, and a task every model fails is the one worth rewriting.
+The other files in the directory are the breadth of the study rather than a preference: `Llama-3.2-3B-Instruct-Q4_K_M.gguf`, `Phi-3.5-mini-instruct-Q4_K_M.gguf`, `llama-coder-hybrid-Q2_K.gguf`, `llama-coder-hybrid-Q4_K_M.gguf`, `qwen2.5-coder-1.5b-instruct-q4_k_m.gguf` are the same measurement on a different architecture, and the point of running them is to see whether a result belongs to the harness or to one model. A capability that only the largest model shows is a property of the model; one that every model shows is a property of the task, and a task every model fails is the one worth rewriting.
 
 The projector is listed apart because it is not a chat model. `mmproj-F16.gguf` (clip, F16, 940.0 MB) maps image embeddings into the language model beside it, and the engine loads it only when a vision task is asked for. A benchmark that treated it as a candidate would spend a run proving that an embedding file cannot answer a question, so the model set excludes it and a run's manifest records whether it was loaded.
 
@@ -179,6 +181,12 @@ python3 tools/security/scan_secrets.py --tracked --paths
 # and the wide view, every blob any ref can reach, before or after a rewrite
 python3 tools/security/scan_secrets.py --history
 
+# the whole security reading: the scanners' own check, the syntax preflight,
+# then secrets, source, file modes and dependencies as one list
+./security-scan.sh
+./security-scan.sh --with-registry   # also ask the registry for advisories
+python3 tools/security/selftest.py   # the scanners against a fixture, on their own
+
 # machine paths in a record, shortened to repository relative form
 python3 tools/normalize_paths.py --check
 
@@ -204,6 +212,35 @@ A checkout is sent as a reviewed commit rather than as a push, and the two desti
 The harness never reaches the network on its own. A run that needs the hosted reference model reads its credential from the environment, which is the only place a credential is expected to be, and the scanner refuses a commit that puts one in a file instead.
 
 The same check refuses two more things. It refuses a directory that exists only for local work, and it refuses a machine path, because a recorded run that carries the checkout location also carries the account name and whatever sits beside it. A path is written into a record in the form a reader elsewhere can use: relative to this repository, or under a home or temporary marker. `lib/PathRecord.php` is that rule for the writers, `tools/normalize_paths.py` applies the same rule to records written before it existed, and the check keeps it from coming back.
+
+## Security
+
+The repository is read before it is sent, and the reading is one command. What it cannot see is reachability: a pattern that matches a line does not know whether the line runs, and one that misses does not know what a value is. So the command reports what it read as well as what it found, and a construct it marks that is in fact correct is answered in the source rather than by a change to the rule.
+
+```bash
+./security-scan.sh                     # the four surfaces, offline, refusing at high
+./security-scan.sh --with-registry      # and the advisories the registry answers with
+./security-scan.sh --fail-on medium     # stricter than the review is
+```
+
+| surface | the question it answers | the command that answers it |
+|---|---|---|
+| secrets | is a credential, a closed directory or a machine path in the tree, or in any blob any ref can reach | `tools/security/scan_secrets.py --tracked --paths`, then `--history` |
+| source | is a shape a defect is written in in the source, and does the application still have the properties it says it has | `tools/security/scan_code.py --tracked` |
+| files | what the tree holds and how it is held: the mode of every tracked file, the links, the names a credential is written as, and the ignore rules that hold them out | `tools/security/scan_files.py` |
+| dependencies | what this tree installs, whether the declared versions are pinned, whether every locked package carries the hash of what it installs | `tools/security/scan_deps.py [--with-registry]` |
+
+A severity is a claim about what happens next rather than about how worried a reader should be. `high` is a defect that should stop a push: either it is exploitable as read, or it is a property the code claims and does not have. `medium` is a place that is safe only because of something nearby, which is where the next defect will be written. `low` is hygiene, and `note` is a reading rather than a finding, which is how a check that could not run is reported: never as a pass, because a scan that did not happen and a scan that found nothing must not print the same thing.
+
+A rule that cannot see reachability will always mark some correct code, so the way out is part of the format. A line carrying `security-allow: <reason>` is not reported and a file carrying `security-allow-file: <reason>` is read but not reported, and both are counted in the report. An exception that is not counted is an exception nobody reviews. The ones in this tree are the escape test in the sandbox's own check, the two includes whose paths are constants, and the process start in the jail that is held to the policy on the line above it.
+
+The source reading also holds the desktop application to the properties a reader cannot see on screen, because each of them decides whether the page in front of them is the page that was served: context isolation, no node integration in the renderer, the sandbox, a content security policy that denies what it does not name, a request to open a window being refused, and navigation away from the one document being refused. The window holds no privilege of its own: it cannot start a process, open a file or resolve a path. What it can do is ask, and `desktop/lib/guard.js` is what every request is held to. A setting is a value of a name the application already has, of the kind that name takes, so a patch cannot invent a name or turn a setting into a command, and a path the window names is confined to the results directory, the workspace it stages into and the checkout it was pointed at. Four of those handlers are checked by the scan rather than only by review: a refactor that drops a guard is refused.
+
+Advisories are read only when `--with-registry` asks for them, because an answer that depends on the registry today is a different kind of claim from one that depends on the commit. When it is asked, an advisory that cannot be acted on yet is listed in the scanner with the reason it cannot be, reported as a reading every time, and counted: one unfixable advisory reached by seven packages is reported as one advisory and seven packages, rather than as eight findings, because eight findings is the same as none. An advisory with a fixed version published is never excepted; the finding names the version that clears it.
+
+The reading is not committed. A report names the file modes on this machine, the hooks installed in this clone and the registry as it answered that day, so it describes the checkout rather than the commit, and the release review takes the reading again rather than trusting a receipt written earlier.
+
+None of it is worth much if the rules are wrong, and a scanner that reports nothing prints exactly what a scanner that reads nothing prints. So the rules are exercised against a fixture before they are pointed at the repository: a file that holds the shape has to be reported at the severity the rule claims, a file that does not has to be silent, and a marker has to be counted. That check is the first tier of the command for the same reason.
 
 ## Distribution
 

@@ -61,10 +61,14 @@ window.AgentUI = window.AgentUI || {};
   function taskCard(state) {
     const rows = state.verifications;
     if (rows.length === 0) {
-      return conformanceCard(state);
+      return null;
     }
 
-    return dom.card('By task', { right: `${rows.length} task(s)` }, [
+    return UI.disclosure.card('result.tasks', {
+      title: 'By task',
+      summary: `${rows.length} task(s)`,
+      open: false
+    }, [
       dom.table([
         { label: 'task', value: (row) => row.task_id },
         { label: 'verdict', value: (row) => (row.passed ? 'pass' : 'fail') },
@@ -85,10 +89,14 @@ window.AgentUI = window.AgentUI || {};
       }
     }
     if (checks.length === 0) {
-      return conformanceCard(state);
+      return null;
     }
 
-    return dom.card('Checks', { right: `${checks.length} reading(s)` }, [
+    return UI.disclosure.card('result.checks', {
+      title: 'Checks',
+      summary: `${checks.length} reading(s)`,
+      open: false
+    }, [
       dom.table([
         { label: 'task', value: (row) => row.task },
         { label: 'check', value: (row) => row.name },
@@ -98,8 +106,21 @@ window.AgentUI = window.AgentUI || {};
     ]);
   }
 
+  /**
+   * The identity of the run, drawn whether or not the run produced a task table.
+   *
+   * This card used to be reachable only as the fallback of two other cards,
+   * which meant it was drawn twice on a run with no verifier reading and never
+   * drawn at all on a run with one. The prompt hash and the tool specification
+   * hash are exactly the values a reader needs when a run did produce a reading,
+   * so the card is drawn once, here, rather than borrowed from a neighbour.
+   */
   function conformanceCard(state) {
-    return dom.card('Conformance', { right: 'recorded for this run' }, [
+    return UI.disclosure.card('result.conformance', {
+      title: 'Conformance',
+      summary: 'recorded for this run',
+      open: false
+    }, [
       dom.keyValue([
         ['run', state.runId || null],
         ['transport', state.record ? state.record.transport : null],
@@ -117,7 +138,11 @@ window.AgentUI = window.AgentUI || {};
     const containment = state.containment || {};
     const measurement = engine.described || {};
 
-    return dom.card('Environment the run reported', { right: containment.measured === true ? 'containment measured' : 'no containment reading' }, [
+    return UI.disclosure.card('result.environment', {
+      title: 'Environment the run reported',
+      summary: containment.measured === true ? 'containment measured' : 'no containment reading',
+      open: false
+    }, [
       dom.keyValue([
         ['engine', engine.summary || null],
         ['endpoint answered', engine.endpoint_answered === undefined ? null : String(engine.endpoint_answered)],
@@ -152,7 +177,11 @@ window.AgentUI = window.AgentUI || {};
         return row;
       }));
 
-    return dom.card('Artifacts', { right: 'click a row to reveal it' }, [list]);
+    return UI.disclosure.card('result.artifacts', {
+      title: 'Artifacts',
+      summary: rows.length === 0 ? 'listed when the run finishes' : `${rows.length} file(s), click to reveal`,
+      open: false
+    }, [list]);
   }
 
   function ctxTable(state) {
@@ -185,7 +214,8 @@ window.AgentUI = window.AgentUI || {};
       capabilityCard(state),
       dom.el('div', { class: 'grid grid-2' }, [taskCard(state), environmentCard(ctx)]),
       checksCard(state),
-      artifactCard(ctx)
+      artifactCard(ctx),
+      conformanceCard(state)
     ]);
 
     return {

@@ -156,7 +156,11 @@ window.AgentUI = window.AgentUI || {};
       dropZone(ctx),
       dom.el('div', { class: 'grid grid-2' }, [
         stagedCard(ctx),
-        dom.card('This run', { right: `${ctx.settings.runtime} runtime` }, [
+        UI.disclosure.card('workspace.run', {
+          title: 'This run',
+          summary: `${ctx.settings.runtime} runtime`,
+          open: false
+        }, [
           dom.keyValue([
             ['engine', ctx.settings.engineUrl],
             ['tool mode', ctx.settings.run.tool_mode],
@@ -173,8 +177,17 @@ window.AgentUI = window.AgentUI || {};
           })
         ])
       ]),
-      dom.card('Tasks', { right: `${catalogue(ctx).length} in the catalogue` }, [taskPicker(ctx)]),
-      dom.card('Capability, held out', { paper: true }, [
+      UI.disclosure.card('workspace.tasks', {
+        title: 'Tasks',
+        summary: `${catalogue(ctx).length} in the catalogue`,
+        open: true
+      }, [taskPicker(ctx)]),
+      UI.disclosure.card('workspace.holdout', {
+        title: 'Capability, held out',
+        summary: 'held out of training',
+        open: false,
+        paper: true
+      }, [
         dom.el('p', {
           class: 'muted',
           text: 'At least one task per capability is held out of any training data, so an improvement cannot be the suite memorised. The held out count is reported by the comparison, not chosen after a run.'

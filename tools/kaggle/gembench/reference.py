@@ -241,17 +241,45 @@ PROFILES: dict[str, dict[str, callable]] = {
 }
 
 
+#: Live solvers, registered rather than shipped. The two profiles above are
+#: fixtures and are always present; a live one is added here at run time by the
+#: module that knows how to reach it. The registry is empty on import, so a
+#: caller that embeds this module and has no network - the hosted notebook - sees
+#: exactly the two fixtures and nothing else.
+_LIVE: dict[str, dict[str, callable]] = {}
+
+
+def register_profile(name: str, table: dict[str, callable]) -> None:
+    """Make a live solver's behaviour table readable under *name*.
+
+    A name that shadows a fixture is refused rather than allowed to replace it:
+    a run recorded under `reference` must always mean the deterministic fixture,
+    or a result would stop being reproducible the moment someone registered over
+    it.
+    """
+    if name in PROFILES:
+        raise ValueError(f"{name} is a fixture profile and cannot be replaced")
+    if not table:
+        raise ValueError(f"profile {name} has no behaviours to register")
+    _LIVE[name] = dict(table)
+
+
+def unregister_profile(name: str) -> None:
+    """Drop a live solver, so a process can register a fresh client under it."""
+    _LIVE.pop(name, None)
+
+
 def profile_names() -> list[str]:
-    return sorted(PROFILES)
+    return sorted(set(PROFILES) | set(_LIVE))
 
 
 def behaviour(profile: str, task_id: str) -> callable:
     """The behaviour a profile has for a task, refused by name when absent."""
-    if profile not in PROFILES:
+    table = PROFILES.get(profile) or _LIVE.get(profile)
+    if table is None:
         raise ValueError(
             f"unknown profile: {profile} (known: {', '.join(profile_names())})"
         )
-    table = PROFILES[profile]
     if task_id not in table:
         raise ValueError(f"profile {profile} has no behaviour for {task_id}")
     return table[task_id]

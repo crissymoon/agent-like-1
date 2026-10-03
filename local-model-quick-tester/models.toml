@@ -76,6 +76,19 @@ roles = ["image"]
 profile = "qwen-image-2.1"
 note = "wider transformer and no quantised text encoder exists for it, so it needs more memory"
 
+[models.llama-coder-hybrid]
+label = "Llama Coder Hybrid"
+file = "llama-coder-hybrid-Q2_K.gguf"
+roles = ["text"]
+context = 4096
+note = "mergekit passthrough: Llama 3.1 8B with Hermes 3 layers 8-20 spliced in, so 44 blocks and about 11B parameters rather than 8B; at two bits per weight it is the only quant of this merge that fits an 8 GB machine, and the window is held at 4096 for the same reason"
+
+[models.llama-coder-hybrid-q4-k-m]
+label = "Llama Coder Hybrid (Q4_K_M, 6 GB)"
+file = "llama-coder-hybrid-Q4_K_M.gguf"
+roles = ["ignore"]
+note = "superseded by the Q2_K quant: 6.0 GB of weights do not fit an 8 GB machine, and pinning them is what froze the device"
+
 [models.mmproj-f16]
 file = "mmproj-F16.gguf"
 roles = ["projector"]

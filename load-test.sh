@@ -21,7 +21,17 @@
 #   ./load-test.sh --quick         shorter holds
 #   ./load-test.sh --no-vision     skip the tier that restarts the engine with
 #                                  the projector loaded
+#   ./load-test.sh --no-ui-check   skip checking that the interface still fits
+#                                  the profile it opens at
 #   ./load-test.sh --out DIR       where the evidence goes
+#
+# The interface is checked before anything is measured. A window that has stopped
+# fitting its profile is a fact about the interface and not about the stack, and
+# it costs fifteen seconds to know that first rather than to read it out of a
+# three minute sampling run afterwards. The check opens its own window against a
+# scratch profile, so it neither reads nor writes the settings this run is
+# measured with, and a failure there is reported without stopping the measurement
+# the same way a tier with no reading is.
 #
 # The script is idempotent: it leaves the engine running with vision off, which
 # is the configuration the earlier runs were measured in.
@@ -38,6 +48,7 @@ OUT_DIR="$SCRIPT_DIR/results/load"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 HELD=8
 VISION_TIER=1
+UI_CHECK=1
 DESKTOP="$SCRIPT_DIR/desktop"
 ELECTRON="$DESKTOP/node_modules/.bin/electron"
 PYTHON_BIN="$(command -v python3 || true)"
@@ -46,6 +57,7 @@ while [ $# -gt 0 ]; do
   case "$1" in
     --quick) HELD=5 ;;
     --no-vision) VISION_TIER=0 ;;
+    --no-ui-check) UI_CHECK=0 ;;
     --out) shift; OUT_DIR="$1" ;;
     --out=*) OUT_DIR="${1#--out=}" ;;
     *) echo "unknown option: $1" >&2; exit 2 ;;
@@ -227,6 +239,26 @@ wait_healthy() {
 
 note "load test $STAMP, evidence in $OUT_DIR"
 note "machine: $(sysctl -n hw.ncpu 2>/dev/null || echo '?') core(s), $(sysctl -n hw.memsize 2>/dev/null || echo 0) bytes of physical memory"
+
+# The interface, first and on its own. This is the one tier that measures nothing
+# about memory: it answers whether the window still opens at the profile it
+# declares with its side menu on the side, its folds folding and its counter
+# strip inside the frame. It runs before the stack is stopped or started, because
+# it needs neither, and its failure is reported rather than fatal, because the
+# memory reading this run exists to take is still worth having either way.
+if [ "$UI_CHECK" -eq 1 ]; then
+  if [ -x "$SCRIPT_DIR/check-ui.sh" ]; then
+    note "checking the interface against the profile it declares"
+    if "$SCRIPT_DIR/check-ui.sh" >"$OUT_DIR/ui-check-$STAMP.log" 2>&1; then
+      note "the interface check passed: $(tail -1 "$OUT_DIR/ui-check-$STAMP.log")"
+    else
+      note "the interface check failed; the measurement below still runs and the log is kept in $OUT_DIR/ui-check-$STAMP.log"
+      grep '^FAIL' "$OUT_DIR/ui-check-$STAMP.log" | head -20 | sed 's/^/     /'
+    fi
+  else
+    note "check-ui.sh is not executable at $SCRIPT_DIR/check-ui.sh, so the interface was not checked"
+  fi
+fi
 
 # Tier zero: the host and the virtual machine with nothing of ours running. The
 # stack is stopped first rather than assumed to be down, because a tier that

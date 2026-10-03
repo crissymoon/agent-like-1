@@ -310,6 +310,33 @@ def secret_scan_check(root: Path, mode: str) -> Check:
     return Check(name, result.returncode == 0, verdict or "no output")
 
 
+def security_scan_check(root: Path) -> Check:
+    """The whole security reading, at the level the review refuses.
+
+    The secret scanner is one of the four surfaces this reads, so the two checks
+    beside this one ask a narrower question and this asks the whole one: source
+    constructs, file modes and names, and the dependency set, in addition to what
+    a credential looks like. It runs the same command a person runs, so a review
+    and a manual reading cannot disagree about what is clean.
+    """
+    name = "the security reading is clean at the level a push refuses"
+    result = run_command(
+        root,
+        [
+            sys.executable,
+            str(TOOLS / "security" / "scan_all.py"),
+            "--fail-on",
+            "high",
+            "--quiet",
+        ],
+    )
+    verdict = first_line(command_text(result))
+    if result.returncode == 2:
+        raise ReleaseError("the security scan could not run: " + (verdict or "no output"))
+
+    return Check(name, result.returncode == 0, verdict or "no output")
+
+
 def recorded_path_check(root: Path) -> Check:
     """A recorded run names the repository, a home marker or the temporary one."""
     name = "every recorded path is repository relative"
@@ -588,6 +615,7 @@ def review(
             branch_check(root, branch),
             secret_scan_check(root, "tracked"),
             secret_scan_check(root, "history"),
+            security_scan_check(root),
             recorded_path_check(root),
             readme_check(root),
             page_markdown_check(root),

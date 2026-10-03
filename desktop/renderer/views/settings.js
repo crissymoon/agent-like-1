@@ -98,7 +98,11 @@ window.AgentUI = window.AgentUI || {};
   }
 
   function machineCard(ctx) {
-    return dom.card('Machine', { right: ctx.info.runtime }, [
+    return UI.disclosure.card('settings.machine', {
+      title: 'Machine',
+      summary: ctx.info.runtime,
+      open: false
+    }, [
       dom.el('div', { class: 'grid grid-2' }, [
         text(ctx, ['engineUrl'], 'Engine endpoint, host runtime', TEXT.engineUrl),
         text(ctx, ['containerEngineUrl'], 'Engine endpoint, container runtime', 'The service name and in network port. The published port is bound to the host loopback and is not reachable from inside the compose network.'),
@@ -132,7 +136,11 @@ window.AgentUI = window.AgentUI || {};
     const rows = Object.entries(locked)
       .filter(([key]) => key !== 'task_catalogue' && key !== 'tools');
 
-    return dom.card('In force, not settable here', { right: 'constants of the running harness' }, [
+    return UI.disclosure.card('settings.locked', {
+      title: 'In force, not settable here',
+      summary: 'constants of the running harness',
+      open: false
+    }, [
       rows.length === 0
         ? dom.el('p', { class: 'muted', text: 'The locked values arrive with the first run, because the harness is what knows them.' })
         : dom.table([
@@ -150,7 +158,11 @@ window.AgentUI = window.AgentUI || {};
   function engineCard(ctx) {
     const status = ctx.engine || { ok: false, body: 'not checked' };
 
-    return dom.card('Engine', { right: status.ok ? 'answering' : 'not answering' }, [
+    return UI.disclosure.card('settings.engine', {
+      title: 'Engine',
+      summary: status.ok ? 'answering' : 'not answering',
+      open: false
+    }, [
       dom.keyValue([
         ['url', status.url || ctx.settings.engineUrl],
         ['status', status.status === 0 ? 'no response' : status.status],

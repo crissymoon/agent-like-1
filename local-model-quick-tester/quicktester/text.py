@@ -37,6 +37,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
+from tools.imgmodels.sizes import human_bytes
+
 from . import textui, theme
 from .modes import Mode
 from .registry import Entry
@@ -55,9 +57,16 @@ ANSWER_SHARE = 0.5
 FLASH_ATTENTION = True
 
 #: Pinned memory stops the weights being paged out mid-conversation, which is
-#: what stalls a long answer. It is a reservation rather than a copy, so it costs
-#: nothing on a machine with the room and is refused by the runtime on one without.
-USE_MLOCK = True
+#: what stalls a long answer. It is a reservation rather than a copy, and on a
+#: machine with room to spare it costs nothing.
+#:
+#: On a machine without, it is the most direct way to freeze one. `mlock` asks
+#: the kernel to hold every byte of the file resident and unswappable, so a model
+#: that is too large for the machine stops being a slow session and becomes an
+#: operating system with nothing left to schedule a window with. It is therefore
+#: decided per model against the memory actually free, rather than switched on
+#: for every model on every machine.
+MLOCK_SHARE = 0.6
 
 #: The batch size for reading a prompt. Larger reads a prompt faster and needs
 #: more transient memory, and this is the value the machine this was written on
@@ -128,6 +137,49 @@ def context_for(entry: Entry, declared: int | None, ceiling: int) -> tuple[int, 
     return wanted, ""
 
 
+def free_memory() -> int | None:
+    """What the machine could hand to a new process, or nothing if unmeasured.
+
+    `available` rather than `free`, because the page cache a weight file is
+    already sitting in counts towards what can still be had, while `free` on
+    macOS reports almost none of it while the file is warm. A measurement that
+    fails is reported as missing rather than allowed to fail a session.
+    """
+    try:
+        import psutil
+    except ImportError:
+        return None
+    try:
+        return int(psutil.virtual_memory().available)
+    except Exception:  # noqa: BLE001 - a number that cannot be read is not an error here
+        return None
+
+
+def residency(path: Path, free: int | None) -> tuple[bool, str]:
+    """Whether to pin this file in RAM, and why not when it is not pinned.
+
+    The share is taken of what is free rather than of what is installed, because
+    the number that decides whether the machine stays responsive is the memory
+    that is actually there to take.
+    """
+    try:
+        size = path.stat().st_size
+    except OSError:
+        return False, ""
+    if free is None:
+        return False, (
+            "how much memory is free could not be measured, so the weights are "
+            "left pageable rather than pinned"
+        )
+    if size <= free * MLOCK_SHARE:
+        return True, ""
+    return False, (
+        f"{human_bytes(size)} of weights against {human_bytes(free)} free: pinning "
+        "all of it would leave the machine nothing to run on, so the weights are "
+        "left pageable and the file is read through the page cache instead"
+    )
+
+
 def read_header(path: Path):
     """The file's own metadata, or nothing when it cannot be read."""
     try:
@@ -182,12 +234,16 @@ def load(entry: Entry, path: Path, device: str, context: int, threads: int) -> L
     window, note = context_for(entry, declared, context)
     notes = [note] if note else []
 
+    pinned, pinned_note = residency(path, free_memory())
+    if pinned_note:
+        notes.append(pinned_note)
+
     wanted: dict = {
         "model_path": str(path),
         "n_ctx": window,
         "n_gpu_layers": offload_layers(device),
         "n_batch": BATCH,
-        "use_mlock": USE_MLOCK,
+        "use_mlock": pinned,
         "verbose": False,
         "cache_type_k": "q8_0",
         "cache_type_v": "q8_0",

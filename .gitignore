@@ -189,6 +189,25 @@ results/load/
 results/engine/engine.log
 
 # ---------------------------------------------------------------------------
+# The security reading of this machine's checkout. `security-scan.sh` writes one
+# report per run, and every run is a reading of the tree as it stood at that
+# minute: the file modes on disk, the hooks installed in this clone, the registry
+# as it answered that day. Committing it would be a photograph of a checkout
+# rather than a property of the commit, and the next run would disagree with it.
+# The reading is taken again by the release review, which refuses a commit on
+# what it finds rather than on what an earlier scan recorded.
+results/security/
+
+# ---------------------------------------------------------------------------
+# The photographs of the interface. `capture-ui.sh` writes a folder per run,
+# named for the minute it ran, and it writes a new one every time by design. A
+# picture is the reading no check in this repository takes, which is what makes
+# it worth looking at and also what makes it scratch: it is of the layout on the
+# day it was drawn, and every later run disagrees with it. The folders are kept
+# on the machine that made them rather than in a pile of snapshots.
+images/gui/
+
+# ---------------------------------------------------------------------------
 # Heavy media and archives. The four dated photographs are vision fixtures
 # read from the host by absolute path; the JSON evidence records the path and
 # the model's reading of it, not the bytes. The Kaggle cover images are the

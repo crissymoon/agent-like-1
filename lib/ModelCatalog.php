@@ -41,29 +41,104 @@ final class ModelCatalog
     private const SUPPORT_PREFIXES = ['mmproj'];
 
     /**
+     * Architectures the engine cannot build a text model from.
+     *
+     * A weight file states what it is, and two kinds of file in a models
+     * directory are not chat models: a diffusion file such as `flux`, and a
+     * file with no metadata block at all, which declares nothing for the engine
+     * to build. Both would otherwise be offered as candidates, and a benchmark
+     * that ran one would spend a run proving that an image generator cannot
+     * answer a question, which is the cost the projector exclusion above exists
+     * to avoid.
+     *
+     * The test is a deny list rather than an allow list on purpose. A file whose
+     * architecture is not named here is kept, so a new text architecture is
+     * never dropped from the benchmark by a table nobody updated; a file that
+     * cannot answer a question is caught by the run it is given.
+     */
+    private const NON_TEXT_ARCHITECTURES = [
+        'flux',
+        'stable-diffusion',
+        'stable_diffusion',
+        'sdxl',
+        'sd3',
+        'sd',
+        'qwen-image',
+        'qwen_image',
+    ];
+
+    /**
+     * The engine's memory ceiling when the environment declares none.
+     *
+     * This is the value `docker/docker-compose.yml` gives `mem_limit`, and both
+     * read the same environment variable, so a ceiling changed in one place is
+     * the ceiling the catalog tests a file against.
+     */
+    private const DEFAULT_MEMORY_LIMIT = '5g';
+
+    /** The directory, read once for the whole process. */
+    private static ?array $scan = null;
+
+    /**
      * Every chat model in the models directory, the selected one first.
      *
      * @return list<array{label: string, file: string, path: string, bytes: int, selected: bool, compose_source: string}>
      */
     public static function all(): array
     {
+        return self::scan()['models'];
+    }
+
+    /**
+     * The weight files that are not candidates, each with the reason it is not.
+     *
+     * Reported rather than dropped, for the same reason a selection that matches
+     * nothing is refused: a file that leaves the list without a stated reason is
+     * a file nobody can tell was ever considered, and the count of candidates is
+     * then a fact with no explanation beside it.
+     *
+     * @return list<array{file: string, path: string, bytes: int, reason: string}>
+     */
+    public static function excluded(): array
+    {
+        return self::scan()['excluded'];
+    }
+
+    /**
+     * The one reading of the directory: the candidates and the files left out.
+     *
+     * @return array{models: list<array{label: string, file: string, path: string, bytes: int, selected: bool, compose_source: string}>, excluded: list<array{file: string, path: string, bytes: int, reason: string}>}
+     */
+    private static function scan(): array
+    {
+        if (self::$scan !== null) {
+            return self::$scan;
+        }
+
         $directory = self::directory();
         if (!is_dir($directory)) {
-            return [];
+            return self::$scan = ['models' => [], 'excluded' => []];
         }
 
         $selectedFile = basename(GEMMA_GGUF_PATH);
         $models = [];
+        $excluded = [];
         foreach (self::weightFiles($directory) as $path) {
             $file = basename($path);
             if (self::isSupportFile($file)) {
+                continue;
+            }
+            $bytes = self::bytes($path);
+            $reason = self::rejectionReason($path, $bytes);
+            if ($reason !== null) {
+                $excluded[] = ['file' => $file, 'path' => $path, 'bytes' => $bytes, 'reason' => $reason];
                 continue;
             }
             $models[] = [
                 'label' => pathinfo($file, PATHINFO_FILENAME),
                 'file' => $file,
                 'path' => $path,
-                'bytes' => self::bytes($path),
+                'bytes' => $bytes,
                 'selected' => $file === $selectedFile,
                 'compose_source' => self::composeSource($path),
             ];
@@ -84,7 +159,50 @@ final class ModelCatalog
             ];
         });
 
-        return $models;
+        return self::$scan = ['models' => $models, 'excluded' => $excluded];
+    }
+
+    /**
+     * Why a weight file is not a candidate, or null when it is one.
+     *
+     * The two reasons are checked in the order that costs least to be wrong
+     * about: what the file says it is, and then whether it can ever fit the
+     * engine that would serve it.
+     */
+    private static function rejectionReason(string $path, int $bytes): ?string
+    {
+        $architecture = GgufHeader::architecture($path);
+        if ($architecture === null) {
+            return 'the file declares no architecture, so the engine has no model to build from it';
+        }
+        if (in_array(strtolower($architecture), self::NON_TEXT_ARCHITECTURES, true)) {
+            return sprintf('%s weights, which are not a text model', $architecture);
+        }
+
+        // A file larger than the ceiling the engine runs under can never be
+        // served. The container either refuses to start the model or pages
+        // against the limit until the machine thrashes, and a machine that is
+        // thrashing loses the whole session rather than the one run, which is
+        // the failure a benchmark must not be able to cause. Saying so before
+        // the run is why the ceiling is read here.
+        $ceiling = self::memoryCeiling();
+        if ($ceiling > 0 && $bytes > $ceiling) {
+            return sprintf(
+                '%s is larger than the %s the engine is given',
+                self::humanBytes($bytes),
+                self::humanBytes($ceiling)
+            );
+        }
+
+        return null;
+    }
+
+    /**
+     * The memory ceiling the engine is given, in bytes.
+     */
+    public static function memoryCeiling(): int
+    {
+        return self::parseSize((string) (getenv('GEMMA_MEM_LIMIT') ?: self::DEFAULT_MEMORY_LIMIT));
     }
 
     /**
@@ -243,6 +361,50 @@ final class ModelCatalog
         $size = @filesize($path);
 
         return $size === false ? 0 : (int) $size;
+    }
+
+    /**
+     * A size written the way a limit is written, in bytes.
+     *
+     * `5g`, `512m` and a plain byte count are the three forms the compose file
+     * and this reader both understand. A value neither understands yields zero,
+     * which the ceiling check reads as no ceiling rather than as a ceiling of
+     * nothing: refusing every model because a limit was misspelled would report
+     * the wrong cause and be believed.
+     */
+    private static function parseSize(string $value): int
+    {
+        $value = strtolower(trim($value));
+        if (preg_match('/^([0-9]+(?:\.[0-9]+)?)([kmgt]?)(?:i?b)?$/', $value, $matches) !== 1) {
+            return 0;
+        }
+        $scale = [
+            '' => 1,
+            'k' => 1024,
+            'm' => 1024 ** 2,
+            'g' => 1024 ** 3,
+            't' => 1024 ** 4,
+        ][$matches[2]];
+
+        return (int) ((float) $matches[1] * $scale);
+    }
+
+    /**
+     * A byte count as the size a person reads.
+     */
+    private static function humanBytes(int $bytes): string
+    {
+        $units = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
+        $value = (float) $bytes;
+        $unit = 0;
+        while ($value >= 1024.0 && $unit < count($units) - 1) {
+            $value /= 1024.0;
+            $unit++;
+        }
+
+        return $unit === 0
+            ? sprintf('%d %s', $bytes, $units[0])
+            : sprintf('%.2f %s', $value, $units[$unit]);
     }
 
     /**

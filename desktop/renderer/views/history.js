@@ -23,7 +23,12 @@ window.AgentUI = window.AgentUI || {};
           ? dom.el('p', { class: 'muted', text: 'No run has written a transcript under this results directory yet.' })
           : dom.el('div', { class: 'rows' }, entries.map((entry) => row(ctx, entry)))
       ]),
-      dom.card('Why a replay is not a re-run', { paper: true }, [
+      UI.disclosure.card('history.replay', {
+        title: 'Why a replay is not a re-run',
+        summary: 'nothing is executed',
+        open: false,
+        paper: true
+      }, [
         dom.el('p', {
           class: 'muted',
           text: 'Opening a run replays its events into the same projection a live run uses. Nothing is executed, no engine is contacted and no file is written, so the screen shows the run that happened rather than a second run that might differ.'

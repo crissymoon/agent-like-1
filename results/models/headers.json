@@ -85,6 +85,38 @@
       "gguf_version": 3
     },
     {
+      "file": "llama-coder-hybrid-Q2_K.gguf",
+      "bytes": 4142124064,
+      "architecture": "llama",
+      "name": "Llama Coder Hybrid",
+      "size_label": "11B",
+      "parameter_count": null,
+      "context_length": 131072,
+      "embedding_length": 4096,
+      "block_count": 44,
+      "file_type": 10,
+      "quantisation": "Q2_K",
+      "metadata_entries": 33,
+      "tensor_count": 400,
+      "gguf_version": 3
+    },
+    {
+      "file": "llama-coder-hybrid-Q4_K_M.gguf",
+      "bytes": 6490655776,
+      "architecture": "llama",
+      "name": "Llama Coder Hybrid",
+      "size_label": "11B",
+      "parameter_count": null,
+      "context_length": 131072,
+      "embedding_length": 4096,
+      "block_count": 44,
+      "file_type": 15,
+      "quantisation": "Q4_K_M",
+      "metadata_entries": 33,
+      "tensor_count": 400,
+      "gguf_version": 3
+    },
+    {
       "file": "mmproj-F16.gguf",
       "bytes": 985654080,
       "architecture": "clip",
