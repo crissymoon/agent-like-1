@@ -71,6 +71,7 @@ LAYOUT: tuple[tuple[str, str], ...] = (
     ("tools/", "Portable tooling: the benchmark that runs on both sides, the kernel builder, the release review, the syntax preflight, this builder."),
     ("local-model-quick-tester/", "The interactive front end: a menu over the same GGUF weights, and the markdown transcript of a run, written to a directory held out of version control."),
     ("mermaid-viewer/", "A diagram viewer: renders the .mmd files under diagrams/ with the mermaid build vendored beside it, offline, with pan, zoom and SVG or PNG export."),
+    ("plans_and_writeups/", "The published view of the write-ups: the article index, the article pages it draws, and the script and the content policy each page loads."),
     ("results/", "What each run left behind. Evidence, committed, so a claim has a file behind it."),
     ("local-benchmarking.md", "The ladder: what a rung is, what decides it, and what a result does not claim."),
     ("LICENSE", "The terms the work is offered under, and the holder it belongs to."),
@@ -852,6 +853,7 @@ def run_section() -> list[str]:
             "# then secrets, source, file modes and dependencies as one list",
             "./security-scan.sh",
             "./security-scan.sh --with-registry   # also ask the registry for advisories",
+            "./security-scan.sh --with-browser    # and open the published pages in a browser",
             "python3 tools/security/selftest.py   # the scanners against a fixture, on their own",
             "",
             "# machine paths in a record, shortened to repository relative form",
@@ -925,6 +927,7 @@ def security_section() -> list[str]:
             "```bash",
             "./security-scan.sh                     # the four surfaces, offline, refusing at high",
             "./security-scan.sh --with-registry      # and the advisories the registry answers with",
+            "./security-scan.sh --with-browser       # and the published pages, opened in a browser",
             "./security-scan.sh --fail-on medium     # stricter than the review is",
             "```",
             "",
@@ -958,6 +961,13 @@ def security_section() -> list[str]:
                     "what this tree installs, whether the declared versions are pinned, whether "
                     "every locked package carries the hash of what it installs",
                     "`tools/security/scan_deps.py [--with-registry]`",
+                ],
+                [
+                    "rendering",
+                    "does a published page still do what it did, under the policy it declares and "
+                    "the sanitiser it was given, which are the two changes a file on disk cannot "
+                    "be read for",
+                    "`tools/security/browser_check.py --surface all`, run by `--with-browser`",
                 ],
             ],
         )

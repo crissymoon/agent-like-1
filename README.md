@@ -19,6 +19,7 @@ A harness for measuring what a small local language model can actually finish. I
 | tools/ | Portable tooling: the benchmark that runs on both sides, the kernel builder, the release review, the syntax preflight, this builder. |
 | local-model-quick-tester/ | The interactive front end: a menu over the same GGUF weights, and the markdown transcript of a run, written to a directory held out of version control. |
 | mermaid-viewer/ | A diagram viewer: renders the .mmd files under diagrams/ with the mermaid build vendored beside it, offline, with pan, zoom and SVG or PNG export. |
+| plans_and_writeups/ | The published view of the write-ups: the article index, the article pages it draws, and the script and the content policy each page loads. |
 | results/ | What each run left behind. Evidence, committed, so a claim has a file behind it. |
 | local-benchmarking.md | The ladder: what a rung is, what decides it, and what a result does not claim. |
 | LICENSE | The terms the work is offered under, and the holder it belongs to. |
@@ -185,6 +186,7 @@ python3 tools/security/scan_secrets.py --history
 # then secrets, source, file modes and dependencies as one list
 ./security-scan.sh
 ./security-scan.sh --with-registry   # also ask the registry for advisories
+./security-scan.sh --with-browser    # and open the published pages in a browser
 python3 tools/security/selftest.py   # the scanners against a fixture, on their own
 
 # machine paths in a record, shortened to repository relative form
@@ -222,6 +224,7 @@ The repository is read before it is sent, and the reading is one command. What i
 ```bash
 ./security-scan.sh                     # the four surfaces, offline, refusing at high
 ./security-scan.sh --with-registry      # and the advisories the registry answers with
+./security-scan.sh --with-browser       # and the published pages, opened in a browser
 ./security-scan.sh --fail-on medium     # stricter than the review is
 ```
 
@@ -231,6 +234,7 @@ The repository is read before it is sent, and the reading is one command. What i
 | source | is a shape a defect is written in in the source, and does the application still have the properties it says it has | `tools/security/scan_code.py --tracked` |
 | files | what the tree holds and how it is held: the mode of every tracked file, the links, the names a credential is written as, and the ignore rules that hold them out | `tools/security/scan_files.py` |
 | dependencies | what this tree installs, whether the declared versions are pinned, whether every locked package carries the hash of what it installs | `tools/security/scan_deps.py [--with-registry]` |
+| rendering | does a published page still do what it did, under the policy it declares and the sanitiser it was given, which are the two changes a file on disk cannot be read for | `tools/security/browser_check.py --surface all`, run by `--with-browser` |
 
 A severity is a claim about what happens next rather than about how worried a reader should be. `high` is a defect that should stop a push: either it is exploitable as read, or it is a property the code claims and does not have. `medium` is a place that is safe only because of something nearby, which is where the next defect will be written. `low` is hygiene, and `note` is a reading rather than a finding, which is how a check that could not run is reported: never as a pass, because a scan that did not happen and a scan that found nothing must not print the same thing.
 

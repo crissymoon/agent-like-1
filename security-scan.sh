@@ -18,8 +18,16 @@
 # that depends on the day it was taken is a different kind of claim from one that
 # depends on the commit. `--with-registry` asks.
 #
+# The browser tier is the one that needs something this machine may not have: a
+# headless browser and a spare moment to open each page. It is therefore asked
+# for rather than run by default, and what it adds is the question the source
+# reading cannot answer, which is whether a page still works under the policy
+# and the sanitiser it was given. `--with-browser` asks. It runs the check's own
+# controls first, for the reason tier one exists: a check that reads nothing and
+# a check that found nothing print the same thing.
+#
 # Usage: ./security-scan.sh [--fail-on high|medium|low|note] [--with-registry]
-#                           [--json FILE] [--quiet]
+#                           [--with-browser] [--json FILE] [--quiet]
 # Exit code is zero when every tier passed, one when a tier failed a level the
 # caller set, and two when a reading could not be taken at all.
 
@@ -29,11 +37,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PYTHON="${PYTHON:-python3}"
 FAIL_ON="high"
 WITH_REGISTRY=0
+WITH_BROWSER=0
 QUIET=0
 REPORT="$SCRIPT_DIR/results/security/scan.json"
 
 usage() {
-  sed -n '2,24p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '2,32p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
 }
 
 while [ $# -gt 0 ]; do
@@ -44,6 +53,10 @@ while [ $# -gt 0 ]; do
       ;;
     --with-registry)
       WITH_REGISTRY=1
+      shift
+      ;;
+    --with-browser)
+      WITH_BROWSER=1
       shift
       ;;
     --json)
@@ -135,6 +148,36 @@ if "$PYTHON" "$SCRIPT_DIR/tools/security/scan_all.py" \
 else
   fail "a surface reported something at or above $FAIL_ON"
   show "$SCRATCH/scan.log"
+fi
+
+# Tier four, on request: the pages a browser reads. Tier two says the files
+# parse and tier three says what shapes are written in them. Neither can say
+# whether a page is refused by the policy it declares or emptied by the
+# sanitiser it was given, and both of those leave a file that reads clean.
+if [ "$WITH_BROWSER" -eq 1 ]; then
+  if "$PYTHON" "$SCRIPT_DIR/tools/security/browser_check.py" --selftest \
+      >"$SCRATCH/browser-selftest.log" 2>&1; then
+    pass "the browser check finds what it claims: $(tail -n 1 "$SCRATCH/browser-selftest.log" | sed 's/^browser-check: //')"
+  else
+    fail "the browser check did not find a defect it is meant to find"
+    show "$SCRATCH/browser-selftest.log"
+  fi
+  if "$PYTHON" "$SCRIPT_DIR/tools/security/browser_check.py" \
+      --surface all --json "$SCRIPT_DIR/results/security/surfaces.json" \
+      >"$SCRATCH/browser.log" 2>&1; then
+    pass "the published surfaces render: $(tail -n 1 "$SCRATCH/browser.log" | sed 's/^browser-check: //')"
+    if [ "$QUIET" -eq 0 ]; then
+      grep -E '^ +(pages|viewer): ' "$SCRATCH/browser.log" | sed 's/^/     /'
+    fi
+  else
+    status=$?
+    if [ "$status" -eq 2 ]; then
+      fail "the published surfaces could not be read"
+    else
+      fail "a published surface did not render under its own policy"
+    fi
+    show "$SCRATCH/browser.log"
+  fi
 fi
 
 if [ "$QUIET" -eq 0 ]; then
