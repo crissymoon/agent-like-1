@@ -65,6 +65,7 @@ final class AgentSelfCheck
         $this->incubatorChecks($out);
         $this->boundaryChecks($out);
         $this->engineProfileChecks($out);
+        $this->endpointRootChecks($out);
         $this->reportChecks($out);
         $this->benchmarkChecks($out);
         $this->streamChecks($out);
@@ -119,7 +120,18 @@ final class AgentSelfCheck
             if ($tool === 'finish') {
                 continue;
             }
-            $this->expect($out, 'grammar names ' . $tool, str_contains($grammar, '"' . $tool . '"'));
+            // The name has to be emitted inside JSON quotes. A GBNF literal is
+            // grammar syntax and emits the bare characters between its marks, so
+            // a rule that named the tool without the escaped quotes would produce
+            // an object json_decode refuses and a constrained run would fail
+            // every turn. The check is written against the escaped pair for that
+            // reason: the previous form of this assertion passed on a grammar
+            // that could not produce a single valid action.
+            $this->expect(
+                $out,
+                'grammar names ' . $tool . ' inside JSON quotes',
+                str_contains($grammar, '"\\"' . $tool . '\\""')
+            );
         }
         $this->expect($out, 'grammar carries the finish rule', str_contains($grammar, 'finish ::='));
         $this->expect($out, 'grammar permits the flattened layout', str_contains($grammar, 'flattened ::='));
@@ -724,6 +736,94 @@ final class AgentSelfCheck
             'the summary of a missing record says so rather than showing a condition',
             str_contains(EngineProfile::summarize($absent), 'not recorded')
         );
+    }
+
+    /**
+     * The engine's readiness probe, which read every running engine as absent.
+     *
+     * `agent.php` was given the url completions are posted to and appended
+     * `/health` to it, so the probe asked
+     * `http://127.0.0.1:8081/v1/chat/completions/health`, which the engine answers
+     * 404, while `http://127.0.0.1:8081/health` on the same port answers 200. The
+     * run then refused to start against an engine that was up, and the recorded
+     * runs predate the check so nothing caught it. These are the cases the
+     * derivation has to get right, including the two that must not change: a url
+     * that is already a root, and a path that is not an OpenAI surface.
+     */
+    private function endpointRootChecks(callable $out): void
+    {
+        $cases = [
+            'the completions endpoint maps to the engine root' => [
+                'http://127.0.0.1:8081/v1/chat/completions',
+                'http://127.0.0.1:8081',
+            ],
+            'a trailing slash on the endpoint is tolerated' => [
+                'http://127.0.0.1:8081/v1/chat/completions/',
+                'http://127.0.0.1:8081',
+            ],
+            'a root url is returned unchanged' => [
+                'http://127.0.0.1:8081',
+                'http://127.0.0.1:8081',
+            ],
+            'a root url with a trailing slash is returned without it' => [
+                'http://127.0.0.1:8081/',
+                'http://127.0.0.1:8081',
+            ],
+            'a hosted provider endpoint maps to its host' => [
+                'https://api.deepseek.com/v1/chat/completions',
+                'https://api.deepseek.com',
+            ],
+            'a versioned surface under a path keeps the path' => [
+                'http://host:8080/llama/v1/chat/completions',
+                'http://host:8080/llama',
+            ],
+            'a path that is not a surface is left alone' => [
+                'http://host:8080/custom',
+                'http://host:8080/custom',
+            ],
+        ];
+        foreach ($cases as $name => [$given, $expected]) {
+            $got = EngineProfile::rootOf($given);
+            $this->expect($out, $name, $got === $expected, sprintf('%s -> %s', $given, $got));
+        }
+
+        // The defect itself, stated as the property that was false: whatever url
+        // the harness holds, the health probe must not be built under a versioned
+        // path. This is the assertion the old code failed.
+        // The defect itself, stated as the property that was false: whatever url
+        // the harness holds, neither the health probe nor the request may be built
+        // under a versioned path. This is the assertion the old code failed.
+        //
+        // The loop reads the cases as pairs. The first version iterated
+        // `foreach ($cases as $given => $_expected)`, which takes the case *names*
+        // as the urls: `rootOf('the completions endpoint maps to the engine root')`
+        // returns its own argument, no case name contains `/v1/`, and every case
+        // passed by saying nothing about the case. An assertion that holds for
+        // every input because it never sees the input is worse than a missing one,
+        // because it is counted.
+        foreach ($cases as $_name => [$given, $_expected]) {
+            $health = EngineProfile::rootOf($given) . '/health';
+            $this->expect(
+                $out,
+                'the health probe is never built under the completions path',
+                !str_contains($health, '/v1/'),
+                $health
+            );
+            // The request url is the other half of the same defect, and it is the
+            // half that costs a run rather than a refusal: a doubled path answers
+            // 404 on every turn, so the model is scored as producing nothing while
+            // the log says it answered in a fraction of a millisecond. Measured:
+            // `results/agent/gap-q4` recorded 0 of 6 tasks, 0 tool calls, 0.27 ms
+            // mean latency and the endpoint
+            // `http://127.0.0.1:8081/v1/chat/completions/v1/chat/completions`.
+            $request = EngineProfile::rootOf($given) . '/v1/chat/completions';
+            $this->expect(
+                $out,
+                'the request url carries the completions surface exactly once',
+                substr_count($request, '/v1/') === 1,
+                $request
+            );
+        }
     }
 
     private function reportChecks(callable $out): void

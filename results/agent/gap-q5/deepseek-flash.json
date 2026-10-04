@@ -1,0 +1,1134 @@
+{
+    "schema_version": "1",
+    "document": "agent-model-run",
+    "run": {
+        "run_id": "gap-q5",
+        "started_at": "2026-10-03T15:53:04+00:00",
+        "finished_at": "2026-10-03T15:53:58+00:00",
+        "duration_s": 54.96,
+        "tool_mode": "prompt",
+        "suite": "core",
+        "prompt_version": "1",
+        "prompt_sha256": "302d8b521dcdf2555030d996dc377cc356e2dc4683fd07795f26185b54fefab8",
+        "step_budget_cap": 8,
+        "task_count": 6,
+        "controls": {
+            "loop_guard": false,
+            "guard_repeat_limit": 2,
+            "guard_rule": "an identical call is refused once it has already failed 2 time(s); repeat limit 2 refuses the third",
+            "strict_schema": false,
+            "sandbox_policy": "documented",
+            "allowed_binaries": [
+                "ls",
+                "cat",
+                "grep",
+                "wc",
+                "sort",
+                "find",
+                "head",
+                "tail",
+                "rm",
+                "mv",
+                "cp",
+                "mkdir"
+            ],
+            "command_arguments_inspected": true,
+            "decoder": {
+                "mode": "none",
+                "scope": "local",
+                "field": "",
+                "action_schema_sha256": "56e505c04d40ec3e9a5fc8b233d04d9fc8ffa90a3fc35ed6d707a61530919212",
+                "note": "No engine-side constraint was sent. A malformed object reaches the harness and is refused there."
+            }
+        }
+    },
+    "model": {
+        "label": "deepseek-flash",
+        "provenance": {
+            "engine": "openai-compatible chat completions",
+            "endpoint": "https://api.deepseek.com/v1/chat/completions",
+            "model_id": "deepseek-flash",
+            "tool_mode": "prompt",
+            "temperature": 0,
+            "top_p": 1,
+            "max_tokens": 768,
+            "request_extensions": {
+                "thinking": {
+                    "type": "disabled"
+                }
+            }
+        }
+    },
+    "aggregate": {
+        "tasks": 6,
+        "tasks_passed": 6,
+        "composite": 97,
+        "dimensions": {
+            "task_success": 1,
+            "protocol_compliance": 1,
+            "tool_validity": 1,
+            "error_recovery": 1,
+            "efficiency": 0.7
+        },
+        "error_recovery_applicable_tasks": 0,
+        "counters": {
+            "tool_calls": 15,
+            "successful_tool_calls": 15,
+            "invalid_actions": 0,
+            "unstructured_tool_calls": 0,
+            "unknown_tools": 0,
+            "invalid_args": 0,
+            "tool_errors": 0,
+            "redundant_calls": 0,
+            "repeated_failed_turns": 0,
+            "guard_refusals": 0,
+            "guard_interventions": 0,
+            "schema_rejections": 0,
+            "had_error": 0,
+            "recovered": 0
+        },
+        "steps_used": 3.5,
+        "budget_exhausted": 0,
+        "latency_ms_mean": 3827.33,
+        "latency_ms_median": 3872.45,
+        "latency_ms_p95": 5246,
+        "prompt_tokens": 13287,
+        "completion_tokens": 444,
+        "per_capability": {
+            "conditional_action": {
+                "tasks": 1,
+                "composite": 95.83,
+                "task_success": 1
+            },
+            "error_recovery": {
+                "tasks": 1,
+                "composite": 97.14,
+                "task_success": 1
+            },
+            "instruction_following": {
+                "tasks": 1,
+                "composite": 97.5,
+                "task_success": 1
+            },
+            "multi_step_composition": {
+                "tasks": 1,
+                "composite": 96.67,
+                "task_success": 1
+            },
+            "structured_output": {
+                "tasks": 1,
+                "composite": 97.86,
+                "task_success": 1
+            },
+            "tool_query": {
+                "tasks": 1,
+                "composite": 97,
+                "task_success": 1
+            }
+        }
+    },
+    "tasks": {
+        "create_exact_file": {
+            "task_id": "create_exact_file",
+            "capability": "instruction_following",
+            "goal": "Create a file named release.txt in the workspace root. It must contain exactly these two lines and nothing else: name=atlas followed by version=3.",
+            "budget": 4,
+            "success": true,
+            "composite": 97.5,
+            "dimensions": {
+                "task_success": 1,
+                "protocol_compliance": 1,
+                "tool_validity": 1,
+                "error_recovery": 1,
+                "efficiency": 0.75
+            },
+            "recovery_applicable": false,
+            "checks_passed": 2,
+            "checks_total": 2,
+            "checks": [
+                {
+                    "name": "release.txt exists",
+                    "target": "check",
+                    "passed": true,
+                    "detail": ""
+                },
+                {
+                    "name": "the two lines match",
+                    "target": "check",
+                    "passed": true,
+                    "detail": "expected [\"name=atlas\",\"version=3\"], got [\"name=atlas\",\"version=3\"]"
+                }
+            ],
+            "steps_used": 2,
+            "budget_exhausted": false,
+            "finished": true,
+            "answer": "Created release.txt with the two required lines.",
+            "counters": {
+                "tool_calls": 1,
+                "successful_tool_calls": 1,
+                "invalid_actions": 0,
+                "unstructured_tool_calls": 0,
+                "unknown_tools": 0,
+                "invalid_args": 0,
+                "tool_errors": 0,
+                "redundant_calls": 0,
+                "repeated_failed_turns": 0,
+                "guard_refusals": 0,
+                "guard_interventions": 0,
+                "schema_rejections": 0,
+                "had_error": 0,
+                "recovered": 0
+            },
+            "latency_ms_total": 2208.2,
+            "prompt_tokens": 1179,
+            "completion_tokens": 49,
+            "history_trimmed": false,
+            "final_inventory": [
+                {
+                    "path": "release.txt",
+                    "bytes": 21
+                }
+            ],
+            "turns": [
+                {
+                    "step": 1,
+                    "error": "",
+                    "latency_ms": 1299.8,
+                    "prompt_tokens": 569,
+                    "completion_tokens": 28,
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "raw_response": "{\"action\": \"write_file\", \"path\": \"release.txt\", \"content\": \"name=atlas\\nversion=3\\n\"}",
+                    "actions": [
+                        {
+                            "kind": "tool",
+                            "tool": "write_file",
+                            "args": {
+                                "path": "release.txt",
+                                "content": "name=atlas\nversion=3\n"
+                            },
+                            "shape": "alias",
+                            "strategy": "direct",
+                            "error": ""
+                        }
+                    ],
+                    "observations": [
+                        {
+                            "tool": "write_file",
+                            "ok": true,
+                            "error_kind": "",
+                            "observation": "wrote 21 bytes to release.txt"
+                        }
+                    ],
+                    "kind": "tool"
+                },
+                {
+                    "step": 2,
+                    "error": "",
+                    "latency_ms": 908.4,
+                    "prompt_tokens": 610,
+                    "completion_tokens": 21,
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "raw_response": "{\"action\": \"finish\", \"answer\": \"Created release.txt with the two required lines.\"}",
+                    "actions": [],
+                    "observations": [],
+                    "kind": "finish",
+                    "finish_shape": "canonical"
+                }
+            ]
+        },
+        "count_by_extension": {
+            "task_id": "count_by_extension",
+            "capability": "tool_query",
+            "goal": "In the data directory there are several files. Work out how many of them end with the .log extension, and write that number and nothing else into count.txt in the workspace root.",
+            "budget": 5,
+            "success": true,
+            "composite": 97,
+            "dimensions": {
+                "task_success": 1,
+                "protocol_compliance": 1,
+                "tool_validity": 1,
+                "error_recovery": 1,
+                "efficiency": 0.7
+            },
+            "recovery_applicable": false,
+            "checks_passed": 2,
+            "checks_total": 2,
+            "checks": [
+                {
+                    "name": "count.txt exists",
+                    "target": "check",
+                    "passed": true,
+                    "detail": ""
+                },
+                {
+                    "name": "count is 4",
+                    "target": "check",
+                    "passed": true,
+                    "detail": "read \"4\""
+                }
+            ],
+            "steps_used": 3,
+            "budget_exhausted": false,
+            "finished": true,
+            "answer": "4",
+            "counters": {
+                "tool_calls": 2,
+                "successful_tool_calls": 2,
+                "invalid_actions": 0,
+                "unstructured_tool_calls": 0,
+                "unknown_tools": 0,
+                "invalid_args": 0,
+                "tool_errors": 0,
+                "redundant_calls": 0,
+                "repeated_failed_turns": 0,
+                "guard_refusals": 0,
+                "guard_interventions": 0,
+                "schema_rejections": 0,
+                "had_error": 0,
+                "recovered": 0
+            },
+            "latency_ms_total": 3325.1,
+            "prompt_tokens": 1929,
+            "completion_tokens": 54,
+            "history_trimmed": false,
+            "final_inventory": [
+                {
+                    "path": "count.txt",
+                    "bytes": 1
+                },
+                {
+                    "path": "data/app.log",
+                    "bytes": 11
+                },
+                {
+                    "path": "data/config.json",
+                    "bytes": 3
+                },
+                {
+                    "path": "data/db.log",
+                    "bytes": 6
+                },
+                {
+                    "path": "data/notes.txt",
+                    "bytes": 10
+                },
+                {
+                    "path": "data/readme.txt",
+                    "bytes": 14
+                },
+                {
+                    "path": "data/worker-a.log",
+                    "bytes": 5
+                },
+                {
+                    "path": "data/worker-b.log",
+                    "bytes": 5
+                }
+            ],
+            "turns": [
+                {
+                    "step": 1,
+                    "error": "",
+                    "latency_ms": 1184.7,
+                    "prompt_tokens": 574,
+                    "completion_tokens": 17,
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "raw_response": "{\"action\": \"list_files\", \"args\": {\"path\": \"data\"}}",
+                    "actions": [
+                        {
+                            "kind": "tool",
+                            "tool": "list_files",
+                            "args": {
+                                "path": "data"
+                            },
+                            "shape": "canonical",
+                            "strategy": "direct",
+                            "error": ""
+                        }
+                    ],
+                    "observations": [
+                        {
+                            "tool": "list_files",
+                            "ok": true,
+                            "error_kind": "",
+                            "observation": "7 file(s):\ndata/app.log (11 bytes)\ndata/config.json (3 bytes)\ndata/db.log (6 bytes)\ndata/notes.txt (10 bytes)\ndata/readme.txt (14 bytes)\ndata/worker-a.log (5 bytes)\ndata/worker-b.log (5 bytes)"
+                        }
+                    ],
+                    "kind": "tool"
+                },
+                {
+                    "step": 2,
+                    "error": "",
+                    "latency_ms": 813.1,
+                    "prompt_tokens": 659,
+                    "completion_tokens": 24,
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "raw_response": "{\"action\": \"write_file\", \"args\": {\"path\": \"count.txt\", \"content\": \"4\"}}",
+                    "actions": [
+                        {
+                            "kind": "tool",
+                            "tool": "write_file",
+                            "args": {
+                                "path": "count.txt",
+                                "content": "4"
+                            },
+                            "shape": "canonical",
+                            "strategy": "direct",
+                            "error": ""
+                        }
+                    ],
+                    "observations": [
+                        {
+                            "tool": "write_file",
+                            "ok": true,
+                            "error_kind": "",
+                            "observation": "wrote 1 bytes to count.txt"
+                        }
+                    ],
+                    "kind": "tool"
+                },
+                {
+                    "step": 3,
+                    "error": "",
+                    "latency_ms": 1327.3,
+                    "prompt_tokens": 696,
+                    "completion_tokens": 13,
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "raw_response": "{\"action\": \"finish\", \"answer\": \"4\"}",
+                    "actions": [],
+                    "observations": [],
+                    "kind": "finish",
+                    "finish_shape": "canonical"
+                }
+            ]
+        },
+        "sum_two_files": {
+            "task_id": "sum_two_files",
+            "capability": "multi_step_composition",
+            "goal": "The files a.txt and b.txt each hold a single whole number. Add the two numbers together and write the result and nothing else into total.txt in the workspace root.",
+            "budget": 6,
+            "success": true,
+            "composite": 96.67,
+            "dimensions": {
+                "task_success": 1,
+                "protocol_compliance": 1,
+                "tool_validity": 1,
+                "error_recovery": 1,
+                "efficiency": 0.6667
+            },
+            "recovery_applicable": false,
+            "checks_passed": 2,
+            "checks_total": 2,
+            "checks": [
+                {
+                    "name": "total.txt exists",
+                    "target": "check",
+                    "passed": true,
+                    "detail": ""
+                },
+                {
+                    "name": "total is 42",
+                    "target": "check",
+                    "passed": true,
+                    "detail": "read \"42\""
+                }
+            ],
+            "steps_used": 4,
+            "budget_exhausted": false,
+            "finished": true,
+            "answer": "42",
+            "counters": {
+                "tool_calls": 3,
+                "successful_tool_calls": 3,
+                "invalid_actions": 0,
+                "unstructured_tool_calls": 0,
+                "unknown_tools": 0,
+                "invalid_args": 0,
+                "tool_errors": 0,
+                "redundant_calls": 0,
+                "repeated_failed_turns": 0,
+                "guard_refusals": 0,
+                "guard_interventions": 0,
+                "schema_rejections": 0,
+                "had_error": 0,
+                "recovered": 0
+            },
+            "latency_ms_total": 4662,
+            "prompt_tokens": 2432,
+            "completion_tokens": 61,
+            "history_trimmed": false,
+            "final_inventory": [
+                {
+                    "path": "a.txt",
+                    "bytes": 3
+                },
+                {
+                    "path": "b.txt",
+                    "bytes": 3
+                },
+                {
+                    "path": "total.txt",
+                    "bytes": 2
+                }
+            ],
+            "turns": [
+                {
+                    "step": 1,
+                    "error": "",
+                    "latency_ms": 1296.6,
+                    "prompt_tokens": 571,
+                    "completion_tokens": 14,
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "raw_response": "{\"action\": \"read_file\", \"path\": \"a.txt\"}",
+                    "actions": [
+                        {
+                            "kind": "tool",
+                            "tool": "read_file",
+                            "args": {
+                                "path": "a.txt"
+                            },
+                            "shape": "alias",
+                            "strategy": "direct",
+                            "error": ""
+                        }
+                    ],
+                    "observations": [
+                        {
+                            "tool": "read_file",
+                            "ok": true,
+                            "error_kind": "",
+                            "observation": "17\n"
+                        }
+                    ],
+                    "kind": "tool"
+                },
+                {
+                    "step": 2,
+                    "error": "",
+                    "latency_ms": 914.8,
+                    "prompt_tokens": 594,
+                    "completion_tokens": 14,
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "raw_response": "{\"action\": \"read_file\", \"path\": \"b.txt\"}",
+                    "actions": [
+                        {
+                            "kind": "tool",
+                            "tool": "read_file",
+                            "args": {
+                                "path": "b.txt"
+                            },
+                            "shape": "alias",
+                            "strategy": "direct",
+                            "error": ""
+                        }
+                    ],
+                    "observations": [
+                        {
+                            "tool": "read_file",
+                            "ok": true,
+                            "error_kind": "",
+                            "observation": "25\n"
+                        }
+                    ],
+                    "kind": "tool"
+                },
+                {
+                    "step": 3,
+                    "error": "",
+                    "latency_ms": 1327,
+                    "prompt_tokens": 617,
+                    "completion_tokens": 20,
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "raw_response": "{\"action\": \"write_file\", \"path\": \"total.txt\", \"content\": \"42\"}",
+                    "actions": [
+                        {
+                            "kind": "tool",
+                            "tool": "write_file",
+                            "args": {
+                                "path": "total.txt",
+                                "content": "42"
+                            },
+                            "shape": "alias",
+                            "strategy": "direct",
+                            "error": ""
+                        }
+                    ],
+                    "observations": [
+                        {
+                            "tool": "write_file",
+                            "ok": true,
+                            "error_kind": "",
+                            "observation": "wrote 2 bytes to total.txt"
+                        }
+                    ],
+                    "kind": "tool"
+                },
+                {
+                    "step": 4,
+                    "error": "",
+                    "latency_ms": 1123.6,
+                    "prompt_tokens": 650,
+                    "completion_tokens": 13,
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "raw_response": "{\"action\": \"finish\", \"answer\": \"42\"}",
+                    "actions": [],
+                    "observations": [],
+                    "kind": "finish",
+                    "finish_shape": "canonical"
+                }
+            ]
+        },
+        "recover_misnamed_file": {
+            "task_id": "recover_misnamed_file",
+            "capability": "error_recovery",
+            "goal": "The service settings are saved in a file in the workspace root under a name that ends in .yml or .yaml, but I may be remembering the extension wrongly. Find that settings file and write a copy of its full contents into output.txt in the workspace root.",
+            "budget": 7,
+            "success": true,
+            "composite": 97.14,
+            "dimensions": {
+                "task_success": 1,
+                "protocol_compliance": 1,
+                "tool_validity": 1,
+                "error_recovery": 1,
+                "efficiency": 0.7143
+            },
+            "recovery_applicable": false,
+            "checks_passed": 2,
+            "checks_total": 2,
+            "checks": [
+                {
+                    "name": "output.txt exists",
+                    "target": "check",
+                    "passed": true,
+                    "detail": ""
+                },
+                {
+                    "name": "copy holds the settings",
+                    "target": "check",
+                    "passed": true,
+                    "detail": "read \"port: 9090\\nhost: localhost\\n\""
+                }
+            ],
+            "steps_used": 4,
+            "budget_exhausted": false,
+            "finished": true,
+            "answer": "Found service.yml and copied its full contents (port: 9090, host: localhost) into output.txt.",
+            "counters": {
+                "tool_calls": 3,
+                "successful_tool_calls": 3,
+                "invalid_actions": 0,
+                "unstructured_tool_calls": 0,
+                "unknown_tools": 0,
+                "invalid_args": 0,
+                "tool_errors": 0,
+                "redundant_calls": 0,
+                "repeated_failed_turns": 0,
+                "guard_refusals": 0,
+                "guard_interventions": 0,
+                "schema_rejections": 0,
+                "had_error": 0,
+                "recovered": 0
+            },
+            "latency_ms_total": 4419.8,
+            "prompt_tokens": 2583,
+            "completion_tokens": 92,
+            "history_trimmed": false,
+            "final_inventory": [
+                {
+                    "path": "CHANGELOG.txt",
+                    "bytes": 10
+                },
+                {
+                    "path": "output.txt",
+                    "bytes": 27
+                },
+                {
+                    "path": "service.yml",
+                    "bytes": 27
+                }
+            ],
+            "turns": [
+                {
+                    "step": 1,
+                    "error": "",
+                    "latency_ms": 851,
+                    "prompt_tokens": 591,
+                    "completion_tokens": 12,
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "raw_response": "{\"action\": \"list_files\", \"path\": \".\"}",
+                    "actions": [
+                        {
+                            "kind": "tool",
+                            "tool": "list_files",
+                            "args": {
+                                "path": "."
+                            },
+                            "shape": "alias",
+                            "strategy": "direct",
+                            "error": ""
+                        }
+                    ],
+                    "observations": [
+                        {
+                            "tool": "list_files",
+                            "ok": true,
+                            "error_kind": "",
+                            "observation": "2 file(s):\nCHANGELOG.txt (10 bytes)\nservice.yml (27 bytes)"
+                        }
+                    ],
+                    "kind": "tool"
+                },
+                {
+                    "step": 2,
+                    "error": "",
+                    "latency_ms": 1071.4,
+                    "prompt_tokens": 629,
+                    "completion_tokens": 14,
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "raw_response": "{\"action\": \"read_file\", \"path\": \"service.yml\"}",
+                    "actions": [
+                        {
+                            "kind": "tool",
+                            "tool": "read_file",
+                            "args": {
+                                "path": "service.yml"
+                            },
+                            "shape": "alias",
+                            "strategy": "direct",
+                            "error": ""
+                        }
+                    ],
+                    "observations": [
+                        {
+                            "tool": "read_file",
+                            "ok": true,
+                            "error_kind": "",
+                            "observation": "port: 9090\nhost: localhost\n"
+                        }
+                    ],
+                    "kind": "tool"
+                },
+                {
+                    "step": 3,
+                    "error": "",
+                    "latency_ms": 1274.4,
+                    "prompt_tokens": 660,
+                    "completion_tokens": 30,
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "raw_response": "{\"action\": \"write_file\", \"path\": \"output.txt\", \"content\": \"port: 9090\\nhost: localhost\\n\"}",
+                    "actions": [
+                        {
+                            "kind": "tool",
+                            "tool": "write_file",
+                            "args": {
+                                "path": "output.txt",
+                                "content": "port: 9090\nhost: localhost\n"
+                            },
+                            "shape": "alias",
+                            "strategy": "direct",
+                            "error": ""
+                        }
+                    ],
+                    "observations": [
+                        {
+                            "tool": "write_file",
+                            "ok": true,
+                            "error_kind": "",
+                            "observation": "wrote 27 bytes to output.txt"
+                        }
+                    ],
+                    "kind": "tool"
+                },
+                {
+                    "step": 4,
+                    "error": "",
+                    "latency_ms": 1223,
+                    "prompt_tokens": 703,
+                    "completion_tokens": 36,
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "raw_response": "{\"action\": \"finish\", \"answer\": \"Found service.yml and copied its full contents (port: 9090, host: localhost) into output.txt.\"}",
+                    "actions": [],
+                    "observations": [],
+                    "kind": "finish",
+                    "finish_shape": "canonical"
+                }
+            ]
+        },
+        "extract_field_map": {
+            "task_id": "extract_field_map",
+            "capability": "structured_output",
+            "goal": "Read notes.txt in the workspace root. Every line that contains a colon is a key and a whole number separated by that colon. Lines starting with a hash, and blank lines, are comments. Write a single JSON object to parsed.json in the workspace root that maps every key to its number as an integer.",
+            "budget": 7,
+            "success": true,
+            "composite": 97.86,
+            "dimensions": {
+                "task_success": 1,
+                "protocol_compliance": 1,
+                "tool_validity": 1,
+                "error_recovery": 1,
+                "efficiency": 0.7857
+            },
+            "recovery_applicable": false,
+            "checks_passed": 3,
+            "checks_total": 3,
+            "checks": [
+                {
+                    "name": "parsed.json exists",
+                    "target": "check",
+                    "passed": true,
+                    "detail": ""
+                },
+                {
+                    "name": "parsed.json is valid JSON",
+                    "target": "check",
+                    "passed": true,
+                    "detail": ""
+                },
+                {
+                    "name": "the map matches exactly",
+                    "target": "check",
+                    "passed": true,
+                    "detail": "read {\"alpha\":1,\"beta\":2,\"gamma\":3}"
+                }
+            ],
+            "steps_used": 3,
+            "budget_exhausted": false,
+            "finished": true,
+            "answer": "Wrote parsed.json with {\"alpha\": 1, \"beta\": 2, \"gamma\": 3}",
+            "counters": {
+                "tool_calls": 2,
+                "successful_tool_calls": 2,
+                "invalid_actions": 0,
+                "unstructured_tool_calls": 0,
+                "unknown_tools": 0,
+                "invalid_args": 0,
+                "tool_errors": 0,
+                "redundant_calls": 0,
+                "repeated_failed_turns": 0,
+                "guard_refusals": 0,
+                "guard_interventions": 0,
+                "schema_rejections": 0,
+                "had_error": 0,
+                "recovered": 0
+            },
+            "latency_ms_total": 3102.9,
+            "prompt_tokens": 1933,
+            "completion_tokens": 89,
+            "history_trimmed": false,
+            "final_inventory": [
+                {
+                    "path": "notes.txt",
+                    "bytes": 57
+                },
+                {
+                    "path": "parsed.json",
+                    "bytes": 35
+                }
+            ],
+            "turns": [
+                {
+                    "step": 1,
+                    "error": "",
+                    "latency_ms": 906.2,
+                    "prompt_tokens": 599,
+                    "completion_tokens": 14,
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "raw_response": "{\"action\": \"read_file\", \"path\": \"notes.txt\"}",
+                    "actions": [
+                        {
+                            "kind": "tool",
+                            "tool": "read_file",
+                            "args": {
+                                "path": "notes.txt"
+                            },
+                            "shape": "alias",
+                            "strategy": "direct",
+                            "error": ""
+                        }
+                    ],
+                    "observations": [
+                        {
+                            "tool": "read_file",
+                            "ok": true,
+                            "error_kind": "",
+                            "observation": "# inventory\n\nalpha: 1\nbeta: 2\n\n# trailing notes\ngamma: 3\n"
+                        }
+                    ],
+                    "kind": "tool"
+                },
+                {
+                    "step": 2,
+                    "error": "",
+                    "latency_ms": 1076.6,
+                    "prompt_tokens": 641,
+                    "completion_tokens": 39,
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "raw_response": "{\"action\": \"write_file\", \"path\": \"parsed.json\", \"content\": \"{\\\"alpha\\\": 1, \\\"beta\\\": 2, \\\"gamma\\\": 3}\"}",
+                    "actions": [
+                        {
+                            "kind": "tool",
+                            "tool": "write_file",
+                            "args": {
+                                "path": "parsed.json",
+                                "content": "{\"alpha\": 1, \"beta\": 2, \"gamma\": 3}"
+                            },
+                            "shape": "alias",
+                            "strategy": "direct",
+                            "error": ""
+                        }
+                    ],
+                    "observations": [
+                        {
+                            "tool": "write_file",
+                            "ok": true,
+                            "error_kind": "",
+                            "observation": "wrote 35 bytes to parsed.json"
+                        }
+                    ],
+                    "kind": "tool"
+                },
+                {
+                    "step": 3,
+                    "error": "",
+                    "latency_ms": 1120.1,
+                    "prompt_tokens": 693,
+                    "completion_tokens": 36,
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "raw_response": "{\"action\": \"finish\", \"answer\": \"Wrote parsed.json with {\\\"alpha\\\": 1, \\\"beta\\\": 2, \\\"gamma\\\": 3}\"}",
+                    "actions": [],
+                    "observations": [],
+                    "kind": "finish",
+                    "finish_shape": "canonical"
+                }
+            ]
+        },
+        "prune_by_extension": {
+            "task_id": "prune_by_extension",
+            "capability": "conditional_action",
+            "goal": "The workspace root holds a mix of files. Delete every file whose name ends with .tmp. Leave every other file exactly as it is.",
+            "budget": 6,
+            "success": true,
+            "composite": 95.83,
+            "dimensions": {
+                "task_success": 1,
+                "protocol_compliance": 1,
+                "tool_validity": 1,
+                "error_recovery": 1,
+                "efficiency": 0.5833
+            },
+            "recovery_applicable": false,
+            "checks_passed": 3,
+            "checks_total": 3,
+            "checks": [
+                {
+                    "name": "no .tmp file remains",
+                    "target": "check",
+                    "passed": true,
+                    "detail": "still present: "
+                },
+                {
+                    "name": "keep_one.txt survived",
+                    "target": "check",
+                    "passed": true,
+                    "detail": ""
+                },
+                {
+                    "name": "keep_two.txt survived",
+                    "target": "check",
+                    "passed": true,
+                    "detail": ""
+                }
+            ],
+            "steps_used": 5,
+            "budget_exhausted": false,
+            "finished": true,
+            "answer": "Deleted session_a.tmp, session_b.tmp, and session_c.tmp; keep_one.txt and keep_two.txt remain unchanged.",
+            "counters": {
+                "tool_calls": 4,
+                "successful_tool_calls": 4,
+                "invalid_actions": 0,
+                "unstructured_tool_calls": 0,
+                "unknown_tools": 0,
+                "invalid_args": 0,
+                "tool_errors": 0,
+                "redundant_calls": 0,
+                "repeated_failed_turns": 0,
+                "guard_refusals": 0,
+                "guard_interventions": 0,
+                "schema_rejections": 0,
+                "had_error": 0,
+                "recovered": 0
+            },
+            "latency_ms_total": 5246,
+            "prompt_tokens": 3231,
+            "completion_tokens": 99,
+            "history_trimmed": false,
+            "final_inventory": [
+                {
+                    "path": "keep_one.txt",
+                    "bytes": 5
+                },
+                {
+                    "path": "keep_two.txt",
+                    "bytes": 5
+                }
+            ],
+            "turns": [
+                {
+                    "step": 1,
+                    "error": "",
+                    "latency_ms": 1307.7,
+                    "prompt_tokens": 565,
+                    "completion_tokens": 12,
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "raw_response": "{\"action\": \"list_files\", \"path\": \".\"}",
+                    "actions": [
+                        {
+                            "kind": "tool",
+                            "tool": "list_files",
+                            "args": {
+                                "path": "."
+                            },
+                            "shape": "alias",
+                            "strategy": "direct",
+                            "error": ""
+                        }
+                    ],
+                    "observations": [
+                        {
+                            "tool": "list_files",
+                            "ok": true,
+                            "error_kind": "",
+                            "observation": "5 file(s):\nkeep_one.txt (5 bytes)\nkeep_two.txt (5 bytes)\nsession_a.tmp (6 bytes)\nsession_b.tmp (6 bytes)\nsession_c.tmp (6 bytes)"
+                        }
+                    ],
+                    "kind": "tool"
+                },
+                {
+                    "step": 2,
+                    "error": "",
+                    "latency_ms": 1005.1,
+                    "prompt_tokens": 626,
+                    "completion_tokens": 16,
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "raw_response": "{\"action\": \"delete_file\", \"path\": \"session_a.tmp\"}",
+                    "actions": [
+                        {
+                            "kind": "tool",
+                            "tool": "delete_file",
+                            "args": {
+                                "path": "session_a.tmp"
+                            },
+                            "shape": "alias",
+                            "strategy": "direct",
+                            "error": ""
+                        }
+                    ],
+                    "observations": [
+                        {
+                            "tool": "delete_file",
+                            "ok": true,
+                            "error_kind": "",
+                            "observation": "deleted session_a.tmp"
+                        }
+                    ],
+                    "kind": "tool"
+                },
+                {
+                    "step": 3,
+                    "error": "",
+                    "latency_ms": 889.7,
+                    "prompt_tokens": 653,
+                    "completion_tokens": 16,
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "raw_response": "{\"action\": \"delete_file\", \"path\": \"session_b.tmp\"}",
+                    "actions": [
+                        {
+                            "kind": "tool",
+                            "tool": "delete_file",
+                            "args": {
+                                "path": "session_b.tmp"
+                            },
+                            "shape": "alias",
+                            "strategy": "direct",
+                            "error": ""
+                        }
+                    ],
+                    "observations": [
+                        {
+                            "tool": "delete_file",
+                            "ok": true,
+                            "error_kind": "",
+                            "observation": "deleted session_b.tmp"
+                        }
+                    ],
+                    "kind": "tool"
+                },
+                {
+                    "step": 4,
+                    "error": "",
+                    "latency_ms": 919,
+                    "prompt_tokens": 680,
+                    "completion_tokens": 16,
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "raw_response": "{\"action\": \"delete_file\", \"path\": \"session_c.tmp\"}",
+                    "actions": [
+                        {
+                            "kind": "tool",
+                            "tool": "delete_file",
+                            "args": {
+                                "path": "session_c.tmp"
+                            },
+                            "shape": "alias",
+                            "strategy": "direct",
+                            "error": ""
+                        }
+                    ],
+                    "observations": [
+                        {
+                            "tool": "delete_file",
+                            "ok": true,
+                            "error_kind": "",
+                            "observation": "deleted session_c.tmp"
+                        }
+                    ],
+                    "kind": "tool"
+                },
+                {
+                    "step": 5,
+                    "error": "",
+                    "latency_ms": 1124.5,
+                    "prompt_tokens": 707,
+                    "completion_tokens": 39,
+                    "finish_reason": "stop",
+                    "truncated": false,
+                    "raw_response": "{\"action\": \"finish\", \"answer\": \"Deleted session_a.tmp, session_b.tmp, and session_c.tmp; keep_one.txt and keep_two.txt remain unchanged.\"}",
+                    "actions": [],
+                    "observations": [],
+                    "kind": "finish",
+                    "finish_shape": "canonical"
+                }
+            ]
+        }
+    }
+}

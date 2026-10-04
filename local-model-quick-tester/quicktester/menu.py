@@ -184,7 +184,9 @@ def _tailored(item: Item, context: actions.Context) -> Item:
         available = context.registry.here("text")
         if not available:
             return _replace(item, hint="no text model is on this disk yet")
-        return _replace(item, hint=f"{available[0].label} first, {_plural(len(available), 'model')}")
+        if len(available) > 1:
+            return _replace(item, hint=f"pick one of {_plural(len(available), 'model')}")
+        return _replace(item, hint=available[0].label)
     if item.action == "draw":
         available = context.registry.here("image")
         if not available:

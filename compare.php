@@ -30,6 +30,10 @@ foreach ($deepseekSources as $source) {
 $harnessModules = [
     'Fingerprint', 'Metrics', 'VisionClient', 'GemmaVisionClient',
     'DeepSeekVisionAdapter', 'PromptLibrary', 'Agreement', 'Benchmark', 'Report',
+    // The engine's root derivation lives with the engine's own HTTP reads, and
+    // this file needs it for its readiness probe. It has no dependency of its
+    // own, so it is loaded here rather than through the whole bootstrap.
+    'EngineProfile',
 ];
 foreach ($harnessModules as $module) {
     require __DIR__ . '/lib/' . $module . '.php';
@@ -150,7 +154,11 @@ function options(): array
 
 function gemmaServerReady(string $baseUrl): bool
 {
-    $handle = curl_init(rtrim($baseUrl, '/') . '/health');
+    // The same correction as agent.php's probe, from the same function: the
+    // argument is the url completions are posted to and the engine's `/health`
+    // is at its root, so appending `/health` to the argument asked a path that
+    // does not exist and read a serving engine as absent.
+    $handle = curl_init(EngineProfile::rootOf($baseUrl) . '/health');
     if ($handle === false) {
         return false;
     }

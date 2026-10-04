@@ -21,7 +21,7 @@ from pathlib import Path
 
 from tools.imgmodels import catalog as catalog_module
 
-from . import image, inspect, paths, platforms, textui, theme
+from . import image, inspect, paths, picker, platforms, textui, theme
 from .modes import ModeSet, read as read_modes
 from .registry import Entry, Registry, RegistryError, read as read_registry
 from .settings import DEFAULTS, Settings, load as load_settings
@@ -277,7 +277,11 @@ def chat(context: Context, args) -> int:
     """A conversation with a local model, streamed, and written down after."""
     from . import text as text_models
 
-    entry = text_model(context, args.model)
+    name = getattr(args, "model", None)
+    entry = text_model(context, name) if name else picker.select(context, "text")
+    if entry is None:
+        textui.note("nothing was chosen, so no conversation was started")
+        return EXIT_CANCELLED
     path = entry.path(context.models_dir)
     if not path.is_file():
         textui.fail(f"{entry.label} is not on this disk: expected {path.name}")

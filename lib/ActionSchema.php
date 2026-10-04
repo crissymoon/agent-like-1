@@ -85,12 +85,26 @@ final class ActionSchema
      * Argument values are all strings because every parameter in the registry is
      * declared as one, and the flattened layout requires at least one argument
      * pair, so a bare tool name cannot be emitted at all.
+     *
+     * The tool name is emitted inside JSON quotes. Until it was, the rule was
+     * built the way a GBNF literal builds one, and a GBNF literal emits the bare
+     * characters between its marks, so the sampler wrote
+     *
+     *     {"action": "tool", "tool": write_file, "args": {...}}
+     *
+     * with the name bare. `json_decode` refuses that, so the constrained decoder
+     * did not harden the protocol, it refused every turn of every task. The
+     * measured form of that is a whole sweep at zero: five quants over nine
+     * tasks, `protocol_compliance` 0.000 and 0 of 9 tasks passed under this
+     * decoder, against 5 to 8 of 9 with the constraint off. `jsonLiteral()`
+     * carries the quote characters as part of what the rule emits, which is what
+     * makes the produced text JSON.
      */
     public static function gbnf(): string
     {
         $names = [];
         foreach (self::tools() as $spec) {
-            $names[] = self::literal($spec['name']);
+            $names[] = self::jsonLiteral($spec['name']);
         }
 
         $lines = [
@@ -425,9 +439,18 @@ final class ActionSchema
         return null;
     }
 
-    /** A GBNF string literal, quoted. */
-    private static function literal(string $text): string
+    /**
+     * A GBNF string literal that emits *text* inside JSON quotes.
+     *
+     * The difference from a grammar literal is one escaped pair, and it is the
+     * difference between a grammar that can produce an action and one that
+     * cannot. A GBNF literal emits the characters between its own quote marks,
+     * so a rule written that way emits the name with no quote characters around
+     * it, and a tool name has to arrive with them. This is the repair described
+     * on `gbnf()`.
+     */
+    private static function jsonLiteral(string $text): string
     {
-        return '"' . str_replace(['\\', '"'], ['\\\\', '\\"'], $text) . '"';
+        return '"\\"' . str_replace('\\', '\\\\', $text) . '\\""';
     }
 }

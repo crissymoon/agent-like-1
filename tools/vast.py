@@ -27,11 +27,15 @@ instead of having it on the path.
     python3 tools/vast.py user
     python3 tools/vast.py search --gpu RTX_4090 --max-dph 0.60
     python3 tools/vast.py create --gpu RTX_4090 --disk 60 --label posttrain
+    python3 tools/vast.py start --instance <id> --wait
     python3 tools/vast.py wait --instance <id>
     python3 tools/vast.py attach-key --instance <id>
     python3 tools/vast.py ssh --instance <id> "nvidia-smi"
+    python3 tools/vast.py ssh --no-stdin --instance <id> "nohup ./train.sh >run.log 2>&1 & echo started"
     python3 tools/vast.py push --instance <id> ./work /workspace/work
     python3 tools/vast.py pull --instance <id> /workspace/work/out ./out
+    python3 tools/vast.py pull --instance <id> --file /workspace/run/model.gguf ./model.gguf
+    python3 tools/vast.py pull --instance <id> --append --no-compress --file /workspace/run/big.gguf ./big.gguf
     python3 tools/vast.py download --instance <id> <id>:/workspace/out local:./out
     python3 tools/vast.py destroy --instance <id>
 
@@ -39,6 +43,15 @@ The vendor's `execute` is here too, and it is kept because it is the right call
 for a stopped instance, but it is not the call a training run uses: the provider
 answers it with "only avail on stopped instances", so anything that has to run
 on a running card goes through `ssh`, `push` and `pull`.
+
+`start` is the other half of that state and it was missing. A halted instance
+keeps its disk and its id, which is exactly the instance a second session wants
+to resume: the wallet is charged for storage rather than for a card, and the
+weights, the quantised files and the virtual environment are all still on it. A
+connector that can only create and destroy makes resuming impossible, and the
+`wait` command reports a stopped instance as a status that will never change,
+which is true of a wait and false of the instance. So `start` resumes it, and
+`--wait` follows it to `running` with the same error branches `wait` has.
 
 Every command returns the provider's own exit status, so this file can sit in a
 shell pipeline or inside another program without inventing a second vocabulary
@@ -296,8 +309,17 @@ def command_status(args: argparse.Namespace) -> int:
     return invoke(args, ["show", "instance", require_instance(args), "--raw"])
 
 
-def command_wait(args: argparse.Namespace) -> int:
-    """Wait until an instance is running, and fail on a status that cannot change."""
+def wait_until_running(args: argparse.Namespace, halted_ok: bool = False) -> int:
+    """Wait until an instance is running, and fail on a status that cannot change.
+
+    `halted_ok` is set by the caller that has just asked for a resume. A halted
+    instance is a status a plain wait must report and stop on, because waiting on
+    it bills storage forever and nothing will change it; but an instance that was
+    asked to start a moment ago is genuinely on its way through the state, and a
+    poll that catches it still in `stopped` would end the resume on its first
+    sample. The distinction belongs to the caller, because the caller is the one
+    that knows whether a resume was requested.
+    """
     instance = require_instance(args)
     deadline = time.time() + args.timeout
     last = ""
@@ -310,28 +332,72 @@ def command_wait(args: argparse.Namespace) -> int:
         except json.JSONDecodeError:
             body = {}
         state = str(body.get("actual_status") or "")
-        if state != last:
-            print(f"instance {instance}: {state or '<none>'} at {time.strftime('%H:%M:%S')}", file=sys.stderr)
-            last = state
+        #: A halted instance does not report itself as halted in `actual_status`.
+        #: Measured on the card this was written against: a stopped instance
+        #: reports `actual_status: exited` and `cur_state: stopped`, so a reader
+        #: that trusts the first field alone calls a resumable instance dead and
+        #: a resume ends on its own first sample. `cur_state` is the field that
+        #: distinguishes them, so it is read first and it wins.
+        cur_state = str(body.get("cur_state") or "")
+        shown = f"{state} ({cur_state})" if cur_state and cur_state != state else state
+        if shown != last:
+            print(f"instance {instance}: {shown or '<none>'} at {time.strftime('%H:%M:%S')}", file=sys.stderr)
+            last = shown
         if state == "running":
             return 0
-        if state in DEAD_STATUSES:
+        #: `cur_state` says whether a card has been asked for; `actual_status`
+        #: says whether the container is up. On the resume this was measured
+        #: against, `actual_status` was `exited` for about twenty seconds after
+        #: the start call while `cur_state` was already `running` and the
+        #: provider's own message read `success, running ...`. So a requested card
+        #: that has not booted yet is a wait and not a death, and `exited` is only
+        #: final when nothing is running it.
+        if cur_state == "running":
+            time.sleep(args.poll)
+            continue
+        if cur_state in HALTED_STATUSES:
+            if halted_ok:
+                time.sleep(args.poll)
+                continue
             print(
-                f"instance {instance} reached {state}, which will never become "
-                "running; destroy it and try a different offer",
+                f"instance {instance} is {cur_state}: it keeps its disk and no card. "
+                "Start it, or destroy it to stop the storage charge",
                 file=sys.stderr,
             )
             return 1
-        if state in HALTED_STATUSES:
+        if state in DEAD_STATUSES:
             print(
-                f"instance {instance} is {state}: it keeps its disk and no card. "
-                "Start it, or destroy it to stop the storage charge",
+                f"instance {instance} reached {state} with {cur_state or 'no'} current "
+                "state, which will never become running; destroy it and try a "
+                "different offer",
                 file=sys.stderr,
             )
             return 1
         time.sleep(args.poll)
     print(f"instance {instance} did not reach running within {args.timeout} seconds", file=sys.stderr)
     return 1
+
+
+def command_wait(args: argparse.Namespace) -> int:
+    """Wait until an instance is running, and fail on a status that cannot change."""
+    return wait_until_running(args)
+
+
+def command_start(args: argparse.Namespace) -> int:
+    """Resume a halted instance, and optionally wait until it is running.
+
+    The instance id and the disk are what a resume is worth: the weights, the
+    quantised files and the virtual environment are all still there, so a second
+    session costs a card and not a rerun of everything that put them there.
+    """
+    instance = require_instance(args)
+    print(f"starting instance {instance}", file=sys.stderr)
+    status = invoke(args, ["start", "instance", instance])
+    if status != 0:
+        return status
+    if not args.wait:
+        return 0
+    return wait_until_running(args, halted_ok=True)
 
 
 def command_exec(args: argparse.Namespace) -> int:
@@ -447,8 +513,15 @@ def command_attach_key(args: argparse.Namespace) -> int:
 def command_ssh(args: argparse.Namespace) -> int:
     """Run one command on the running instance over ssh and pass its status back."""
     user, host, port = parse_ssh_url(ssh_url(args))
-    command = [
-        "ssh", *SSH_OPTIONS,
+    command = ["ssh", *SSH_OPTIONS]
+    # `-n` is for the calls that start something and should not wait for it. ssh
+    # keeps its channel open while any process it started still holds it, so a
+    # backgrounded job turns a launch into a wait for that job to finish, which is
+    # the slowest possible way to report success. Closing stdin makes the session
+    # one-way and lets it end when the command does.
+    if args.no_stdin:
+        command.append("-n")
+    command += [
         "-i", identity(args),
         "-p", port,
         f"{user}@{host}",
@@ -461,20 +534,40 @@ def command_ssh(args: argparse.Namespace) -> int:
     return result.returncode
 
 
-def rsync_command(args: argparse.Namespace, source: str, destination: str, delete: bool) -> list[str]:
+def rsync_command(
+    args: argparse.Namespace,
+    source: str,
+    destination: str,
+    delete: bool,
+    append: bool = False,
+) -> list[str]:
     """The copy, using only options that every rsync in the wild understands.
 
     The progress and human-readable switches are deliberately the old spellings.
     Apple still ships rsync 2.6.9, which has no `--info=progress2`, and a
     connector whose copy works on one laptop and not another because of a
     cosmetic flag is worse than one that prints a plainer progress line.
+
+    `--append` and the compression switch are here because a multi-gigabyte file
+    is a different problem from a tree of small ones. A connection that drops
+    partway through 3.4 GB leaves a partial file, and the default resume
+    re-reads the whole destination to find out where it got to, which on a
+    transfer that is already this slow is most of the cost of starting again.
+    `--append` says the local part is a prefix and copies only the remainder,
+    and compression is off by default for a single file because a quantised gguf
+    is high entropy: zlib spends cpu to shrink what it cannot shrink, and the
+    stream is what fails.
     """
     user, host, port = parse_ssh_url(ssh_url(args))
     transport = " ".join(ssh_transport(args) + ["-p", port])
-    command = ["rsync", "-az", "--partial", "--progress", "-e", transport]
+    command = ["rsync", "-a", "--partial", "--progress"]
+    if not getattr(args, "no_compress", False):
+        command.append("-z")
     if delete:
         command.append("--delete")
-    command += [source, destination]
+    if append:
+        command.append("--append")
+    command += ["-e", transport, source, destination]
     return command
 
 
@@ -509,7 +602,7 @@ def command_push(args: argparse.Namespace) -> int:
     local = args.local
     if Path(local).expanduser().is_dir():
         local = directory_side(local)
-    command = rsync_command(args, local, target_of(args) + ":" + args.remote, args.delete)
+    command = rsync_command(args, local, target_of(args) + ":" + args.remote, args.delete, args.append)
     if args.dry_run:
         print(" ".join(command))
         return 0
@@ -525,7 +618,7 @@ def command_pull(args: argparse.Namespace) -> int:
     """
     need_rsync()
     remote = args.remote if args.file else directory_side(args.remote)
-    command = rsync_command(args, target_of(args) + ":" + remote, args.local, False)
+    command = rsync_command(args, target_of(args) + ":" + remote, args.local, False, args.append)
     if args.dry_run:
         print(" ".join(command))
         return 0
@@ -612,6 +705,17 @@ def parser() -> argparse.ArgumentParser:
     wait.add_argument("--poll", type=int, default=15)
     wait.set_defaults(run=command_wait)
 
+    start = commands.add_parser(
+        "start",
+        help="resume a halted instance, which keeps its disk and its weights, and optionally wait for it",
+    )
+    add_provider_options(start)
+    start.add_argument("--instance", default="", help="also VAST_INSTANCE")
+    start.add_argument("--wait", action="store_true", help="follow it to running, with wait's error branches")
+    start.add_argument("--timeout", type=int, default=1800)
+    start.add_argument("--poll", type=int, default=15)
+    start.set_defaults(run=command_start)
+
     execute = commands.add_parser("exec", help="run one command on the instance")
     add_provider_options(execute)
     execute.add_argument("--instance", default="", help="also VAST_INSTANCE")
@@ -667,6 +771,11 @@ def parser() -> argparse.ArgumentParser:
     add_ssh_options(remote)
     remote.add_argument("command")
     remote.set_defaults(run=command_ssh)
+    remote.add_argument(
+        "--no-stdin",
+        action="store_true",
+        help="close stdin for the remote command; use it for a call that starts a job and should not wait for it",
+    )
 
     push = commands.add_parser("push", help="copy a local tree onto the instance, resuming")
     add_provider_options(push)
@@ -674,6 +783,12 @@ def parser() -> argparse.ArgumentParser:
     push.add_argument("local")
     push.add_argument("remote", help="a path on the instance, such as /workspace/posttrain")
     push.add_argument("--delete", action="store_true", help="remove remote files the local tree does not have")
+    push.add_argument(
+        "--append",
+        action="store_true",
+        help="continue a file already partly there instead of re-reading it",
+    )
+    push.add_argument("--no-compress", action="store_true", help="send without zlib, for a file that cannot shrink")
     push.set_defaults(run=command_push)
 
     pull = commands.add_parser("pull", help="copy a tree off the instance, resuming")
@@ -682,6 +797,12 @@ def parser() -> argparse.ArgumentParser:
     pull.add_argument("remote", help="a path on the instance")
     pull.add_argument("local")
     pull.add_argument("--file", action="store_true", help="the remote path is one file, not a directory")
+    pull.add_argument(
+        "--append",
+        action="store_true",
+        help="continue a partial file instead of re-reading it, which matters over a gigabyte",
+    )
+    pull.add_argument("--no-compress", action="store_true", help="send without zlib, for a file that cannot shrink")
     pull.set_defaults(run=command_pull)
 
     return body

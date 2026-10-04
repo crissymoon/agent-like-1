@@ -96,6 +96,37 @@ final class EngineProfile
     }
 
     /**
+     * The engine's own root, from whichever of its urls a caller holds.
+     *
+     * The harness is given the url it posts completions to, and the engine's own
+     * `/health` and `/props` are not under that path. Measured on a running
+     * server: `http://127.0.0.1:8081/v1/chat/completions/health` answers 404 while
+     * `http://127.0.0.1:8081/health` answers 200, so a readiness probe that
+     * appended `/health` to the completions url reported a healthy engine as
+     * absent, and both `agent.php` and `compare.php` did exactly that. The
+     * argument each of them takes is documented as a base url, and the value in
+     * every recorded run is the completions endpoint, so the two spellings have
+     * to mean one thing here rather than being reconciled at each call site.
+     *
+     * The rule is mechanical: strip a trailing OpenAI-compatible surface, which
+     * is a version segment followed by a path, and leave anything else alone. A
+     * root url is returned unchanged, which is what makes this safe to apply
+     * unconditionally.
+     */
+    public static function rootOf(string $url): string
+    {
+        $trimmed = rtrim(trim($url), '/');
+        if ($trimmed === '') {
+            return '';
+        }
+        $root = preg_replace('#/v[0-9]+[a-z]*/[A-Za-z0-9._/-]*$#', '', $trimmed);
+        if (!is_string($root) || $root === '') {
+            return $trimmed;
+        }
+        return rtrim($root, '/');
+    }
+
+    /**
      * What the endpoint says about itself, reduced to the fields the study reads.
      *
      * `modalities` is the engine's own answer to whether a projector is loaded,
@@ -106,7 +137,7 @@ final class EngineProfile
      */
     public static function readEndpoint(string $baseUrl, int $timeoutSeconds = 5): array
     {
-        $handle = curl_init(rtrim($baseUrl, '/') . '/props');
+        $handle = curl_init(self::rootOf($baseUrl) . '/props');
         if ($handle === false) {
             return ['reachable' => false, 'error' => 'curl is unavailable'];
         }

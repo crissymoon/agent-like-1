@@ -38,6 +38,41 @@ roles = ["text"]
 context = 8192
 note = "the model the harness itself runs, and the one the vision fixtures were read with"
 
+[models.gemma-4-e2b-agent]
+label = "Gemma 4 E2B (agent)"
+file = "gemma-4-E2B-it-agent-Q4_K_M.gguf"
+roles = ["text"]
+context = 8192
+note = "the agent fine-tune of Gemma 4 E2B, at the same quantisation and window as the base entry"
+
+[models.gemma-4-e2b-agent-dpo]
+label = "Gemma 4 E2B (agent, DPO)"
+file = "gemma-4-E2B-it-agent-dpo-Q4_K_M.gguf"
+roles = ["text"]
+context = 8192
+note = "the same agent fine-tune carried through DPO"
+
+[models.gemma-agent-coding]
+label = "Gemma agent (coding)"
+file = "gemma-agent-coding-Q4_K_M.gguf"
+roles = ["text"]
+context = 8192
+note = "an agent build drawn towards code"
+
+[models.gemma-agent-gap-q4-k-m]
+label = "Gemma agent (gap, Q4_K_M)"
+file = "gemma-agent-gap-Q4_K_M.gguf"
+roles = ["text"]
+context = 8192
+note = "the gap variant at four bits per weight"
+
+[models.gemma-agent-gap-q5-k-m]
+label = "Gemma agent (gap, Q5_K_M)"
+file = "gemma-agent-gap-Q5_K_M.gguf"
+roles = ["text"]
+context = 8192
+note = "the gap variant at five bits per weight, a little larger than the Q4_K_M build"
+
 [models."qwen2.5-coder-1.5b"]
 label = "Qwen2.5 Coder 1.5B"
 file = "qwen2.5-coder-1.5b-instruct-q4_k_m.gguf"

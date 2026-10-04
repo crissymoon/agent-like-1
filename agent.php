@@ -43,7 +43,10 @@ function usage(): never
 
       --out-dir DIR        Results base directory. Default: results/agent/
       --run-id ID          Run identifier. Default: a timestamp.
-      --gemma-url URL      Containerised llama-server base URL.
+      --gemma-url URL      Containerised llama-server base URL, or the endpoint
+                          completions are posted to. Both spellings mean one
+                          thing: the server, whose root the readiness probe and
+                          the engine profile are read from.
       --tool-mode MODE     prompt or native. Default: prompt.
       --task ID            Run one task. Repeatable.
       --limit N            Run at most N tasks.
@@ -334,7 +337,14 @@ function switchWord(string $value): bool
 
 function endpointReady(string $baseUrl): bool
 {
-    $handle = curl_init(rtrim($baseUrl, '/') . '/health');
+    // The engine's readiness is its own `/health`, which lives at the server's
+    // root and not under the path completions are posted to. This probe appended
+    // `/health` to its argument, so a run given the completions endpoint asked
+    // `http://127.0.0.1:8081/v1/chat/completions/health` and was told the engine
+    // was absent while the engine was answering on the same port. The derivation
+    // is one function on EngineProfile rather than a rule here, because
+    // `compare.php` and `readEndpoint` need the same answer.
+    $handle = curl_init(EngineProfile::rootOf($baseUrl) . '/health');
     if ($handle === false) {
         return false;
     }

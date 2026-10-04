@@ -29,9 +29,11 @@ from urllib import error as url_error
 from urllib import request as url_request
 
 try:  # the package on a machine
+    from . import endpoint
     from . import reference
     from .sandbox import Sandbox, SandboxError
 except ImportError:  # a notebook cell or a direct script
+    import endpoint  # type: ignore
     import reference  # type: ignore
     from sandbox import Sandbox, SandboxError  # type: ignore
 
@@ -123,7 +125,11 @@ class Client:
         timeout: float = 300.0,
         probe_timeout: float = 3.0,
     ) -> None:
-        self.base_url = base_url.rstrip("/")
+        #: The service's root, from whichever spelling of its url was handed in.
+        #: Both live profiles take the same argument from the same documented
+        #: command lines, one of which is the completions endpoint, so the
+        #: address is reconciled once here rather than at each call site.
+        self.base_url = endpoint.root_of(base_url)
         self.model = model
         self.timeout = float(timeout)
         self.probe_timeout = float(probe_timeout)
@@ -161,13 +167,13 @@ class Client:
     def complete(self, messages: list[dict]) -> dict:
         """One turn, in the OpenAI body shape the merged service answers with."""
         return self._post(
-            "/v1/chat/completions",
+            endpoint.CHAT_PATH,
             {"model": self.model, "messages": messages, "temperature": 0, "stream": False},
             self.timeout,
         )
 
     def health(self) -> dict:
-        request = url_request.Request(self.base_url + "/health", method="GET")
+        request = url_request.Request(self.base_url + endpoint.HEALTH_PATH, method="GET")
         try:
             with url_request.urlopen(request, timeout=self.probe_timeout) as response:
                 return json.loads(response.read() or b"{}")

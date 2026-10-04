@@ -39,7 +39,14 @@ def build_parser() -> argparse.ArgumentParser:
         prog="gembench.run_hybrid",
         description="Measure the merged Q2 planner-coder service against the task suite.",
     )
-    parser.add_argument("--url", default=DEFAULT_URL, help="base URL of the merged service")
+    parser.add_argument(
+        "--url",
+        default=DEFAULT_URL,
+        help=(
+            "base URL of the merged service, or its completions endpoint "
+            "(both mean one thing; the chat path is appended)"
+        ),
+    )
     parser.add_argument("--model", default=DEFAULT_MODEL, help="the label the rows carry")
     parser.add_argument("--profile", default=DEFAULT_PROFILE, help="profile name to register the solver under")
     parser.add_argument("--suite", default=suite_module.SUITE_ALL, help="task suite to run")
@@ -72,7 +79,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.out:
         files = runner.write_run(
-            Path(args.out) / run_id, result, extra={"profile": args.profile, "service": args.url}
+            Path(args.out) / run_id,
+            result,
+            extra={"profile": args.profile, "service": client.base_url},
         )
         print(f"wrote {files['tasks']}")
         print(f"wrote {files['manifest']}")

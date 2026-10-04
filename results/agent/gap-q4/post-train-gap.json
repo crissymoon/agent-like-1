@@ -1,0 +1,247 @@
+{
+    "schema_version": "1",
+    "generated_at": "2026-10-03T15:52:40+00:00",
+    "subject": "gap-q4",
+    "reference": "deepseek-flash",
+    "tool_mode": "prompt",
+    "method": "measured gap per capability, mapped to the intervention that addresses that capability",
+    "bands": {
+        "absent_below": 0.25,
+        "weak_below": 0.6,
+        "note": "Bands apply to the local model's own score on a 0 to 1 scale, not to the gap."
+    },
+    "composite": {
+        "local": 91.61,
+        "reference": 96.79,
+        "gap": 5.18,
+        "scale": 100,
+        "distance": "at parity"
+    },
+    "dimensions": [
+        {
+            "key": "task_success",
+            "label": "End state reached",
+            "local": 1,
+            "reference": 1,
+            "gap": 0,
+            "relative_gap": 0,
+            "band": "near",
+            "failure_mode": "The model ends the episode without producing the state the task asked for.",
+            "intervention": [
+                "Supervised trajectories that end in a verified state, filtered so only runs the verifier passed are kept.",
+                "Preference pairs built from the model's own failed attempt against a successful trace of the same task.",
+                "Rejection sampling on the task suite, with the verifier as the reward, once supervised format is stable."
+            ],
+            "recipe": "verifier-filtered trajectory supervision, then verifier-as-reward optimisation",
+            "evidence": {
+                "subject_tasks": 6,
+                "reference_tasks": 6,
+                "confidence": "moderate",
+                "note": "Counts every task in the suite."
+            },
+            "data_estimate": {
+                "supervised_examples": 0,
+                "preference_pairs": 0,
+                "trajectories": 0,
+                "note": "At or near the reference on this capability; spend the budget on the weaker ones."
+            }
+        },
+        {
+            "key": "protocol_compliance",
+            "label": "Action expressible",
+            "local": 1,
+            "reference": 1,
+            "gap": 0,
+            "relative_gap": 0,
+            "band": "near",
+            "failure_mode": "Turns arrive as prose, as several objects, or as a schema the loop cannot read.",
+            "intervention": [
+                "Supervision on short single-object actions with the exact key names the loop accepts.",
+                "Negative examples pairing a malformed turn with its corrected form, so the model learns the boundary and not just the target.",
+                "A constrained decoding grammar at inference time, which is a runtime fix and not a training fix."
+            ],
+            "recipe": "format supervision with contrastive negatives",
+            "evidence": {
+                "subject_tasks": 6,
+                "reference_tasks": 6,
+                "confidence": "moderate",
+                "note": "Counts every task in the suite."
+            },
+            "data_estimate": {
+                "supervised_examples": 0,
+                "preference_pairs": 0,
+                "trajectories": 0,
+                "note": "At or near the reference on this capability; spend the budget on the weaker ones."
+            }
+        },
+        {
+            "key": "tool_validity",
+            "label": "Tool and arguments valid",
+            "local": 0.92,
+            "reference": 1,
+            "gap": 0.08,
+            "relative_gap": 0.08,
+            "band": "near",
+            "failure_mode": "The call names a tool that does not exist, or omits an argument the tool requires.",
+            "intervention": [
+                "Supervision grounded in the tool registry, so every name and argument in the data is one the runtime accepts.",
+                "Hard negatives drawn from near miss names, which is where a small model drifts.",
+                "A schema validator wired into the loop that returns the schema in the error, so the correction is learnable in context too."
+            ],
+            "recipe": "registry-grounded calls with near-miss negatives",
+            "evidence": {
+                "subject_tasks": 6,
+                "reference_tasks": 6,
+                "confidence": "moderate",
+                "note": "Counts every task in the suite."
+            },
+            "data_estimate": {
+                "supervised_examples": 0,
+                "preference_pairs": 0,
+                "trajectories": 0,
+                "note": "At or near the reference on this capability; spend the budget on the weaker ones."
+            }
+        },
+        {
+            "key": "error_recovery",
+            "label": "Recovery after a failed call",
+            "local": 0,
+            "reference": 1,
+            "gap": 1,
+            "relative_gap": 1,
+            "band": "absent",
+            "failure_mode": "An error is returned and the next turn repeats the same call or abandons the task.",
+            "intervention": [
+                "Trajectories that contain a real error and the successful turn that follows it, taken from the failures this run recorded.",
+                "Preference pairs where the chosen turn differs from the rejected turn after an identical error.",
+                "Deliberate environment perturbation during data collection, because an error-free corpus teaches nothing here."
+            ],
+            "recipe": "error-conditioned trajectory data, mined from real failures",
+            "evidence": {
+                "subject_tasks": 1,
+                "reference_tasks": 0,
+                "confidence": "low",
+                "note": "Counts only the tasks that produced an error to recover from, because that is the only place this capability is observable."
+            },
+            "data_estimate": {
+                "supervised_examples": 4000,
+                "preference_pairs": 1400,
+                "trajectories": 1000,
+                "note": "Treated as absent, so the plan is to teach the behaviour from format upward rather than to sharpen it."
+            }
+        },
+        {
+            "key": "efficiency",
+            "label": "Calls spent",
+            "local": 0.45,
+            "reference": 0.68,
+            "gap": 0.23,
+            "relative_gap": 0.3382,
+            "band": "weak",
+            "failure_mode": "The task is solved but only after repeated or unnecessary calls, or the budget runs out first.",
+            "intervention": [
+                "Preference pairs over solutions to the same task where the shorter successful path is preferred.",
+                "Step budget pressure during collection, so the demonstration distribution is not padded."
+            ],
+            "recipe": "length-aware preference optimisation",
+            "evidence": {
+                "subject_tasks": 6,
+                "reference_tasks": 6,
+                "confidence": "moderate",
+                "note": "Counts every task in the suite."
+            },
+            "data_estimate": {
+                "supervised_examples": 1700,
+                "preference_pairs": 595,
+                "trajectories": 425,
+                "note": "Treated as weak, so the plan is to sharpen a behaviour that already appears sometimes."
+            }
+        }
+    ],
+    "priority_order": [
+        {
+            "position": 1,
+            "key": "error_recovery",
+            "label": "Recovery after a failed call",
+            "local": 0,
+            "band": "absent"
+        },
+        {
+            "position": 2,
+            "key": "efficiency",
+            "label": "Calls spent",
+            "local": 0.45,
+            "band": "weak"
+        },
+        {
+            "position": 3,
+            "key": "tool_validity",
+            "label": "Tool and arguments valid",
+            "local": 0.92,
+            "band": "near"
+        },
+        {
+            "position": 4,
+            "key": "protocol_compliance",
+            "label": "Action expressible",
+            "local": 1,
+            "band": "near"
+        },
+        {
+            "position": 5,
+            "key": "task_success",
+            "label": "End state reached",
+            "local": 1,
+            "band": "near"
+        }
+    ],
+    "training_plan": {
+        "capabilities_needing_work": [
+            "error_recovery",
+            "efficiency"
+        ],
+        "capabilities_at_parity": [
+            "task_success",
+            "protocol_compliance",
+            "tool_validity"
+        ],
+        "evidence_basis": {
+            "error_recovery": "1 task(s), confidence low",
+            "efficiency": "6 task(s), confidence moderate"
+        },
+        "stage_one": {
+            "name": "Supervised fine tune on verified trajectories",
+            "target": [
+                "error_recovery",
+                "efficiency"
+            ],
+            "examples": 4000,
+            "why": "Trajectories rather than single turns, because the failures measured here are about what the model does after its own earlier output."
+        },
+        "stage_two": {
+            "name": "Preference optimisation over the same tasks",
+            "target": [
+                "task_success",
+                "efficiency",
+                "error_recovery"
+            ],
+            "pairs": 1400,
+            "why": "Format is already fixed by stage one, so the remaining signal is which of two plausible continuations actually ends in a verified state."
+        },
+        "stage_three": {
+            "name": "On-policy optimisation against the task verifier",
+            "when": "Only after stage one and two plateau, and only while the verifier stays ahead of the policy.",
+            "why": "The verifier is the only reward available without a human, and it is already written for every task in this suite."
+        },
+        "evaluation": {
+            "protocol": "Re-run this suite unchanged and compare per capability, not only the composite.",
+            "guard": "Hold out at least one task per capability, otherwise the improvement is memorisation of the suite."
+        }
+    },
+    "caveats": [
+        "The data volumes are planning heuristics declared in the harness configuration, not measured yields.",
+        "A single greedy run per task gives a point estimate; repeat with sampling before quoting a rate as a property of the model.",
+        "A capability band describes behaviour on this task suite and tool surface, which is narrow by construction.",
+        "Where a band rests on one task, treat the volume as a hypothesis to test with a pilot rather than a budget to commit."
+    ]
+}

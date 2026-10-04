@@ -39,7 +39,27 @@ final class OpenAICompatAgentClient implements AgentClient
         private array $extraBody = [],
         private $onFragment = null
     ) {
-        $this->baseUrl = rtrim($baseUrl, '/');
+        // The caller is documented as passing a base url and in every recorded run
+        // passes the completions endpoint, so the two spellings are reconciled
+        // here, once, rather than at the two places a url is built. Appending the
+        // chat path to an address that already carries it answers 404 on every
+        // turn, which is scored as a model that produced nothing: the run recorded
+        // at `results/agent/gap-q4` is exactly that, 0 of 6 tasks with a 0.27 ms
+        // mean latency and a doubled endpoint in its manifest.
+        $this->baseUrl = EngineProfile::rootOf($baseUrl);
+    }
+
+    /**
+     * The address a turn is posted to, built in one place.
+     *
+     * `provenance()` and `complete()` both read it, so the endpoint a manifest
+     * records cannot disagree with the endpoint the request went to. They did
+     * disagree in the recorded run above, because both appended the path
+     * independently to the same doubled base.
+     */
+    public function completionsUrl(): string
+    {
+        return $this->baseUrl . '/v1/chat/completions';
     }
 
     /** Whether this client streams its turn rather than receiving it whole. */
@@ -65,7 +85,7 @@ final class OpenAICompatAgentClient implements AgentClient
     {
         return [
             'engine' => 'openai-compatible chat completions',
-            'endpoint' => $this->baseUrl . '/v1/chat/completions',
+            'endpoint' => $this->completionsUrl(),
             'model_id' => $this->model,
             'tool_mode' => $this->toolMode,
             'temperature' => $this->temperature,
@@ -113,7 +133,7 @@ final class OpenAICompatAgentClient implements AgentClient
             return self::failure('failed to encode the request body');
         }
 
-        $handle = curl_init($this->baseUrl . '/v1/chat/completions');
+        $handle = curl_init($this->completionsUrl());
         if ($handle === false) {
             return self::failure('the curl extension is unavailable');
         }

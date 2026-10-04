@@ -1,0 +1,59 @@
+graph TD
+    %% Styling and Definitions
+    classDef cloud fill:#eff6ff,stroke:#3b82f6,stroke-width:2px,color:#000;
+    classDef hub fill:#f8fafc,stroke:#64748b,stroke-width:3px,font-weight:bold,color:#000;
+    classDef client fill:#fef08a,stroke:#eab308,stroke-width:2px,color:#000;
+    classDef asset fill:#f0fdf4,stroke:#22c55e,stroke-width:2px,color:#000;
+
+    %% --- POST-TRAINING SYSTEM ---
+    subgraph VastInstance [Vast.ai Rig: 1x RTX 5090]
+        TRAIN["DPO / SFT Fine-Tuning <br> (10 Min Runs)"]:::cloud
+        QUANT["llama.cpp Quant Loop <br> (Compile Multi-Quant Suite)"]:::cloud
+        TRAIN --> QUANT
+    end
+
+    %% --- CENTRAL HARDWARE HUB ---
+    subgraph HF_Hub [Central Model Hub / Hugging Face Repository]
+        M_F16["gemma-agent-dpo-f16.gguf <br> (9.27 GB)"]:::asset
+        M_Q8["gemma-agent-dpo-Q8_0.gguf <br> (4.95 GB)"]:::asset
+        M_Q6["gemma-agent-dpo-Q6_K.gguf <br> (3.83 GB)"]:::asset
+        M_Q4["gemma-agent-dpo-Q4_K_M.gguf <br> (3.42 GB)"]:::asset
+        M_Q2["gemma-agent-dpo-Q2_K.gguf <br> (2.98 GB)"]:::asset
+    end
+    QUANT -->|Auto-Push Multi-Quant Suite| HF_Hub
+
+    %% --- DYNAMIC DELIVERY CLIENT LAYER ---
+    subgraph FlutterApp [Flutter Agent APK / Client App Boot]
+        BOOT["App Initialization"]:::client --> CHECK{"Hardware Profiler <br> Detect Platform & RAM"}:::client
+    end
+
+    %% --- DETERMINISTIC ROUTING PATHS ---
+    CHECK -->|Platform == macOS| PATH_DEV["Dev Machine Profiler <br> (Unified Memory Ready)"]:::client
+    CHECK -->|Total RAM >= 12GB| PATH_HIGH["Premium Mobile Device <br> (High-Tier Client)"]:::client
+    CHECK -->|Total RAM >= 8GB| PATH_MID["Standard Mobile Device <br> (8GB Hardware Cap)"]:::client
+    CHECK -->|Total RAM < 8GB| PATH_LOW["Budget Mobile / High-Load <br> (Strict Low Memory Guard)"]:::client
+
+    %% --- ASSET STREAMING CONNECTIONS ---
+    PATH_DEV -->|Direct Sync Stream| M_F16
+    PATH_HIGH -->|Dynamic Download Chunks| M_Q8
+    PATH_MID -->|Dynamic Download Chunks| M_Q6
+    PATH_LOW -->|Dynamic Download Chunks| M_Q4
+
+    %% --- CLIENT ENVIRONMENT EXECUTION TARGETS ---
+    subgraph LocalRuntimes [Edge Device Runtime Deployments]
+        RUN_F16[["Runs Local F16 <br> Max Semantic Accuracy"]]:::hub
+        RUN_Q8[["Runs Local Q8_0 <br> Near-Lossless Performance"]]:::hub
+        RUN_Q6[["Runs Local Q6_K <br> Best Target Balance"]]:::hub
+        RUN_Q4[["Runs Local Q4_K_M <br> Protected from Android LMK"]]:::hub
+    end
+
+    M_F16 -.->|Loads Into Memory| RUN_F16
+    M_Q8 -.->|Loads Into Memory| RUN_Q8
+    M_Q6 -.->|Loads Into Memory| RUN_Q6
+    M_Q4 -.->|Loads Into Memory| RUN_Q4
+
+    %% Assign styles
+    style VastInstance fill:#f1f5f9,stroke:#94a3b8,stroke-width:2px
+    style HF_Hub fill:#faf5ff,stroke:#c084fc,stroke-width:2px
+    style FlutterApp fill:#fff7ed,stroke:#fdba74,stroke-width:2px
+    style LocalRuntimes fill:#f0fdf4,stroke:#4ade80,stroke-width:2px

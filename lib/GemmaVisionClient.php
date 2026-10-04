@@ -23,7 +23,17 @@ final class GemmaVisionClient implements VisionClient
         private int $timeout,
         private bool $thinking = false
     ) {
-        $this->baseUrl = rtrim($baseUrl, '/');
+        // Reconciled once here for the same reason `OpenAICompatAgentClient` does
+        // it: the argument is documented as a base url and the value in a recorded
+        // run is the completions endpoint, and appending the chat path to an
+        // address that already carries it answers 404 on every call.
+        $this->baseUrl = EngineProfile::rootOf($baseUrl);
+    }
+
+    /** The address one analysis is posted to, built in one place. */
+    public function completionsUrl(): string
+    {
+        return $this->baseUrl . '/v1/chat/completions';
     }
 
     public function label(): string
@@ -41,7 +51,7 @@ final class GemmaVisionClient implements VisionClient
 
         return [
             'engine' => 'llama.cpp llama-server',
-            'endpoint' => $this->baseUrl . '/v1/chat/completions',
+            'endpoint' => $this->completionsUrl(),
             'model_file' => basename($this->ggufPath),
             'model_sha256' => $model['sha256'] ?? null,
             'model_bytes' => $model['size'] ?? null,
@@ -80,7 +90,7 @@ final class GemmaVisionClient implements VisionClient
             return self::failure('failed to encode request payload');
         }
 
-        $handle = curl_init($this->baseUrl . '/v1/chat/completions');
+        $handle = curl_init($this->completionsUrl());
         if ($handle === false) {
             return self::failure('curl extension is unavailable');
         }

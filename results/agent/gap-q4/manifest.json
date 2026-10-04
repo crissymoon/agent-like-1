@@ -1,0 +1,273 @@
+{
+    "schema_version": "1",
+    "document": "agent-manifest",
+    "run": {
+        "run_id": "gap-q4",
+        "started_at": "2026-10-03T15:51:20+00:00",
+        "finished_at": "2026-10-03T15:52:40+00:00",
+        "duration_s": 80.53,
+        "tool_mode": "prompt",
+        "suite": "core",
+        "prompt_version": "1",
+        "prompt_sha256": "302d8b521dcdf2555030d996dc377cc356e2dc4683fd07795f26185b54fefab8",
+        "step_budget_cap": 8,
+        "task_count": 6,
+        "controls": {
+            "loop_guard": false,
+            "guard_repeat_limit": 2,
+            "guard_rule": "an identical call is refused once it has already failed 2 time(s); repeat limit 2 refuses the third",
+            "strict_schema": false,
+            "sandbox_policy": "documented",
+            "allowed_binaries": [
+                "ls",
+                "cat",
+                "grep",
+                "wc",
+                "sort",
+                "find",
+                "head",
+                "tail",
+                "rm",
+                "mv",
+                "cp",
+                "mkdir"
+            ],
+            "command_arguments_inspected": true,
+            "decoder": {
+                "mode": "none",
+                "scope": "local",
+                "field": "",
+                "action_schema_sha256": "56e505c04d40ec3e9a5fc8b233d04d9fc8ffa90a3fc35ed6d707a61530919212",
+                "note": "No engine-side constraint was sent. A malformed object reaches the harness and is refused there."
+            }
+        }
+    },
+    "conditions": {
+        "temperature": 0,
+        "top_p": 1,
+        "seed": 0,
+        "max_tokens_per_turn": 768,
+        "step_budget_cap": 8,
+        "max_observation_chars": 3000,
+        "command_timeout_s": 10,
+        "history_turns": 12,
+        "workspace_root": "<tmp>/gemma-agent-workspace"
+    },
+    "controls": {
+        "loop_guard": false,
+        "guard_repeat_limit": 2,
+        "guard_rule": "an identical call is refused once it has already failed 2 time(s); repeat limit 2 refuses the third",
+        "strict_schema": false,
+        "sandbox_policy": "documented",
+        "allowed_binaries": [
+            "ls",
+            "cat",
+            "grep",
+            "wc",
+            "sort",
+            "find",
+            "head",
+            "tail",
+            "rm",
+            "mv",
+            "cp",
+            "mkdir"
+        ],
+        "command_arguments_inspected": true,
+        "decoder": {
+            "mode": "none",
+            "scope": "local",
+            "field": "",
+            "action_schema_sha256": "56e505c04d40ec3e9a5fc8b233d04d9fc8ffa90a3fc35ed6d707a61530919212",
+            "note": "No engine-side constraint was sent. A malformed object reaches the harness and is refused there."
+        }
+    },
+    "containment": {
+        "measured": false,
+        "mode": "auto",
+        "note": "no container boundary was read for this run"
+    },
+    "engine": {
+        "schema_version": "1",
+        "source": "results/engine/engine-profile.json",
+        "measured": true,
+        "record_error": "",
+        "record_written_at": "2026-09-30T01:39:40Z",
+        "written_before_the_run_started": true,
+        "engine_started": true,
+        "reason": "",
+        "vision": {
+            "enabled": false,
+            "projector_path": "mmproj.gguf",
+            "projector_source": "mmproj-F16.gguf",
+            "projector_bytes": 985654080,
+            "projector_mapped_bytes": 0,
+            "saved_bytes": 985654080,
+            "modalities_reported_by_engine": {
+                "vision": false,
+                "video": false,
+                "audio": false
+            }
+        },
+        "load": {
+            "mode_requested": "mmap",
+            "modes_accepted_by_engine": "auto none mmap mlock mmap+mlock dio ",
+            "weights_mapped": true,
+            "model_bytes": 3106738272,
+            "model_file_mapping_bytes": 3090923520,
+            "model_mapping_ranges": 1,
+            "mapped_share": 0.9949
+        },
+        "kv_cache": {
+            "type_k": "f16",
+            "type_v": "f16",
+            "type_k_bytes_element": 2,
+            "type_v_bytes_element": 2,
+            "ctx_size": 4096,
+            "parallel": 1,
+            "threads": 4,
+            "gpu_layers": 0,
+            "slots_reported_by_engine": 1,
+            "ctx_per_slot_reported_by_engine": 4096,
+            "kv_unified": "false",
+            "kv_buffer_reported_by_engine": ""
+        },
+        "memory": {
+            "rss_bytes": 4600786944,
+            "vm_size_bytes": 5332938752,
+            "swap_bytes": 0,
+            "shared_model_bytes": 3090923520
+        },
+        "endpoint": {
+            "reachable": true,
+            "error": "",
+            "build_info": "b11146-7fe450e19",
+            "model_path": "models/gemma-agent-gap-Q4_K_M.gguf",
+            "model_ftype": "Q4_K - Medium",
+            "total_slots": 4,
+            "n_ctx": 16384,
+            "modalities": {
+                "vision": true,
+                "video": true,
+                "audio": true,
+                "reported": true
+            },
+            "supports_tools": true
+        },
+        "disagreements": [
+            "the record says vision is off and the endpoint in front of it reports a projector loaded",
+            "the record and the endpoint disagree about the modalities they report",
+            "the record names the weights model.gguf and the endpoint is serving gemma-agent-gap-Q4_K_M.gguf",
+            "the record reports a context of 4096 per slot and the endpoint is serving 16384"
+        ],
+        "engine": {
+            "image_digest": "sha256:6257697a7f5d034b8fb499ddb07af3e250506352f94102054252a23f3b85e0af",
+            "version": "0.00.001.215 I srv  llama_server: initializing ...",
+            "build_info": "b11176-f805c57a2",
+            "host": "0.0.0.0",
+            "port": 8080,
+            "startup_seconds": 8,
+            "log_kept": true
+        },
+        "model": {
+            "path": "model.gguf",
+            "source": "gemma-4-E2B-it-Q4_K_M.gguf",
+            "bytes": 3106738272,
+            "sha256": "",
+            "hashed": false
+        },
+        "derived": {
+            "projector_share_of_model_pair": 0.2409,
+            "saved_share_of_the_weights": 0.3173,
+            "context_tokens_total": 4096,
+            "kv_cache_is_f16": true,
+            "mapped_share_of_rss": 0.6718
+        }
+    },
+    "tool_specs_sha256": "4ca73bf580f329f13885fd9417c4ee07c59615ac15f7277de13c5906f139308a",
+    "tools": [
+        "list_files",
+        "read_file",
+        "write_file",
+        "append_file",
+        "delete_file",
+        "make_directory",
+        "search_files",
+        "run_command",
+        "sql_incubator",
+        "finish"
+    ],
+    "tasks": [
+        {
+            "id": "create_exact_file",
+            "capability": "instruction_following",
+            "goal": "Create a file named release.txt in the workspace root. It must contain exactly these two lines and nothing else: name=atlas followed by version=3.",
+            "budget": 4
+        },
+        {
+            "id": "count_by_extension",
+            "capability": "tool_query",
+            "goal": "In the data directory there are several files. Work out how many of them end with the .log extension, and write that number and nothing else into count.txt in the workspace root.",
+            "budget": 5
+        },
+        {
+            "id": "sum_two_files",
+            "capability": "multi_step_composition",
+            "goal": "The files a.txt and b.txt each hold a single whole number. Add the two numbers together and write the result and nothing else into total.txt in the workspace root.",
+            "budget": 6
+        },
+        {
+            "id": "recover_misnamed_file",
+            "capability": "error_recovery",
+            "goal": "The service settings are saved in a file in the workspace root under a name that ends in .yml or .yaml, but I may be remembering the extension wrongly. Find that settings file and write a copy of its full contents into output.txt in the workspace root.",
+            "budget": 7
+        },
+        {
+            "id": "extract_field_map",
+            "capability": "structured_output",
+            "goal": "Read notes.txt in the workspace root. Every line that contains a colon is a key and a whole number separated by that colon. Lines starting with a hash, and blank lines, are comments. Write a single JSON object to parsed.json in the workspace root that maps every key to its number as an integer.",
+            "budget": 7
+        },
+        {
+            "id": "prune_by_extension",
+            "capability": "conditional_action",
+            "goal": "The workspace root holds a mix of files. Delete every file whose name ends with .tmp. Leave every other file exactly as it is.",
+            "budget": 6
+        }
+    ],
+    "models": {
+        "gap-q4": {
+            "engine": "openai-compatible chat completions",
+            "endpoint": "http://127.0.0.1:8081/v1/chat/completions",
+            "model_id": "gap-q4",
+            "tool_mode": "prompt",
+            "temperature": 0,
+            "top_p": 1,
+            "max_tokens": 768,
+            "request_extensions": {
+                "chat_template_kwargs": {
+                    "enable_thinking": false
+                }
+            }
+        },
+        "deepseek-flash": {
+            "engine": "openai-compatible chat completions",
+            "endpoint": "https://api.deepseek.com/v1/chat/completions",
+            "model_id": "deepseek-flash",
+            "tool_mode": "prompt",
+            "temperature": 0,
+            "top_p": 1,
+            "max_tokens": 768,
+            "request_extensions": {
+                "thinking": {
+                    "type": "disabled"
+                }
+            }
+        }
+    },
+    "files": {
+        "gap-q4": "gap-q4.json",
+        "deepseek-flash": "deepseek-flash.json",
+        "post_train_gap": "post-train-gap.json"
+    }
+}
