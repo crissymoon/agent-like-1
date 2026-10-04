@@ -1,0 +1,20 @@
+# XcaliburLiteMCP runtime dependencies.
+#   python3 -m pip install -r requirements.txt
+# Python 3.10 or newer is required.
+#
+# Every entry below is imported by the runtime. The only non-pip runtime
+# dependency is the llama-server binary (llama.cpp) used to serve the GGUF;
+# it is located via XCALIBUR_LLAMA_BIN, see .env.example.
+
+# Review dashboard: Flask app + Jinja templates for the CodeMirror diff view.
+flask>=3.0.0
+
+# llama-server health probes and OpenAI-compatible chat calls in engine/.
+requests>=2.31.0
+
+# Loads .env overrides at import time in config.py.
+python-dotenv>=1.0.0
+
+# TUI: rich renders the console/theme, prompt_toolkit handles the REPL.
+rich>=13.0.0
+prompt_toolkit>=3.0.0

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}XcaliburLite{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+  <style>
+    :root {
+      --tint: {{ palette.tint }};
+      --tint-deep: {{ palette.tint_deep }};
+      --ink: {{ palette.ink }};
+      --paper: {{ palette.paper }};
+      --transform: {{ palette.transform }};
+      --transform-deep: {{ palette.transform_deep }};
+      --harmonious: {{ palette.harmonious }};
+      --communicative: {{ palette.communicative }};
+    }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <div class="shell">
+    <aside class="rail">
+      <div class="rail-brand">
+        <span class="mark mark-transform"></span>
+        <h1>xcalibur lite</h1>
+      </div>
+      <div class="rail-section">
+        <span class="rail-label">review queue</span>
+        <span class="count">{{ queue.pending }} pending</span>
+      </div>
+      <div class="nav">
+        <a href="{{ url_for('index') }}" class="{% if active == 'jobs' %}current{% endif %}">jobs<span class="count">{{ jobs|length if jobs else 0 }}</span></a>
+        <a href="{{ url_for('index') }}#queue">queue<span class="count">{{ queue.queued }}</span></a>
+      </div>
+      <div class="rail-foot">
+        <div class="status">
+          <span class="dot {% if queue.busy %}dot-wait{% else %}dot-ok{% endif %}"></span>
+          <span>{% if queue.busy %}worker busy{% else %}worker idle{% endif %}</span>
+        </div>
+        <div class="rail-label">processing {{ queue.processing }} · queued {{ queue.queued }}</div>
+      </div>
+    </aside>
+    <main class="stage">
+      <header class="topbar">
+        <div>
+          <div class="crumb">{% block crumb %}xcalibur lite mcp{% endblock %}</div>
+          <h2>{% block heading %}Review{% endblock %}</h2>
+        </div>
+        <div class="topbar-actions">{% block actions %}{% endblock %}</div>
+      </header>
+      <div class="stage-body">
+        {% block body %}{% endblock %}
+      </div>
+    </main>
+  </div>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

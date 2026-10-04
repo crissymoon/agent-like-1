@@ -18,6 +18,7 @@ A harness for measuring what a small local language model can actually finish. I
 | desktop/ | The Electron view over a run directory; it drives the same harness, never a copy. |
 | tools/ | Portable tooling: the benchmark that runs on both sides, the kernel builder, the release review, the syntax preflight, this builder. |
 | local-model-quick-tester/ | The interactive front end: a menu over the same GGUF weights, and the markdown transcript of a run, written to a directory held out of version control. |
+| XcaliburLiteMCP/ | The lite coding agent: one local GGUF, one gated tool, and a browser diff to approve, test or send back a staged change. |
 | mermaid-viewer/ | A diagram viewer: renders the .mmd files under diagrams/ with the mermaid build vendored beside it, offline, with pan, zoom and SVG or PNG export. |
 | plans_and_writeups/ | The published view of the write-ups: the article index, the article pages it draws, and the script and the content policy each page loads. |
 | results/ | What each run left behind. Evidence, committed, so a claim has a file behind it. |
@@ -39,13 +40,18 @@ The weights are a local input. They are mounted read only into the engine and th
 | gemma-4-E2B-it-Q4_K_M.gguf | gemma4 | 4.6B | Q4_K_M | 131,072 (128K) | 1,536 | 35 | 2.89 GB | the runtime's selected model |
 | Llama-3.2-3B-Instruct-Q4_K_M.gguf | llama | 3B | Q4_K_M | 131,072 (128K) | 3,072 | 28 | 1.88 GB | the comparison model |
 | Phi-3.5-mini-instruct-Q4_K_M.gguf | phi3 | mini | Q4_K_M | 131,072 (128K) | 3,072 | 32 | 2.23 GB | the comparison model |
+| gemma-4-E2B-it-agent-Q4_K_M.gguf | gemma4 | 4.6B | Q4_K_M | 131,072 (128K) | 1,536 | 35 | 3.18 GB | the comparison model |
+| gemma-4-E2B-it-agent-dpo-Q4_K_M.gguf | gemma4 | 4.6B | Q4_K_M | 131,072 (128K) | 1,536 | 35 | 3.18 GB | the comparison model |
+| gemma-agent-coding-Q4_K_M.gguf | gemma4 | 4.6B | Q4_K_M | 131,072 (128K) | 1,536 | 35 | 3.18 GB | the comparison model |
+| gemma-agent-gap-Q4_K_M.gguf | gemma4 | 4.6B | Q4_K_M | 131,072 (128K) | 1,536 | 35 | 3.18 GB | the comparison model |
+| gemma-agent-gap-Q5_K_M.gguf | gemma4 | 4.6B | Q5_K_M | 131,072 (128K) | 1,536 | 35 | 3.37 GB | the comparison model |
 | llama-coder-hybrid-Q2_K.gguf | llama | 11B | Q2_K | 131,072 (128K) | 4,096 | 44 | 3.86 GB | the comparison model |
 | llama-coder-hybrid-Q4_K_M.gguf | llama | 11B | Q4_K_M | 131,072 (128K) | 4,096 | 44 | 6.04 GB | the comparison model |
 | qwen2.5-coder-1.5b-instruct-q4_k_m.gguf | qwen2 | 1.5B | Q4_K_M | 32,768 (32K) | 1,536 | 28 | 1.04 GB | the comparison model |
 
 The runtime starts on `gemma-4-E2B-it-Q4_K_M.gguf`, so it is the model every recorded run measured and the one a comparison starts from. A benchmark run swaps the weight file behind the same engine, the same tools and the same sandbox, which is what makes two rows comparable: the only thing that moved is the model.
 
-The other files in the directory are the breadth of the study rather than a preference: `Llama-3.2-3B-Instruct-Q4_K_M.gguf`, `Phi-3.5-mini-instruct-Q4_K_M.gguf`, `llama-coder-hybrid-Q2_K.gguf`, `llama-coder-hybrid-Q4_K_M.gguf`, `qwen2.5-coder-1.5b-instruct-q4_k_m.gguf` are the same measurement on a different architecture, and the point of running them is to see whether a result belongs to the harness or to one model. A capability that only the largest model shows is a property of the model; one that every model shows is a property of the task, and a task every model fails is the one worth rewriting.
+The other files in the directory are the breadth of the study rather than a preference: `Llama-3.2-3B-Instruct-Q4_K_M.gguf`, `Phi-3.5-mini-instruct-Q4_K_M.gguf`, `gemma-4-E2B-it-agent-Q4_K_M.gguf`, `gemma-4-E2B-it-agent-dpo-Q4_K_M.gguf`, `gemma-agent-coding-Q4_K_M.gguf`, `gemma-agent-gap-Q4_K_M.gguf`, `gemma-agent-gap-Q5_K_M.gguf`, `llama-coder-hybrid-Q2_K.gguf`, `llama-coder-hybrid-Q4_K_M.gguf`, `qwen2.5-coder-1.5b-instruct-q4_k_m.gguf` are the same measurement on a different architecture, and the point of running them is to see whether a result belongs to the harness or to one model. A capability that only the largest model shows is a property of the model; one that every model shows is a property of the task, and a task every model fails is the one worth rewriting.
 
 The projector is listed apart because it is not a chat model. `mmproj-F16.gguf` (clip, F16, 940.0 MB) maps image embeddings into the language model beside it, and the engine loads it only when a vision task is asked for. A benchmark that treated it as a candidate would spend a run proving that an embedding file cannot answer a question, so the model set excludes it and a run's manifest records whether it was loaded.
 
@@ -125,6 +131,8 @@ Every table below is read from the run directories under `results/`, by column n
 | run | model | tool protocol | suite | tasks passed | composite | loop guard | strict schema | sandbox |
 |---|---|---|---|---|---|---|---|---|
 | baseline | deepseek-flash, gemma-4-E2B-it-Q4_K_M | prompt | core | 11/12 | 89.71 | not recorded | not recorded | - |
+| gap-q4 | deepseek-flash, gap-q4 | prompt | core | 12/12 | 94.20 | off | off | documented |
+| gap-q5 | deepseek-flash, gap-q5 | prompt | core | 12/12 | 94.96 | off | off | documented |
 | guarded | gemma-4-E2B-it-Q4_K_M | prompt | core | 5/6 | 82.28 | on | on | documented |
 | guarded-grammar | gemma-4-E2B-it-Q4_K_M | prompt | core | 0/6 | 9.09 | on | on | documented |
 | hardened | gemma-4-E2B-it-Q4_K_M | prompt | core | 5/6 | 82.28 | on | on | documented |
@@ -171,6 +179,12 @@ python3 tools/kaggle/gembench/runner.py --profile reference --suite all --check 
     --out results/benchmark/local
 python3 tools/kaggle/gembench/report.py --side local=results/benchmark/local \
     --side kaggle=results/benchmark/kaggle --out results/benchmark
+
+# the lite coding agent: the model server, the dashboard and the prompt
+cd XcaliburLiteMCP && ./run_xcalibur.sh
+
+# the one script the agent may trigger, and the guard's answer about a command
+./sh_runner.sh --scan "pytest -q"
 
 # the hosted notebook that runs the same source
 python3 tools/kaggle/kernel.py --owner $KAGGLE_OWNER --check

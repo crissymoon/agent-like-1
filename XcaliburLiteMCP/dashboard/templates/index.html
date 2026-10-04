@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% set active = 'jobs' %}
+{% block title %}XcaliburLite · jobs{% endblock %}
+{% block head %}<meta http-equiv="Content-Security-Policy" content="{{ csp_policy }}">{% endblock %}
+{% block heading %}Jobs{% endblock %}
+{% block crumb %}{{ jobs|length }} job(s) on record{% endblock %}
+
+{% block body %}
+<section class="card">
+  <div class="card-title">
+    <h3>Queue</h3>
+    <span class="muted">{% if queue.busy %}working on {{ queue.current }}{% else %}idle{% endif %}</span>
+  </div>
+  <div class="chips">
+    <span class="chip chip-communicative">queued {{ queue.queued }}</span>
+    <span class="chip">processing {{ queue.processing }}</span>
+    <span class="chip chip-harmonious">pending {{ queue.pending }}</span>
+  </div>
+</section>
+
+<section class="rows">
+  {% for job in jobs %}
+  <a class="row" href="{{ url_for('job_view', job_id=job.id) }}">
+    <span class="mono">{{ job.id }}</span>
+    <span>
+      <span class="chip {% if job.status == 'pending_review' %}chip-communicative{% elif job.status == 'approved' %}chip-harmonious{% elif job.status == 'error' %}chip-transform{% endif %}">{{ job.status }}</span>
+      <span class="chip">{{ job.mode }}</span>
+    </span>
+    <span class="mono muted">{{ job.edits|length }} edit(s) · {{ job.files|join(', ') }}</span>
+  </a>
+  {% else %}
+  <div class="row row-static muted">No jobs yet. Ask the agent to make a change, or POST to /api/submit.</div>
+  {% endfor %}
+</section>
+
+<footer class="counterstrip">
+  <span class="counter" data-serious="{{ 'true' if queue.pending else 'false' }}">pending <b>{{ queue.pending }}</b></span>
+  <span class="counter" data-clean="{{ 'true' if not queue.queued else 'false' }}">queued <b>{{ queue.queued }}</b></span>
+  <span class="counter">processing <b>{{ queue.processing }}</b></span>
+  <span class="counter">total <b>{{ jobs|length }}</b></span>
+</footer>
+
+<script nonce="{{ csp_nonce }}">
+  setTimeout(function () { window.location.reload(); }, 4000);
+</script>
+{% endblock %}

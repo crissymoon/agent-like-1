@@ -1,0 +1,27 @@
+# Runtime artifacts of the lite agent. The shadow copies, job records and test
+# sandboxes are rewritten by every run, and the server log names this machine,
+# so they stay on the machine that made them. The .gitkeep files hold the four
+# directories in the tree without holding what lands in them.
+
+workspace/original_copy/*
+!workspace/original_copy/.gitkeep
+
+workspace/shadow_copy/*
+!workspace/shadow_copy/.gitkeep
+
+workspace/jobs/*
+!workspace/jobs/.gitkeep
+
+workspace/tests/*
+!workspace/tests/.gitkeep
+
+workspace/llama-server.log
+
+# Python bytecode beside the source, and the local environment.
+__pycache__/
+*.pyc
+
+# A local .env holds this machine's paths; .env.example is the template.
+.env
+
+.DS_Store
