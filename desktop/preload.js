@@ -19,6 +19,12 @@ contextBridge.exposeInMainWorld('agentBridge', {
     set: (patch) => ipcRenderer.invoke('settings:set', patch)
   },
   engine: () => ipcRenderer.invoke('engine:status'),
+  // Opens the lite harness's review dashboard in the machine's browser. The main
+  // process holds the address to the endpoint rule and does the opening, so the
+  // window names the intent rather than a location.
+  dashboard: {
+    open: () => ipcRenderer.invoke('dashboard:open')
+  },
   selfCheck: () => ipcRenderer.invoke('harness:selfcheck'),
   describe: () => ipcRenderer.invoke('harness:describe'),
   runs: {

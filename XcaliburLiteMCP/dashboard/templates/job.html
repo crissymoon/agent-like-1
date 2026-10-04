@@ -57,8 +57,14 @@
 <section class="card">
   <div class="card-title">
     <h3>Proposed changes</h3>
-    <span class="muted">{{ job.edits|length }} file(s) · {{ job.stamp }}</span>
+    <span class="muted">
+      {% if job.chunked %}<span class="chip chip-communicative">chunked rewrite</span> {% endif %}
+      {{ job.edits|length }} file(s) · {{ job.stamp }}
+    </span>
   </div>
+  {% if job.chunked %}
+  <p class="muted">A referenced file was larger than one prompt window, so it was rewritten one overlapping window at a time and the windows were merged. A line two windows both touched is reported rather than silently overwritten.</p>
+  {% endif %}
   {% for edit in edits %}
   <article class="edit" data-index="{{ loop.index0 }}">
     <div class="edit-head">
@@ -70,6 +76,17 @@
         <span class="chip chip-transform">-{{ edit.lines_removed }}</span>
       </span>
     </div>
+    {% if edit.diagnostics %}
+    <div class="lint">
+      <span class="chip chip-transform">lint {{ edit.diagnostics|length }}</span>
+      <ul class="muted mono">
+        {% for d in edit.diagnostics[:12] %}
+        <li>{{ d.filepath }}{% if d.line %}:{{ d.line }}{% endif %} {{ d.code }} {{ d.message }}</li>
+        {% endfor %}
+      </ul>
+      <p class="muted">A staged file with findings is repaired with the smallest edit that clears them before you review.</p>
+    </div>
+    {% endif %}
     <div class="merge" id="merge-{{ loop.index0 }}"></div>
     <details class="diff-fallback">
       <summary class="muted">unified diff</summary>

@@ -16,7 +16,7 @@ from config import IGNORE_DIRS, MAX_FILE_BYTES, MAX_ROWS, TARGET_ROOT, TEXT_SUFF
 
 
 class AdapterError(Exception):
-    """Raised when a request would escape the target root or is otherwise unsafe."""
+    """Raised when a request would escape the workspace or is otherwise unsafe."""
 
 
 @dataclass
@@ -43,11 +43,11 @@ class ContextBundle:
 
 
 def resolve(rel_path: str, root: Path | None = None) -> Path:
-    """Resolve a path and refuse anything outside the target root."""
+    """Resolve a path and refuse anything outside the workspace."""
     base = (root or TARGET_ROOT).resolve()
     candidate = (base / rel_path).resolve() if not os.path.isabs(rel_path) else Path(rel_path).resolve()
     if candidate != base and base not in candidate.parents:
-        raise AdapterError(f"path escapes target root: {rel_path}")
+        raise AdapterError(f"path escapes workspace: {rel_path}")
     return candidate
 
 
@@ -70,12 +70,27 @@ def _is_text(path: Path) -> bool:
     return False
 
 
+def is_ignored(path: Path, base: Path) -> bool:
+    """
+    True when a path sits inside an ignored directory, judged relatively.
+
+    The test is made against the path relative to the root, never the absolute
+    path, so a root that happens to live under a folder named ``build`` or
+    ``.cache`` is not mistaken for one that contains such a folder.
+    """
+    try:
+        rel = path.resolve().relative_to(base.resolve())
+    except ValueError:
+        return True                      # outside the root: not part of any walk
+    return any(part in IGNORE_DIRS for part in rel.parts)
+
+
 def find_files(pattern: str, root: Path | None = None, limit: int = MAX_ROWS) -> list[FileEntry]:
-    """Glob the target tree for matching files, ignoring heavy directories."""
+    """Glob the workspace for matching files, ignoring heavy directories."""
     base = root or TARGET_ROOT
     matches: list[FileEntry] = []
     for path in sorted(base.rglob(pattern)):
-        if any(part in IGNORE_DIRS for part in path.parts):
+        if is_ignored(path, base):
             continue
         if path.is_file():
             matches.append(FileEntry(relative(path, base), "file", path.stat().st_size))
@@ -85,7 +100,7 @@ def find_files(pattern: str, root: Path | None = None, limit: int = MAX_ROWS) ->
 
 
 def list_tree(root: Path | None = None, limit: int = MAX_ROWS) -> list[FileEntry]:
-    """List the target tree, files before directories, honouring IGNORE_DIRS."""
+    """List the workspace tree, files before directories, honouring IGNORE_DIRS."""
     base = root or TARGET_ROOT
     entries: list[FileEntry] = []
     for current, dirs, files in os.walk(base):

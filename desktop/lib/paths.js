@@ -29,6 +29,11 @@ function defaults() {
     dockerBin: process.env.HARNESS_DOCKER || 'docker',
     composeFile: path.join(HARNESS_ROOT, 'docker', 'docker-compose.yml'),
     engineUrl: 'http://127.0.0.1:8081',
+    // The review dashboard of the lite agent harness. It is a setting rather
+    // than a constant because the harness can be run on another port, and it is
+    // held to the endpoint rule before it is ever opened, because opening an
+    // address hands it to the machine's browser.
+    dashboardUrl: 'http://127.0.0.1:8420',
     // The same endpoint seen from inside the compose network. The two are not
     // interchangeable: the published port is bound to the host's loopback
     // address, so a container that was handed it fails to connect, and the

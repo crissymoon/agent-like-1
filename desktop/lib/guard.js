@@ -76,8 +76,8 @@ const TOP_PATHS = Object.freeze({
 /** Keys whose value is a program this process will start. */
 const TOP_COMMANDS = Object.freeze(['phpBin', 'dockerBin']);
 
-/** Keys whose value is an address a run talks to. */
-const TOP_ENDPOINTS = Object.freeze(['engineUrl', 'containerEngineUrl']);
+/** Keys whose value is an address a run talks to, or one the window opens. */
+const TOP_ENDPOINTS = Object.freeze(['engineUrl', 'containerEngineUrl', 'dashboardUrl']);
 
 function has(object, key) {
   return object !== null && typeof object === 'object' && Object.prototype.hasOwnProperty.call(object, key);

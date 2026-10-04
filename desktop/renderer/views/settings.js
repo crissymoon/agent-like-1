@@ -155,6 +155,39 @@ window.AgentUI = window.AgentUI || {};
     ]);
   }
 
+  /**
+   * The review dashboard the lite harness serves.
+   *
+   * The address is a setting, the opening happens in the main process, and the
+   * result of the attempt is reported back here rather than assumed, so a button
+   * that was refused says which address was refused and why.
+   */
+  function dashboardCard(ctx) {
+    const status = ctx.dashboard || null;
+
+    return UI.disclosure.card('settings.dashboard', {
+      title: 'Review dashboard',
+      summary: status === null ? 'not opened from here' : (status.opened ? 'opened' : 'refused'),
+      open: false
+    }, [
+      dom.el('p', {
+        class: 'muted',
+        text: 'The lite agent stages every edit into a shadow copy. This is the page where a staged change is read as a diff and approved, rejected, reworked or tried in a sandbox.'
+      }),
+      dom.el('div', { class: 'grid grid-2' }, [
+        text(ctx, ['dashboardUrl'], 'Dashboard address', 'an http address with no credential in it')
+      ]),
+      status === null ? null : dom.keyValue([
+        ['url', status.url],
+        ['opened', status.opened ? 'yes' : 'no'],
+        ['reason', status.reason || 'the browser was handed the address']
+      ]),
+      dom.el('div', { class: 'topbar-actions' }, [
+        dom.button('Open the review dashboard', {}, () => ctx.openDashboard())
+      ])
+    ]);
+  }
+
   function engineCard(ctx) {
     const status = ctx.engine || { ok: false, body: 'not checked' };
 
@@ -181,6 +214,7 @@ window.AgentUI = window.AgentUI || {};
     const body = dom.el('div', { class: 'grid' }, [
       runCard(ctx),
       dom.el('div', { class: 'grid grid-2' }, [machineCard(ctx), engineCard(ctx)]),
+      dashboardCard(ctx),
       lockedCard(state)
     ]);
 

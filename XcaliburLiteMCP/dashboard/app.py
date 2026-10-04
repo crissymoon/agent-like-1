@@ -65,6 +65,7 @@ def _edit_payload(job) -> list[dict]:
             "start_line": edit.get("start_line", 0),
             "lines_removed": edit.get("lines_removed", 0),
             "lines_added": edit.get("lines_added", 0),
+            "diagnostics": edit.get("diagnostics", []),
         })
     return payload
 

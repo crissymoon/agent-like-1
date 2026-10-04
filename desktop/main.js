@@ -733,6 +733,32 @@ ipcMain.handle('run:cancel', () => {
 });
 
 /**
+ * Open the review dashboard in the machine's own browser.
+ *
+ * The address is a setting, so it is held to the endpoint rule before anything
+ * is opened: an http address with no credential and no fragment in it. Opening
+ * an address is a privilege - it hands the machine's browser a location - so it
+ * is checked here rather than trusted to the screen that drew the button, and a
+ * refused value is said out loud instead of being opened.
+ */
+ipcMain.handle('dashboard:open', async () => {
+  const { shell } = require('electron');
+  const url = settings.dashboardUrl;
+  const problem = guard.checkSetting('dashboardUrl', url, url);
+  if (problem !== null) {
+    send('harness:line', `refused to open the dashboard: ${problem.reason}`);
+    return { opened: false, url, reason: problem.reason };
+  }
+  try {
+    await shell.openExternal(url);
+  } catch (error) {
+    send('harness:line', `could not open the dashboard: ${error.message}`);
+    return { opened: false, url, reason: error.message };
+  }
+  return { opened: true, url };
+});
+
+/**
  * Show one file in the file manager, if it is one this application wrote.
  *
  * Only the two roots the window is about are allowed: the results directory it

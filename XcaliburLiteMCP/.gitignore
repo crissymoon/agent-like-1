@@ -1,21 +1,25 @@
-# Runtime artifacts of the lite agent. The shadow copies, job records and test
-# sandboxes are rewritten by every run, and the server log names this machine,
-# so they stay on the machine that made them. The .gitkeep files hold the four
-# directories in the tree without holding what lands in them.
+# The workspace is scratch space: it holds the tree the agent reads and edits,
+# plus the harness store in .xcalibur/ (job records, pristine snapshots, shadow
+# copies, throwaway test sandboxes and the server log). All of it is rewritten
+# by every run and the log names this machine, so none of the workspace is
+# tracked. The four .gitkeep files hold the store's folders in the tree without
+# holding anything that lands in them.
 
-workspace/original_copy/*
-!workspace/original_copy/.gitkeep
+workspace/*
+!workspace/.xcalibur
 
-workspace/shadow_copy/*
-!workspace/shadow_copy/.gitkeep
-
-workspace/jobs/*
-!workspace/jobs/.gitkeep
-
-workspace/tests/*
-!workspace/tests/.gitkeep
-
-workspace/llama-server.log
+workspace/.xcalibur/*
+!workspace/.xcalibur/jobs
+!workspace/.xcalibur/original_copy
+!workspace/.xcalibur/shadow_copy
+!workspace/.xcalibur/tests
+# Re-including a directory also makes everything inside it trackable, which is
+# not what the four lines above are for: the store holds job records, snapshots
+# and a server log that name this machine. So the contents are ignored again
+# here, and a single .gitkeep in each folder is re-included below. Git cannot
+# hold an empty directory, so that one file is what holds the folder.
+workspace/.xcalibur/*/*
+!workspace/.xcalibur/*/.gitkeep
 
 # Python bytecode beside the source, and the local environment.
 __pycache__/

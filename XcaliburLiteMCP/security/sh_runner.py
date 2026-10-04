@@ -24,6 +24,7 @@ if str(_ROOT) not in sys.path:
 
 from config import TARGET_ROOT  # noqa: E402
 from engine import orchestrator  # noqa: E402
+from engine.events import NULL_REPORTER, Reporter  # noqa: E402
 from security import command_guard  # noqa: E402
 
 
@@ -35,12 +36,13 @@ def _load_request(args: argparse.Namespace) -> dict:
     raise SystemExit("provide --request <file> or --stdin")
 
 
-def handle_tool_call(arguments: dict, cwd: Path | None = None) -> dict:
+def handle_tool_call(arguments: dict, cwd: Path | None = None,
+                     reporter: Reporter = NULL_REPORTER) -> dict:
     """
     Execute the agent's run_sh_runner call. Returns the JSON-serialisable
     payload that is fed back to the model.
     """
-    result = orchestrator.handle_request(arguments, root=TARGET_ROOT)
+    result = orchestrator.handle_request(arguments, root=TARGET_ROOT, reporter=reporter)
     return orchestrator.tool_result(result)
 
 

@@ -41,6 +41,10 @@ class Job:
     parent_id: str = ""
     error: str = ""
     stamp: str = ""
+    # True when a referenced file was too large for one prompt and the worker
+    # rewrote it a window at a time. The reviewer sees this on the job because a
+    # merge across window seams is a different claim from a single exact match.
+    chunked: bool = False
 
     def to_dict(self) -> dict:
         return asdict(self)

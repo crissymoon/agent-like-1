@@ -3,8 +3,11 @@
 # XcaliburLite launcher.
 #
 # Pins the working folder to this directory, ensures the Python dependencies are
-# present, then hands off to the TUI. The TUI brings up llama-server and the
-# review dashboard itself unless told not to.
+# present, then hands off to the TUI. The workspace it opens on defaults to the
+# working folder beside this script; point it at a project with
+# XCALIBUR_WORKSPACE (XCALIBUR_TARGET_ROOT is accepted as the older name). The
+# TUI creates the harness store inside the workspace and brings up llama-server
+# and the review dashboard itself unless told not to.
 #
 set -euo pipefail
 
@@ -24,6 +27,7 @@ if ! "$PY" -c "import flask, requests, dotenv, rich, prompt_toolkit" >/dev/null 
   "$PY" -m pip install -q -r requirements.txt
 fi
 
-mkdir -p workspace/original_copy workspace/shadow_copy workspace/jobs workspace/tests
+WORKSPACE_DIR="${XCALIBUR_WORKSPACE:-${XCALIBUR_TARGET_ROOT:-$SCRIPT_DIR/workspace}}"
+mkdir -p "$WORKSPACE_DIR"
 
 exec "$PY" cli.py "$@"

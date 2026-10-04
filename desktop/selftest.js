@@ -168,6 +168,7 @@ const held = {
   runtime: 'container',
   engineUrl: 'http://127.0.0.1:8081',
   containerEngineUrl: 'http://gemma:8080',
+  dashboardUrl: 'http://127.0.0.1:8420',
   harnessRoot: scratchRoot,
   phpBin: 'php',
   dockerBin: 'docker',
@@ -198,6 +199,8 @@ expect('a command that runs through the shell is refused', refusedKeys({ phpBin:
 // security-allow: the credential in this line is a fixture, and the assertion is that the guard refuses the shape
 expect('an address with a credential in it is refused', refusedKeys({ engineUrl: 'http://user:secret@host:8081' }).includes('engineUrl')); // security-allow: a fixture, asserted to be refused
 expect('an address that is not http is refused', refusedKeys({ engineUrl: 'file:///etc/passwd' }).includes('engineUrl'));
+expect('the review dashboard is an endpoint, and a dashboard address that is not http is refused', refusedKeys({ dashboardUrl: 'file:///etc/passwd' }).includes('dashboardUrl'));
+expect('the review dashboard address is accepted when it is an http address', guard.sanitizeSettings({ dashboardUrl: 'http://127.0.0.1:8420' }, held).settings.dashboardUrl === 'http://127.0.0.1:8420');
 expect('a number outside the range the harness takes is refused', refusedKeys({ run: { temperature: 99 } }).includes('run.temperature'));
 expect('a number that is not a number is refused', refusedKeys({ run: { max_tokens: 'many' } }).includes('run.max_tokens'));
 expect('a run value outside its closed set is refused', refusedKeys({ run: { tool_mode: 'telepathy' } }).includes('run.tool_mode'));

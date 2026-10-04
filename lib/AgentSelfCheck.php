@@ -457,6 +457,23 @@ final class AgentSelfCheck
             && in_array($root . '/b.txt', $relative, true)
         );
 
+        // An auth verb names a database file, which is a path the command creates, so
+        // it is held to the same rule as the registry root and the body file.
+        $this->expect(
+            $out,
+            'a database file outside the workspace is refused',
+            IncubatorBridge::confine(['auth', '--action', 'list', '--file', '../../../etc/passwd'], $root) === null
+        );
+        $auth = IncubatorBridge::confine(
+            ['auth', '--action', 'list', '--file', 'app.db'],
+            $root
+        );
+        $this->expect(
+            $out,
+            'a database file is placed under the workspace',
+            is_array($auth) && in_array($root . '/app.db', $auth, true)
+        );
+
         $this->expect(
             $out,
             'the launcher report agrees with availability',

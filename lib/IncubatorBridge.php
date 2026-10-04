@@ -69,7 +69,7 @@ final class IncubatorBridge
      *
      * @var list<string>
      */
-    private const PATH_OPTIONS = ['root', 'drivers', 'body-file', 'to'];
+    private const PATH_OPTIONS = ['root', 'drivers', 'body-file', 'to', 'file'];
 
     /** Environment names passed through to the command, so a configured model still reaches it. */
     private const PASSTHROUGH_ENV = ['PATH', 'HOME', 'TMPDIR', 'JAVA_HOME', 'LANG', 'LC_ALL'];

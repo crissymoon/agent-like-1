@@ -16,6 +16,7 @@ from urllib.parse import urljoin
 import requests
 
 from config import (
+    HARNESS_DIR,
     LLAMA_CTX,
     LLAMA_GPU_LAYERS,
     LLAMA_HOST,
@@ -25,10 +26,9 @@ from config import (
     LLAMA_STARTUP_TIMEOUT,
     LLAMA_THREADS,
     MODEL_PATH,
-    WORKSPACE,
 )
 
-LOG_PATH: Path = WORKSPACE / "llama-server.log"
+LOG_PATH: Path = HARNESS_DIR / "llama-server.log"
 
 
 def base_url() -> str:

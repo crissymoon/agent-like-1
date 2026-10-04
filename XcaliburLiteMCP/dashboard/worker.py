@@ -9,7 +9,6 @@ dashboard process is running.
 from __future__ import annotations
 
 import threading
-import time
 
 from dashboard.jobs import JobStore
 from engine import orchestrator

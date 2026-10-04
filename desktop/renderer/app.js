@@ -22,6 +22,7 @@
     history: [],
     engine: null,
     staged: null,
+    dashboard: null,
     note(message) {
       appendLog(message);
     }
@@ -163,6 +164,25 @@
         active = 'run';
         appendLog(`replayed ${entry.run_id}: ${replayed.events.length} event(s), ${replayed.errors.length} malformed`);
         render();
+      });
+    },
+    /**
+     * Hand the review dashboard's address to the machine's browser.
+     *
+     * The window names the intent and the main process holds the address to the
+     * endpoint rule and does the opening. The outcome is kept so the screen can
+     * say which address was refused when one is, rather than a button that
+     * silently did nothing.
+     */
+    openDashboard() {
+      return bridge.dashboard.open().then((result) => {
+        bridgeCtx.dashboard = result;
+        appendLog(result.opened
+          ? `opened the review dashboard at ${result.url}`
+          : `the dashboard was not opened: ${result.reason}`);
+        schedule();
+
+        return result;
       });
     },
     checkEngine() {

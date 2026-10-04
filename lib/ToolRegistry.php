@@ -109,9 +109,9 @@ final class ToolRegistry
             ],
             [
                 'name' => 'sql_incubator',
-                'summary' => 'Run the sql-mgr incubator command: query and grow the vector module registry, load it from any SQL database, or replicate shards between nodes. Give the verb and its options, for example "dialects", "route --domain code --id alpha" or "search --domain code --text router --k 3". The command may read any SQL database it is pointed at; the registry it writes stays inside the workspace. The sql-mgr engine is developed separately in a private repository and has no public release at the moment; this tool is the only interface to it.',
+                'summary' => 'Run the sql-mgr incubator command: query and grow the vector module registry, load it from any SQL database, replicate shards between nodes, or hold accounts and sessions with the auth verb (register, login, validate, logout, passwd, enable, disable, list, sessions, purge, and the login policy). Give the verb and its options, for example "dialects", "route --domain code --id alpha", "search --domain code --text router --k 3", or "auth --action login --file app.db --account alice --password s3cret". The command may read any SQL database it is pointed at; the registry it writes and the database file an auth verb names stay inside the workspace. The sql-mgr engine is developed separately in a private repository and has no public release at the moment; this tool is the only interface to it.',
                 'parameters' => [
-                    'args' => ['type' => 'string', 'description' => 'Incubator command line: a verb and its options, for example "search --domain code --text router --k 3".'],
+                    'args' => ['type' => 'string', 'description' => 'Incubator command line: a verb and its options, for example "search --domain code --text router --k 3" or "auth --action list --file app.db".'],
                 ],
                 'required' => ['args'],
             ],
