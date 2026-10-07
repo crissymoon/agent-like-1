@@ -165,6 +165,22 @@
       "gguf_version": 3
     },
     {
+      "file": "gemma-agent-v1.1-Q4_K_M.gguf",
+      "bytes": 3416119872,
+      "architecture": "gemma4",
+      "name": "Merged Bf16",
+      "size_label": "4.6B",
+      "parameter_count": null,
+      "context_length": 131072,
+      "embedding_length": 1536,
+      "block_count": 35,
+      "file_type": 15,
+      "quantisation": "Q4_K_M",
+      "metadata_entries": 42,
+      "tensor_count": 541,
+      "gguf_version": 3
+    },
+    {
       "file": "llama-coder-hybrid-Q2_K.gguf",
       "bytes": 4142124064,
       "architecture": "llama",
