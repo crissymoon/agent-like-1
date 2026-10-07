@@ -59,7 +59,7 @@ HELP: dict[str, str] = {
     "transcript_dir": "where a conversation is written after a text run",
     "save_transcript": "write a markdown copy of a text run",
     "default_text_mode": "the conversation mode a text run starts in",
-    "prompt_end": "the line that ends a pasted paragraph in the chat",
+    "prompt_end": "the line that ends a pasted paragraph, for a terminal that cannot report a paste",
     "image_size": "square side in pixels for image models; 0 means the model's own",
     "image_steps": "denoising steps for image models; 0 means the model's own",
     "text_context": "a ceiling on the context window for every text model; 0 opens each model at its own",

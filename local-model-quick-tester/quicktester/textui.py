@@ -233,6 +233,125 @@ def ask(prompt: str, default: str = "", indent: str = "  ") -> str | None:
     return answer or default
 
 
+#: A paste the terminal fences with these two, once it has been asked to. The
+#: markers travel inside the text rather than around it, so a message is read
+#: without asking the stream a question it cannot answer while its own buffer
+#: holds the rest of the paste.
+PASTE_START = "\x1b[200~"
+PASTE_END = "\x1b[201~"
+
+#: Drawn at the left of a line that continues a message, so a message that runs
+#: past one line reads as one message rather than as several.
+CONTINUED = "\u2502"
+
+
+def _fence(on: bool) -> None:
+    """Ask the terminal to mark a paste, when there is a terminal to ask.
+
+    Only `interactive` and `_is_tty` are consulted: a run from a script has
+    nobody pasting into it, and a write the host refuses is not worth reporting.
+    """
+    if not interactive() or not _is_tty():
+        return
+    try:
+        sys.stdout.write("\x1b[?2004h" if on else "\x1b[?2004l")
+        sys.stdout.flush()
+    except (OSError, ValueError):
+        return
+
+
+def compose(label: str, terminator: str = "", indent: str = "  ") -> str | None:
+    """One message, which may run to several lines.
+
+    A chat needs a paragraph, a list and a code block, and one line of input
+    gives none of them. Three ways in, because a person pastes, a person types,
+    and a script writes.
+
+    - A paste is read as one message when the terminal marks it, which is what
+      `_fence` asks for. Bracketed paste is the reliable signal, because the
+      marker arrives inside the text; watching the stream for a line that is
+      already waiting cannot be relied on, since the reader buffering input
+      holds the rest of the paste where a watch cannot see it.
+    - The terminator ends the message, which is the way out on a terminal that
+      does not mark a paste, and for a stream that is not a terminal at all. It
+      is read from the settings rather than fixed here, and it is treated as
+      content, not as an ending, once a marked paste has begun.
+    - A trailing backslash continues onto the next line, for a person typing.
+      It is likewise not read inside a marked paste, where a backslash may be
+      part of what was copied.
+
+    An empty line is kept, because a blank line between two paragraphs is
+    content. Nothing is stripped here: leading spaces are how a list and a fence
+    are written, and the caller decides what to send on.
+
+    `None` means there was nobody to ask. A stream that closes mid message
+    returns what had already arrived, so a piped paragraph is sent and the loop
+    then ends on the `None` that follows.
+    """
+    palette = theme.active()
+    marker = terminator.strip() if isinstance(terminator, str) else ""
+    lines: list[str] = []
+    pasting = False
+    first = True
+    _fence(True)
+    try:
+        while True:
+            if not pasting:
+                leader = label if first else palette.paint(CONTINUED, "muted")
+                try:
+                    sys.stdout.write(
+                        f"{indent}{palette.paint('>', 'accent', bold=True)} {leader} "
+                    )
+                    sys.stdout.flush()
+                except (OSError, ValueError):
+                    return None
+            try:
+                raw = input()
+            except EOFError:
+                say()
+                if not lines:
+                    return None
+                break
+            except KeyboardInterrupt:
+                say()
+                raise
+            first = False
+
+            text = raw.replace("\r", "")
+            ended = False
+            if PASTE_END in text:
+                text = text.split(PASTE_END, 1)[0]
+                ended = True
+            if PASTE_START in text:
+                text = text.split(PASTE_START, 1)[1]
+                pasting = True
+
+            if ended:
+                pasting = False
+                # A paste ends with a newline, so the line carrying the closing
+                # marker is normally empty. Appending it would put a blank line
+                # at the end of every pasted message.
+                if text != "" or not lines:
+                    lines.append(text)
+                break
+
+            if marker and not pasting and text.strip() == marker:
+                break
+
+            continued = False
+            if not pasting and text.rstrip().endswith("\\"):
+                text = text.rstrip()[:-1].rstrip()
+                continued = True
+            lines.append(text)
+
+            if pasting or continued:
+                continue
+            break
+    finally:
+        _fence(False)
+    return "\n".join(lines)
+
+
 def confirm(prompt: str, default: bool = False, indent: str = "  ") -> bool:
     shown = "y/N" if not default else "Y/n"
     answer = ask(f"{prompt} [{shown}]", default="y" if default else "n", indent=indent)

@@ -353,37 +353,37 @@ def _timing(reply) -> str:
 
 
 def _converse(session, context: Context) -> None:
-    """The interactive loop: a line sends, `\\` continues, a slash commands."""
+    """The interactive loop: a message sends, a slash commands. /help lists them."""
     palette = theme.active()
+    terminator = context.settings.prompt_end or ""
     textui.say()
-    textui.note("a line sends. end it with a backslash to keep typing. /help lists commands.")
+    textui.note("a line sends. a pasted block arrives whole. a trailing backslash continues onto the next line.")
+    if terminator:
+        textui.note(f"on a terminal that cannot report a paste, a line holding {terminator} ends the message.")
     textui.say()
 
     while True:
         try:
-            line = textui.ask(f"{palette.paint('you', 'info')}")
+            body = textui.compose(palette.paint("you", "info"), terminator)
         except KeyboardInterrupt:
             textui.say()
             break
-        if line is None:
+        if body is None:
             break
-        stripped = line.strip()
-        if not stripped:
+        message = body.strip()
+        if not message:
             continue
-        if stripped.startswith("/"):
-            if not _command(stripped, session, context):
+        # A slash command is a whole line. A message that runs to several lines is
+        # prose, and prose that opens with a slash is not a command.
+        if "\n" not in message and message.startswith("/"):
+            if not _command(message, session, context):
                 break
             continue
-
-        body = stripped
-        while body.endswith("\\"):
-            more = textui.ask("   ")
-            body = body[:-1].rstrip() + "\n" + more
 
         textui.say()
         textui.say(f"  {palette.paint(session.loaded.entry.label, 'accent', bold=True)}")
         try:
-            reply = session.ask(body)
+            reply = session.ask(message)
         except KeyboardInterrupt:
             textui.say()
             textui.note("stopped; the partial answer was not kept")
