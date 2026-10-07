@@ -206,6 +206,7 @@ def compare_screen(context: actions.Context, args) -> int:
                 mode=mode,
                 stream=context.settings.stream and not getattr(args, "no_stream", False),
                 answer_limit=COMPARE_ANSWER_LIMIT,
+                wait_label=f"{entry.label}, ranking one answer",
             )
             reply = session.ask(prompt)
         except (text_models.TextError, OSError) as error:

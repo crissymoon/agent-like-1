@@ -486,6 +486,42 @@ class Spinner:
         say(f"  {palette.paint('·', 'line')} {pad(body, 52)}{palette.paint(f'{self.elapsed:.1f}s', 'muted')}")
 
 
+class Wait(Spinner):
+    """A turning line that hands its place to the answer when the answer starts.
+
+    The dead time before the first token is the part of a call a reader cannot
+    see, and the prompt pass over a long conversation can take seconds. This
+    covers exactly that window: it begins before the request, and release()
+    clears the line the moment the first fragment arrives, so the animation and
+    the streamed text are never writing to the same line at once.
+
+    It is a Spinner that leaves no record. A spinner reports how long the work
+    took, which is what a reader wants after the fact. A wait must vanish without
+    a trace, because the answer is about to begin on the line it was using.
+
+    Nothing is drawn when nothing is watching, so a pipe or a redirect gets a
+    clean transcript instead of a column of frames.
+    """
+
+    def __init__(self, label: str, track: int = 11, style: str = "sweep") -> None:
+        super().__init__(label, style, track)
+
+    def begin(self) -> Wait:
+        """Start turning. Silent when the output is not a terminal."""
+        if self._animated and self._thread is None:
+            self._thread = threading.Thread(target=self._loop, daemon=True)
+            self._thread.start()
+        return self
+
+    def release(self) -> None:
+        """Clear the line so the answer can use it.
+
+        Safe to call more than once, and safe to call on a wait that never
+        turned: stopping an idle spinner writes nothing.
+        """
+        self.stop()
+
+
 class Progress:
     """A bar a callback drives, for work whose length is known in advance.
 

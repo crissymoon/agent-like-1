@@ -308,6 +308,7 @@ def chat(context: Context, args) -> int:
         loaded=loaded,
         mode=mode,
         stream=context.settings.stream and not getattr(args, "no_stream", False),
+        wait_label=f"asking {entry.label}, reading the prompt first",
     )
     for note in loaded.notes:
         textui.note(note)
@@ -334,8 +335,24 @@ def _one_shot(session, prompt: str) -> None:
     textui.say()
     textui.say(f"  {palette.paint(session.loaded.entry.label, 'accent', bold=True)}")
     reply = session.ask(prompt)
+    _show_answer(session, reply)
     textui.say()
     textui.note(_timing(reply))
+
+
+def _show_answer(session, reply) -> None:
+    """Print an answer that was not streamed.
+
+    Streamed text arrives as it is written, so the reader sees it without anyone
+    printing it. With streaming off no one was writing it, and the answer would
+    otherwise be computed and then dropped. The shape matches the streamed one:
+    raw lines at the left margin, with no indent, so one setting does not change
+    how the answer reads.
+    """
+    if session.stream or not reply.text:
+        return
+    for line in reply.text.splitlines():
+        textui.say(line)
 
 
 def _timing(reply) -> str:
@@ -388,6 +405,7 @@ def _converse(session, context: Context) -> None:
             textui.say()
             textui.note("stopped; the partial answer was not kept")
             continue
+        _show_answer(session, reply)
         textui.say()
         textui.say()
         detail = f"{reply.seconds:.1f}s"

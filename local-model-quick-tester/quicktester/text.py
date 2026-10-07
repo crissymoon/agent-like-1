@@ -335,6 +335,9 @@ class Session:
     loaded: Loaded
     mode: Mode
     stream: bool = True
+    #: What the turning line says while the model is working. Empty takes the
+    #: model's own name, so a caller that does not care still gets a useful line.
+    wait_label: str = ""
     #: A ceiling on one answer, when a caller wants a shorter one than the window
     #: would allow. Comparing six models on one question is a good reason.
     answer_limit: int = 0
@@ -374,31 +377,54 @@ class Session:
             self.first_token = reply.first_token
         return reply
 
+    def wait_text(self) -> str:
+        """What the turning line says while the model works.
+
+        A caller can name the work, which is how the chat says what it is asking.
+        When it does not, the model names itself, so a line is always there
+        without every call site having to ask for one.
+        """
+        if self.wait_label:
+            return self.wait_label
+        return f"asking {self.loaded.entry.label}"
+
     def _generate(self) -> Reply:
         started = time.time()
         first: float | None = None
         pieces: list[str] = []
 
-        stream = self.loaded.llm.create_chat_completion(
-            messages=self.messages,
-            max_tokens=self.answer_room(),
-            stream=True,
-            temperature=self.mode.temperature,
-            repeat_penalty=1.1,
-            top_k=40,
-        )
-        for part in stream:
-            choices = part.get("choices") or []
-            if not choices:
-                continue
-            chunk = (choices[0].get("delta") or {}).get("content") or ""
-            if not chunk:
-                continue
-            if first is None:
-                first = time.time() - started
-            pieces.append(chunk)
-            if self.stream:
-                textui.stream_text(chunk)
+        # The wait covers the part of the call a reader cannot see: the prompt
+        # pass before the first token, and the whole answer when it is not being
+        # streamed. It hands its line to the first fragment, so the animation and
+        # the text are never writing to the same line at once.
+        wait = textui.Wait(self.wait_text()).begin()
+        try:
+            stream = self.loaded.llm.create_chat_completion(
+                messages=self.messages,
+                max_tokens=self.answer_room(),
+                stream=True,
+                temperature=self.mode.temperature,
+                repeat_penalty=1.1,
+                top_k=40,
+            )
+            for part in stream:
+                choices = part.get("choices") or []
+                if not choices:
+                    continue
+                chunk = (choices[0].get("delta") or {}).get("content") or ""
+                if not chunk:
+                    continue
+                if first is None:
+                    first = time.time() - started
+                    if self.stream:
+                        wait.release()
+                pieces.append(chunk)
+                if self.stream:
+                    textui.stream_text(chunk)
+        finally:
+            # Idempotent, so the keyboard interrupt path and the normal path both
+            # have a clean line and neither can leave a frame behind.
+            wait.release()
 
         seconds = time.time() - started
         text = "".join(pieces)
